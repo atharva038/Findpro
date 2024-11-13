@@ -1,0 +1,27 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-5">
+  <h2>Your Bookings</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Provider</th>
+        <th>Date</th>
+        <th>Address</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% bookings.forEach(booking => { %>
+      <tr>
+        <td><%= booking.service.name %></td>
+        <td><%= booking.provider.user.name %></td>
+        <td><%= booking.bookingDate.toLocaleString() %></td>
+        <td><%= booking.address %></td>
+        <td><%= booking.status %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,89 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="wrapper">
+  <div class="shadow-lg border-0 mb-3 mt-3 signup-container">
+    <h2 class="col-6 offset-3 mb-5 signup-heading">Create an Account</h2>
+    <div class="col-8 offset-2"> <!-- Adjusted width -->
+      <form
+        action="/register"
+        method="post"
+        class="needs-validation"
+        novalidate
+      >
+        <!-- Name Input -->
+        <div class="form-group mb-3">
+          <label for="name">Name:</label>
+          <input type="text" name="name" class="form-control custom-width" required />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="username">Username</label>
+          <input
+            type="username"
+            name="username"
+            required
+            class="form-control custom-width"
+            id="username"
+            placeholder="Enter your Username"
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            required
+            class="form-control custom-width"
+            id="password"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="addresses">Address</label>
+          <input
+            type="text"
+            name="addresses"
+            class="form-control custom-width"
+            id="addresses"
+            placeholder="Enter your address"
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="phone">Phone Number</label>
+          <input
+            type="text"
+            name="phone"
+            class="form-control custom-width"
+            id="phone"
+            placeholder="Enter your phone number"
+          />
+        </div>
+
+        <!-- Role Input: Customer or Service Provider -->
+        <div class=" form-group mb-3">
+          <label for="role" class="form-label">Sign Up As</label>
+          <select name="role" id="role" class="form-control custom-width" required>
+            <option value="" disabled selected>Select Role</option>
+            <option value="customer">Customer</option>
+            <option value="provider">Service Provider</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 mb-3">
+          <button class="btn btn-success mb-3 mt-3" type="submit">
+            Sign Up
+          </button>
+        </div>
+      </form>
+
+      <!-- Already Have Account -->
+      <div class="text-center">
+        <p>Already have an account? <a href="/login">Log In</a></p>
+      </div>
+    </div>
+  </div>
+</div>

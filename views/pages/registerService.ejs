@@ -1,0 +1,116 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="wrapper">
+  <div class="shadow-lg border-0 mb-3 mt-3 login-container">
+    <p class="offset-3 col-6 mt-2" style="color: rgba(137, 135, 135, 0.775)">
+      Please enter your details
+    </p>
+    <h2 class="col-6 offset-3 mb-5 login-heading">
+      Register for a new service
+    </h2>
+
+    <form
+      action="/dashboard/registerService"
+      method="post"
+      class="needs-validation"
+      novalidate
+    >
+      <!-- Select Category -->
+      <div class="form-group mb-3">
+        <label for="serviceCategories" class="form-label"
+          >Service Category</label
+        >
+        <select
+          name="serviceCategories"
+          class="form-control custom-width"
+          id="serviceCategories"
+          onchange="updateServices()"
+        >
+          <option value="">Select a Category</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Cleaning">Cleaning</option>
+          <option value="Carpentry">Carpentry</option>
+        </select>
+      </div>
+
+      <!-- Select Services -->
+      <div class="form-group mb-3">
+        <label for="services" class="form-label"
+          >Select Services you are going to provide</label
+        >
+        <select name="services" class="form-control custom-width" id="services">
+          <option value="">Select a service</option>
+        </select>
+      </div>
+
+      <!-- Price -->
+
+      <div class="form-group mb-3">
+        <label for="cost" class="form-label">Cost</label>
+        <input type="number" name="cost" class="form-control custom-width" />
+      </div>
+
+      <!-- experience -->
+      <div class="form-group mb-3">
+        <label for="experience" class="form-label">experience</label>
+        <input
+          type="text"
+          name="experience"
+          class="form-control custom-width"
+        />
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-success mb-3 mt-3" type="submit">
+          Register
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function updateServices() {
+    const category = document.getElementById("serviceCategories").value;
+    const services = document.getElementById("services");
+
+    // Clear previous options
+    services.innerHTML = '<option value="">Select a service</option>';
+
+    // Populate services based on the selected category
+    let options = [];
+
+    if (category === "Plumbing") {
+      options = [
+        { value: "Leak Repair", text: "Leak Repair" },
+        { value: "Flush Tank Repair", text: "Flush Tank Repair" },
+        { value: "Pipe Installation", text: "Pipe Installation" },
+        { value: "Book expert for chekup and other problems", text: "Book expert for chekup and other problems" },
+      ];
+    } else if (category === "Electrical") {
+      options = [
+        { value: "Wiring", text: "Wiring" },
+        { value: "Lighting Installation", text: "Lighting Installation" },
+      ];
+    } else if (category === "Cleaning") {
+      options = [
+        { value: "Home Cleaning", text: "Home Cleaning" },
+        { value: "Office Cleaning", text: "Office Cleaning" },
+      ];
+    } else if (category === "Carpentry") {
+      options = [
+        { value: "Furniture Repair", text: "Furniture Repair" },
+        { value: "Woodworking", text: "Woodworking" },
+      ];
+    }
+
+    // Add the new options to the select element
+    options.forEach((option) => {
+      const newOption = document.createElement("option");
+      newOption.value = option.value;
+      newOption.text = option.text;
+      services.add(newOption);
+    });
+  }
+</script>
