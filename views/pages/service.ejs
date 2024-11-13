@@ -1,0 +1,28 @@
+<% layout("/layouts/boilerplate.ejs") %>
+<h4 class="text-center">Home Services at Your Doorstep</h4>
+<div class="all-services mt-5">
+  <p class="text-center">What are you looking for?</p>
+  <br />
+  <div class="row all-services-cards">
+    <% categories.forEach(category => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 svc p-3"> <!-- Added padding to the card -->
+          <img
+            src="<%= category.img %>"
+            class="card-img-top card-img mx-auto"
+            alt="<%= category.name %> Image"
+          />
+          <div class="card-body text-center">
+            <h5 class="card-title mb-2">
+              <%= category.name %>
+              <!-- Display the category name -->
+            </h5>
+            <a href="/services/<%= category._id %>" class="btn btn-dark mb-2 mt-4">
+              View Services
+            </a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>

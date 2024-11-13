@@ -1,0 +1,90 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container-fluid">
+    <!-- Sidebar and Content -->
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 bg-dark text-light vh-100 ps-4">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-light" href="#">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/dashboard/registerService">Register for new Service</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="#">Bookings</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="#">Settings</a>
+          </li>
+        </ul>
+      </div>
+  
+      <!-- Main Content Area -->
+      <div class="col-md-10">
+        <div class="row mt-4">
+          <!-- Greeting and Overview -->
+          <div class="col-md-12">
+            <h1>Welcome, [User]</h1>
+            <p>Here is your activity overview for the week:</p>
+          </div>
+  
+          <!-- Stats -->
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Total Bookings</h5>
+                <p class="card-text">45</p>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Ongoing Services</h5>
+                <p class="card-text">8</p>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Average Rating</h5>
+                <p class="card-text">4.5/5</p>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Recent Bookings -->
+        <div class="row mt-5">
+          <div class="col-md-12">
+            <h2>Recent Bookings</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Date</th>
+                  <th>Client Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Plumbing</td>
+                  <td>12/09/2024</td>
+                  <td>John Doe</td>
+                  <td>Pending</td>
+                </tr>
+                <!-- More rows here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

@@ -1,0 +1,91 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container py-2">
+  <h2 class="text-left mb-5">Contact Us</h2>
+  <div class="row">
+    <!-- Left Column: Contact Form -->
+    <div class="col-md-6 mb-4">
+      <form action="/submit_contact_form" method="POST" class="contact-form">
+        <div class="mb-3">
+          <label for="name" class="form-label">Your Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Your Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="subject" class="form-label">Subject</label>
+          <input
+            type="text"
+            class="form-control"
+            id="subject"
+            name="subject"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="message" class="form-label">Message</label>
+          <textarea
+            class="form-control"
+            id="message"
+            name="message"
+            rows="5"
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">
+          Send Message
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Column: Contact Info & Map -->
+    <div class="col-md-6">
+      <div class="contact-info mb-4">
+        <h4>Contact Information</h4>
+        <p>
+          <i class="fas fa-map-marker-alt"></i> 123 Service St, City, Country
+        </p>
+        <p><i class="fas fa-envelope"></i> support@localservicefinder.com</p>
+        <p><i class="fas fa-phone-alt"></i> +1 (234) 567-8901</p>
+        <div class="social-icons mt-3">
+          <a href="#" class="text-dark me-3"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a href="#" class="text-dark me-3"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-dark me-3"
+            ><i class="fab fa-linkedin-in"></i
+          ></a>
+        </div>
+      </div>
+      <div class="map">
+        <h4>Find Us Here:</h4>
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434508619!2d144.96305791531826!3d-37.81627977975154!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf57762a5e72a51ad!2s123%20Service%20St%2C%20Melbourne%20VIC%203000%2C%20Australia!5e0!3m2!1sen!2s!4v1638302469091!5m2!1sen!2s"
+          width="100%"
+          height="250"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</div>

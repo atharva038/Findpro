@@ -1,0 +1,386 @@
+body {
+  background-color: #ffffff;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* margin-bottom: 100px !important; */
+}
+.container {
+  flex: 1;
+}
+
+/* navbar styling */
+.fade-box {
+  transition: opacity 0.5s ease;
+}
+.fade-in {
+  display: block !important;
+  opacity: 1;
+}
+.fade-out {
+  opacity: 0;
+  display: none !important;
+}
+search-container {
+  position: relative;
+}
+#suggestions {
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+  background: white;
+}
+
+.navbar {
+  height: 4rem;
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  transition: background-color 0.5s ease;
+}
+
+.nav-link {
+  color: #222222 !important;
+  position: relative;
+  overflow: hidden;
+  padding: 0.5rem 1rem;
+  transition: all 0.4s ease;
+}
+.navbar:hover {
+  background-color: #e9ecef;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: #007bff;
+  transition: width 0.4s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+/* footer styling */
+
+.f-info-link a {
+  text-decoration: none;
+  color: #222222;
+}
+.f-info-link a:hover {
+  text-decoration: underline;
+}
+.f-info-link,
+.f-info-socials,
+.f-info-brand {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.f-info {
+  display: flex;
+  height: 8rem;
+  background-color: #ffffff;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: space-evenly;
+  text-align: center;
+}
+.f-info-socials i {
+  margin-right: 1.2rem;
+  font-size: 1.2rem;
+}
+
+/* homepage styling */
+
+.card {
+  border-radius: 10px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Slight lift on hover */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  padding: 15px;
+  text-align: center;
+}
+
+.heading-homepage {
+  font-weight: 700;
+}
+.card-title-homepage {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.service-card-homepage {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+.service-card-homepage img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.service-card-homepage:hover img {
+  transform: scale(1.05);
+}
+
+.card-text-homepage {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-top: 10px;
+}
+
+.service-link-homepage {
+  text-decoration: none;
+  color: inherit;
+}
+.service-card-homepage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
+  transition: opacity 0.4s ease;
+  opacity: 0;
+}
+.service-card-homepage:hover::before {
+  opacity: 1;
+}
+/* cards */
+
+.card {
+  border-radius: 10px; /* Rounded corners for a modern look */
+  overflow: hidden; /* Ensures child elements respect border radius */
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+.card-body {
+  padding: 0 !important;
+}
+.card-img {
+  max-height: 220px;
+  width: auto !important;
+  object-fit: contain !important;
+}
+/* New Page */
+.carousel-item {
+  display: flex; /* Flexbox to align items */
+  justify-content: center; /* Center the image horizontally */
+  align-items: center; /* Center the image vertically if needed */
+  height: 800px; /* Set your desired height */
+  width: 100vw; /* 100% of the viewport width */
+  overflow: hidden; /* Hide any overflow */
+}
+
+.carousel-item img {
+  width: 100vw; /* 100% of the viewport width */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Cover the entire width while cropping excess vertically */
+}
+
+.all-services {
+  padding: 2rem;
+}
+
+.all-services-cards {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.svc {
+  margin-right: 3rem;
+  height: 20rem !important;
+  width: 23rem !important;
+  background-color: #f5f5f5 !important;
+  margin-bottom: 30px;
+}
+
+.service-card .btn {
+  margin-top: 10px;
+}
+.card-body h5 {
+  font-weight: bold;
+}
+
+.text-muted {
+  font-size: 0.9rem;
+}
+
+.btn {
+  min-width: 80px;
+}
+h1 {
+  font-size: 2.5rem;
+  color: #343a40;
+}
+
+.card-img-top {
+  height: 200px; /* Fixed height for images */
+  object-fit: cover; /* Ensures images cover the area */
+}
+.card:hover {
+  transform: translateY(-5px); /* Lift effect on hover */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+}
+.plumber {
+  border-radius: 1rem !important;
+  border: 10px solid black;
+}
+.plumbersssss {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 2rem;
+}
+
+.plumber-card-img {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 1rem !important;
+}
+.container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.card-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.card-text {
+  margin: 5px 0;
+}
+.electrition-img {
+  height: 200px; /* Fixed height for images */
+  object-fit: contain;
+}
+.login {
+  background-color: #007bff !important; /* Primary color */
+  color: #ffffff !important; /* Text color */
+  border: none !important; /* Remove border */
+  padding: 10px 20px !important; /* Add padding */
+  border-radius: 5px !important; /* Rounded corners */
+  font-size: 16px !important; /* Font size */
+  transition: background-color 0.3s !important; /* Smooth transition */
+}
+.login:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+  color: #ffffff; /* Keep text color white */
+}
+.login-container {
+  width: 45rem;
+  padding: 2rem;
+  margin-left: 18rem;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+}
+/* Make the layout responsive */
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%; /* Adapt the container width for smaller screens */
+  }
+}
+
+@media (max-width: 576px) {
+  .login-container {
+    width: 100%;
+    padding: 1.5rem;
+  }
+}
+.login-heading {
+  font-weight: 800;
+}
+.form-control{
+
+}
+/* signup */
+
+.signup-container {
+  /* align-self: center; */
+  width: 70%;
+  padding: 2rem;
+  margin-left: 18rem;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+  margin-right: 50%;
+}
+
+.signup-heading {
+  font-weight: 800;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .signup-container {
+    width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .signup-container {
+    width: 100%;
+    padding: 1.5rem;
+  }
+}
+/* Styling for the service provider form */
+
+.service-provider-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa; /* Light background color for the wrapper */
+  padding: 2rem; /* Padding around the wrapper */
+}
+
+/* Existing styling for the service provider form container */
+.service-provider-form-container {
+  /* background-color: #fff; */
+  width: 69%;
+
+  border-radius: 10px;
+  padding: 2rem;
+  margin-top: 5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow for the form */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+.service-provider-form-container:hover {
+  transform: translateY(-10px); /* Lift effect on hover */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+}
+
+/* Existing styles for headings, inputs, and buttons... */
+
+.service-provider-form-heading {
+  font-weight: bold;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+.custom-width{
+  width: 80%;
+}
+.form-group{
+  width: 80%;
+}

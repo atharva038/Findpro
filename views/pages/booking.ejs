@@ -1,0 +1,77 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header text-center bg-primary text-white">
+      <h2 class="">Book Service</h2>
+    </div>
+    <div class="card-body">
+      <form action="/dashboard" method="post">
+        <!-- Service ID (hidden) -->
+        <input type="hidden" name="serviceId" value="<%= service._id %>" />
+        <!-- Provider ID (hidden) -->
+        <input type="hidden" name="providerId" value="<%= provider._id %>" />
+
+        <!-- Service Details -->
+        <div class="mb-3">
+          <p class="mt-3"><strong>Service:</strong> <%= service.name %></p>
+          <p><strong>Provider:</strong> <%= provider.user.name %></p>
+          <!-- Assuming provider's name is in user field -->
+          <p><strong>Cost:</strong> <%= provider.cost %></p>
+        </div>
+
+        <!-- Date Selection -->
+        <div class="mb-3">
+          <label for="date" class="form-label">Choose a Date and Time:</label>
+          <input
+            type="datetime-local"
+            id="date"
+            name="date"
+            class="form-control custom-width"
+            required
+          />
+        </div>
+
+        <!-- Address Selection -->
+        <div class="mb-3">
+          <label for="address" class="form-label custom-width"
+            >Choose Address:</label
+          >
+          <select id="address" name="address" class="form-select mb-3">
+            <% addresses.forEach(function(address) { %>
+            <option value="<%= address %>"><%= address %></option>
+            <% }); %>
+            <option value="new" id="NewAddress">Add New Address</option>
+          </select>
+          <textarea
+            id="newAddress"
+            name="newAddress"
+            rows="3"
+            class="form-control"
+            placeholder="Enter new address here..."
+            style="display: none"
+          ></textarea>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="mb-3">
+          <label for="notes" class="form-label">Additional Notes:</label>
+          <textarea
+            id="notes"
+            name="notes"
+            rows="4"
+            class="form-control"
+            placeholder="Add any specific instructions here..."
+          ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mb-3">
+            Confirm Booking
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
