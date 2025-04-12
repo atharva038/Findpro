@@ -9,7 +9,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-
+require("dotenv").config();
 const User = require("./models/User.js");
 const authorisationRoutes = require("./routes/auth.js");
 const bookingRoutes = require("./routes/booking.js");
@@ -20,19 +20,21 @@ const dashboardRoutes = require("./routes/dashboard.js");
 
 // Database connection
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/findpro";
-
-main()
-  .then(() => {
-    console.log("Connected to DB");
-  })
-  .catch((error) => {
-    console.log("Database connection error:", error);
-  });
+// Update the database connection section
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to MongoDB Atlas");
+  } catch (error) {
+    console.error("MongoDB Atlas connection error:", error);
+    process.exit(1); // Exit if unable to connect to database
+  }
 }
 
+main();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.engine("ejs", ejsMate);

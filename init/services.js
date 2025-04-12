@@ -15,125 +15,87 @@ mongoose
 
 const addNewServices = async () => {
   const serviceDataArray = [
-    // {
-    //   name: "Ceiling fan installation",
-    //   description:
-    //     "Installaion of 1 ceiling/ exhaust/ wall/ decorative/ fan only",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://purepng.com/public/uploads/large/purepng.com-three-blade-ceiling-fanelectronics-ceiling-fan-fan-941524666109p5xsx.png",
-    // },
-
-    // {
-    //   name: "Doorbell installation",
-    //   description: "Installation of 1 doorbell",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://w7.pngwing.com/pngs/295/820/png-transparent-intercom-video-door-phone-door-bells-chimes-smart-doorbell-door-phone-smartphone-electronics-electronic-device-camera.png",
-    // },
-
-    // {
-    //   name: "Single-pole MCB installation",
-    //   description: "Installation of 1 single-pole MCB",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://5.imimg.com/data5/SELLER/Default/2023/12/371821111/FA/RV/CK/185460948/havells-single-pole-mcb.png",
-    // },
-    // {
-    //   name: "Double-pole MCB installation",
-    //   description: "Installation of 1 double-pole MCB",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://5.imimg.com/data5/MS/YT/LZ/SELLER-46652879/havells-40a-2-pole-isolator-500x500.png",
-    // },
-    // {
-    //   name: "Inverter installation",
-    //   description: "Installation of 1 inverter",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://e7.pngegg.com/pngimages/477/471/png-clipart-solar-inverter-power-inverters-grid-tie-inverter-electric-power-solar-power-energy-solar-cell-solar-inverter.png",
-    // },
-    // {
-    //   name: "Book expert for chekup and other problems",
-    //   description:
-    //     "The expert will check the issues or solve issues which are not included here",
-    //   category: await Category.findOne({ name: "Plumbing" }),
-    //   ratings: 4.5,
-    //   img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWn35ih1A5gL2IaZ_sOAsOppPVY2IhucV2Uw&s",
-    // },
-    // {
-    //   name: "Book expert for chekup and other problems",
-    //   description:
-    //     "The expert will check the issues or solve issues which are not included here",
-    //   category: await Category.findOne({ name: "Electrical" }),
-    //   ratings: 4.5,
-    //   img: "https://w7.pngwing.com/pngs/497/821/png-transparent-electrician-electricity-free-content-cartoon-painted-lamp-electrician-occupation-watercolor-painting-cartoon-character-hand.png",
     {
-      name: "2 BHK apartment cleaning",
-      description: "2 bedroom 1 hall and 1 kitchen cleaning included",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.83,
-      img: "https://media.istockphoto.com/id/1263684705/photo/gorgeous-shower-with-no-step-up.jpg?s=612x612&w=0&k=20&c=NXNtafaAl0cZArXAoc1eII4JTWErK1SM5ikpH_Kyyh4=",
-    },
-    {
-      name: "Classic cleaning (2 bathrooms)",
-      description: "Cleaning of all areas and surfaces",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.5,
-      img: "https://scubeinterior.com/wp-content/uploads/2022/02/1bhk-apartment-bedroom-design-with-classy-interiors.jpg",
-    },
-    {
-      name: "Intense cleaning (2 bathrooms)",
-      description: "Cleaning of hard to reach spots , floor deep cleaning",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.7,
-      img: "https://www.shutterstock.com/image-photo/woman-cleaning-bathroom-sink-she-600nw-2496886565.jpg",
-    },
-    {
-      name: "Chimney & stove cleaning",
+      name: "Chimney repair and service",
       description:
-        "Cleaning and repairing of chimney motor is excluded , provide a stool/ladder if required",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.5,
-      img: "https://img.etimg.com/thumb/width-1200,height-900,imgsize-18978,resizemode-75,msid-95510689/top-trending-products/kitchen-dining/chimney/best-kitchen-chimneys-for-small-kitchen.jpg",
-    },
-    {
-      name: "Complete kitchen cleaning including cabinet interiors",
-      description:
-        "We do not clean commercial kitchen , wet wiping of walls is excluded",
-      category: await Category.findOne({ name: "Cleaning" }),
+        "Industry grade chemicals used for better working in the long term",
+      category: await Category.findOne({ name: "Appliance Repair" }),
       ratings: 4.74,
-      img: "https://media.istockphoto.com/id/1163763269/photo/its-never-too-late-to-spring-clean-your-home.jpg?s=612x612&w=0&k=20&c=eGJFl33RtQtXXJLpNvxSOS_Ea-NgYR13U8PUcOkg48o=",
+      img: "https://www.shutterstock.com/image-photo/mans-hands-removing-filter-cooker-600nw-2287359873.jpg",
     },
     {
-      name: "Sofa & cushions cleaning",
-      description: "Wet shampooing of leathe/rexin/wooden sofa is excluded",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.5,
-      img: "https://st4.depositphotos.com/10614052/40209/i/450/depositphotos_402094676-stock-photo-woman-removing-dirt-sofa-home.jpg",
+      name: "Gas Stove Repair and service",
+      description: "Prevents gas leak on regular servicing",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.76,
+      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOPALjIzxJd9oskkyPN4hbhC2kh21DSxIk3w&s",
     },
     {
-      name: "Dining table & chairs cleaning",
-      description: "Dry dusting, wet wiping, dry vacuuming of cushioned chairs",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.5,
-      img: "https://thumbs.dreamstime.com/b/young-positive-afro-american-house-maid-apron-cleaning-table-modern-kitchen-services-concept-housework-female-cleaner-174355373.jpg",
-    },
-    {
-      name: "<1200 sq ft bungalow cleaning",
-      description: "only for residential properties",
-      category: await Category.findOne({ name: "Cleaning" }),
-      ratings: 4.75,
-      img: "https://t3.ftcdn.net/jpg/02/36/57/44/360_F_236574451_PEWIZf5I085uy6Ipnad736dYvULBOU8e.jpg",
-    },
-    {
-      name: "2000-3000 sq ft bungalow cleaning",
-      description: "terrace and inaccessible areas cleaning are excluded",
-      category: await Category.findOne({ name: "Cleaning" }),
+      name: "Geyser repair and service",
+      description:
+        "standardised repair process, faster heating and electricity saving on servicing",
+      category: await Category.findOne({ name: "Appliance Repair" }),
       ratings: 4.77,
-      img: "https://static9.depositphotos.com/1362922/1086/i/450/depositphotos_10860945-stock-photo-vacuum-cleaner.jpg",
+      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZz0WE32o_USI6Ovn2r-Cq5KhcUpMcB6nfaw&s",
+    },
+    {
+      name: "Inverter repair and service",
+      description: "standardised repair process",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.67,
+      img: "https://www.shutterstock.com/image-photo/instalation-control-inverters-solar-panel-260nw-2227360299.jpg",
+    },
+    {
+      name: "TV repair",
+      description: "we do not repair commercial appliances",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.76,
+      img: "https://img.freepik.com/premium-photo/repairman-installing-tv-set_274689-11751.jpg?semt=ais_hybrid",
+    },
+    {
+      name: "Refrigrator Repair",
+      description: "standardised repair process",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.78,
+      img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNuL6J3AVwCMATocbEMob_L7ZJTQ652YyNwg&s",
+    },
+    {
+      name: "AC Repair",
+      description: "Ac repair using high quality spare parts and tools",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.45,
+      img: "https://www.shutterstock.com/image-photo/air-conditioner-service-indoors-cleaning-600nw-2291045833.jpg",
+    },
+    {
+      name: "Water purifier repair",
+      description: "The repair quote will be provided after the checkup",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.78,
+      img: "https://media.gettyimages.com/id/1313733527/video/smart-water-purifier-water-collection-from-filter.jpg?s=640x640&k=20&c=4PL2GZMujVPVtTp9ZRFaWY3-OhURJ1IOdapWOir0SMI=",
+    },
+    {
+      name: "Mixer Grinder Repair",
+      description: "standardised repair process",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.79,
+      img: "https://electronicparadise.in/cdn/shop/files/1_e9a24de0-da3e-43e0-9f2f-4cd546c9af25.png?v=1702124625&width=679",
+    },
+    {
+      name: "Washing Machine Repair",
+      description: "repair cost will be provided after diagnosis",
+      category: await Category.findOne({ name: "Appliance Repair" }),
+      ratings: 4.76,
+      img: "https://img.freepik.com/premium-photo/white-washing-machine-with-laundry-basket-top_93675-188237.jpg",
     },
   ];
+  //   {
+  //     name: "Book expert for chekup and other problems",
+  //     description:
+  //       "The expert will check the issues or solve issues which are not included here",
+  //     category: await Category.findOne({ name: "Cleaning" }),
+  //     ratings: 4.5,
+  //     img: "https://icon2.cleanpng.com/20240328/oib/transparent-glasses-man-in-grey-hoodie-with-glasses6605742c05f420.64964225.webp"}
+  // ];
 
   try {
     await Service.insertMany(serviceDataArray);

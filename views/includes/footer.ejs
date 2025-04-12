@@ -1,16 +1,179 @@
-<footer>
-  <div class="f-info">
-    <div class="f-info-socials">
-      <i class="fa-brands fa-square-facebook"></i>
-      <i class="fa-brands fa-square-instagram"></i>
-      <i class="fa-brands fa-linkedin"></i>
+<footer class="footer-section">
+  <div class="footer-content">
+    <!-- Wave Separator
+    <div class="wave-separator">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+        <path
+          fill="#f8f9fa"
+          d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"
+        ></path>
+      </svg>
+    </div> -->
+
+    <div class="footer-grid">
+      <!-- Company Info -->
+      <div class="footer-brand">
+        <h3>KnockNFix</h3>
+        <p class="brand-desc">
+          Your trusted partner for professional home services
+        </p>
+        <div class="footer-socials">
+          <a href="#"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/services">Our Services</a></li>
+          <li><a href="/contact">Contact Us</a></li>
+          <li><a href="/terms">Terms & Conditions</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="f-info-brand">&copy; FindPro Private Limited</div>
-    <div class="f-info-link">
-      <a href="/privacay">Privacy</a>
-      <a href="/terms" class="ms-3">Terms</a>
-      <a href="/contact" class="ms-3">Contact Us</a>
-      <a href="/about" class="ms-3">About Us</a>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+      <p>&copy; 2024 KnockNFix Private Limited. All rights reserved.</p>
     </div>
   </div>
 </footer>
+
+<style>
+  .footer-section {
+    background: #f8f9fa;
+    color: #333;
+    padding: 3rem 0 1rem 0;
+    margin-top: 4rem;
+    position: relative;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .wave-separator {
+    position: absolute;
+    top: -120px;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+    margin-bottom: 2rem;
+  }
+
+  .footer-brand h3 {
+    color: #0d6efd;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .brand-desc {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .footer-socials {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-socials a {
+    color: #6c757d;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .footer-socials a:hover {
+    color: #0d6efd;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .footer-links h4 {
+    color: #0d6efd;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-links ul li {
+    margin-bottom: 1rem;
+  }
+
+  .footer-links ul li a {
+    color: #6c757d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding-left: 15px;
+  }
+
+  .footer-links ul li a:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .footer-links ul li a:hover {
+    color: #0d6efd;
+    padding-left: 20px;
+  }
+
+  .footer-links ul li a:hover:before {
+    opacity: 1;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1.5rem;
+    text-align: center;
+    color: #6c757d;
+  }
+
+  @media (max-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .footer-content {
+      padding: 0 1rem;
+    }
+
+    .wave-separator {
+      display: none;
+    }
+  }
+</style>
