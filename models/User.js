@@ -7,23 +7,22 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // email: {
-  //   type: String,
-  //   required: true,
-  //   unique: true,
-  // },
+  profileImage:{
+    type: String,
+  },
   role: {
     type: String,
     enum: ["customer", "provider"], // Distinguish between customer and service provider
     default: "customer",
   },
+
   addresses: [
     {
       type: String,
     },
   ],
   phone: String,
-  // New fields for service providers
+
   serviceCategories: [
     {
       type: String, // The service categories the provider offers, e.g., 'Plumbing'

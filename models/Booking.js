@@ -31,6 +31,11 @@ const bookingSchema = new mongoose.Schema({
     enum: ["pending", "completed", "cancelled"],
     default: "pending",
   },
+  location: {
+    type: { type: String, default: 'Point' },
+    coordinates: [Number], // [lng, lat]
+  },
+
   notes: { type: String },
 });
 

@@ -24,6 +24,12 @@ router.get("/", async (req, res) => {
     let bookings = [];
 
     if (user.role == "customer") {
+      const { profileImage, name } = req.body;
+
+      // Update user document with new profile image and name
+      await User.findByIdAndUpdate(userId, { profileImage, name });
+      
+
       bookings = await Booking.find({ customer: userId })
         .populate("service")
         .populate({
@@ -34,9 +40,9 @@ router.get("/", async (req, res) => {
         services,
         bookings,
         currUser: user,
+        user,
       });
     } else if (user.role == "provider") {
-
       // Directly get the provider's _id
       // const provider = await ServiceProvider.findOne({ user:  });
       // if (!provider) {
@@ -52,7 +58,7 @@ router.get("/", async (req, res) => {
           populate: { path: "user" }, // Populate the user inside providerId
         });
 
-      console.log("Provider id: ",userId);
+      console.log("Provider id: ", userId);
       console.log("Bookings:", bookings);
       res.render("pages/providerDashboard", {
         services,

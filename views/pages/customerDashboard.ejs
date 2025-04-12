@@ -1,27 +1,197 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
 <div class="container mt-5">
-  <h2>Your Bookings</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Provider</th>
-        <th>Date</th>
-        <th>Address</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% bookings.forEach(booking => { %>
-      <tr>
-        <td><%= booking.service.name %></td>
-        <td><%= booking.provider.user.name %></td>
-        <td><%= booking.bookingDate.toLocaleString() %></td>
-        <td><%= booking.address %></td>
-        <td><%= booking.status %></td>
-      </tr>
-      <% }); %>
-    </tbody>
-  </table>
+  <!-- Profile Section -->
+  <div class="profile-section mb-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="row">
+          <!-- Profile Picture -->
+          <div class="col-md-4 text-center">
+            <div class="profile-image-container mb-3">
+              <img
+                src="<%= user.profileImage %>"
+                alt="Profile Picture"
+                class="profile-image"
+              />
+            </div>
+            <h3 class="mb-2"><%= user.name %></h3>
+            <p class="text-muted"><%= user.username %></p>
+          </div>
+
+          <!-- Profile Details and Edit Options -->
+          <div class="col-md-8">
+            <h4 class="mb-4">Edit Profile</h4>
+            <form action="/i" method="POST">
+              <div class="form-group mb-3">
+                <label for="profileImage" class="form-label"
+                  >Profile Photo URL</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-image"></i
+                  ></span>
+                  <input
+                    type="text"
+                    id="profileImage"
+                    name="profileImage"
+                    placeholder="Enter image URL"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-user"></i
+                  ></span>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter new name"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookings Section -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title mb-4">Your Bookings</h4>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Service</th>
+              <th>Provider</th>
+              <th>Date</th>
+              <th>Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bookings.forEach(booking => { %>
+            <tr>
+              <td>
+                <i class="fas fa-tools me-2 text-primary"></i>
+                <%= booking.service.name %>
+              </td>
+              <td>
+                <img
+                  src="<%= booking.provider.user.profileImage || 'https://via.placeholder.com/30' %>"
+                  class="rounded-circle me-2"
+                  width="30"
+                  height="30"
+                  alt="Provider"
+                />
+                <%= booking.provider.user.name %>
+              </td>
+              <td>
+                <i class="far fa-calendar-alt me-2 text-muted"></i>
+                <%= booking.bookingDate.toLocaleString() %>
+              </td>
+              <td>
+                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                <%= booking.address %>
+              </td>
+              <td>
+                <% const statusClasses = { 'pending': 'bg-warning', 'confirmed':
+                'bg-success', 'completed': 'bg-info', 'cancelled': 'bg-danger' }
+                %>
+                <span
+                  class="badge <%= statusClasses[booking.status.toLowerCase()] || 'bg-secondary' %>"
+                >
+                  <%= booking.status %>
+                </span>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+  .profile-image-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .profile-image:hover {
+    transform: scale(1.05);
+  }
+
+  .card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+  }
+
+  .input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+  }
+
+  .btn-primary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  .table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+
+  .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+  }
+
+  .table td {
+    vertical-align: middle;
+  }
+</style>

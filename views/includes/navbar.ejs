@@ -1,6 +1,16 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"> FindPro</a>
+    <a class="navbar-brand" href="/">
+      <img
+        src="/img/icon.png"
+        alt=""
+        width="90"
+        height="90"
+        alt="Team Member"
+        class="rounded-circle mb-2"
+      />
+      <a href="/" class="nav-link me-2 ">KnockNFix</a>
+    </a>
     <button
       class="navbar-toggler"
       type="button"
@@ -21,8 +31,7 @@
 
         <% if (typeof currProvider !== "undefined" && currProvider) { %>
         <a class="nav-link" href="/dashboard">Dashboard</a>
-        <% } %>
-        <% if (typeof currCustomer !== "undefined" && currCustomer) { %>
+        <% } %> <% if (typeof currCustomer !== "undefined" && currCustomer) { %>
         <a class="nav-link" href="/dashboard">Dashboard</a>
         <% } %>
       </div>
