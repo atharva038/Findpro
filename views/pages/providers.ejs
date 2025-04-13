@@ -1,48 +1,56 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<h1 class="text-center my-5"><%= category.name %> Service Providers</h1>
+<div class="container py-5">
+  <h1 class="text-center mb-5"><%= category.name %> Service Providers</h1>
 
-<div class="container">
+  <% if (providers && providers.length > 0) { %>
   <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-2 g-4">
-    <% if (providers.length > 0) { %> <% providers.forEach(provider => { %>
+    <% providers.forEach(provider => { %>
     <div class="col">
-      <a
-        href="/services/<%= services._id %>/provider/<%= provider._id %>"
-        class="text-decoration-none"
-        style="color: inherit"
-      >
-        <div class="card shadow border-0 h-100 p-3 rounded-lg">
-          <img
-            src="<%= provider.portfolio && provider.portfolio.length ? provider.portfolio[0].img : 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-            class="card-img-top card-img mx-auto"
-            alt="<%= provider.user.name %>"
-          />
-          <div class="card-body text-center p-2">
-            <h5 class="card-title"><%= provider.user.name %></h5>
-            <p class="card-text">
-              Experience: <%= provider.experience %> years
-            </p>
-            <p class="card-text">
-              Price: <%= provider.cost ? provider.cost : 'N/A' %>
-            </p>
-            <p class="card-text">
-              Location: <%= provider.address ? provider.address : 'N/A' %>
-            </p>
-          </div>
-          <div class="card-footer text-center">
-            <form
-              action="/services/<%= serviceId %>/<%= provider._id %>/book"
-              method="get"
-              class="p-2"
-            >
-              <button class="btn btn-primary">Book this provider</button>
-            </form>
-          </div>
+      <div class="card shadow border-0 h-100 p-3 rounded-lg">
+        <img
+          src="<%= provider.portfolio && provider.portfolio.length ? provider.portfolio[0].img : 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+          class="card-img-top card-img mx-auto"
+          alt="<%= provider.user.name %>"
+        />
+        <div class="card-body text-center p-2">
+          <h5 class="card-title"><%= provider.user.name %></h5>
+          <p class="card-text">Experience: <%= provider.experience %> years</p>
+          <p class="card-text">
+            Price: <%= provider.cost ? provider.cost : 'N/A' %>
+          </p>
+          <p class="card-text">
+            Location: <%= provider.address ? provider.address : 'N/A' %>
+          </p>
         </div>
-      </a>
+        <div class="card-footer text-center border-0 bg-transparent">
+          <form
+            action="/services/<%= serviceId %>/<%= provider._id %>/book"
+            method="get"
+            class="p-2"
+          >
+            <button class="btn btn-primary">Book this provider</button>
+          </form>
+        </div>
+      </div>
     </div>
-    <% }) %> <% } else { %>
-    <p>No providers found for this service.</p>
-    <% } %>
+    <% }) %>
   </div>
+  <% } else { %>
+  <div class="text-center py-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body py-5">
+        <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted mb-3">No Providers Available</h3>
+        <p class="text-muted mb-4">
+          Sorry, there are currently no service providers available in this
+          category.
+        </p>
+        <a href="/services" class="btn btn-primary">
+          <i class="fas fa-arrow-left me-2"></i>Back to Services
+        </a>
+      </div>
+    </div>
+  </div>
+  <% } %>
 </div>
