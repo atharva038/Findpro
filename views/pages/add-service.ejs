@@ -1,0 +1,128 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Add New Service</h3>
+        </div>
+        <div class="card-body">
+          <form
+            action="/admin/services"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <!-- Category Selection -->
+            <div class="mb-3">
+              <label for="category" class="form-label">Select Category</label>
+              <select
+                name="category"
+                id="category"
+                class="form-select"
+                required
+              >
+                <option value="">Choose a category...</option>
+                <% categories.forEach(category => { %>
+                <option value="<%= category._id %>">
+                  <%= category.name %>
+                </option>
+                <% }); %>
+              </select>
+            </div>
+            <!-- Service Name -->
+            <div class="mb-3">
+              <label for="name" class="form-label">
+                <i class="fas fa-wrench me-2"></i>Service Name
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+                placeholder="e.g., Tap Installation, Fan Repair"
+              />
+            </div>
+
+            <!-- Service Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">
+                <i class="fas fa-info-circle me-2"></i>Service Description
+              </label>
+              <textarea
+                class="form-control"
+                id="description"
+                name="description"
+                rows="4"
+                required
+                placeholder="Describe what this service includes..."
+              ></textarea>
+              <div class="form-text">
+                Provide a clear description of what tasks are covered under this
+                service.
+              </div>
+            </div>
+
+            <!-- Replace the Service Image section with this -->
+            <div class="mb-4">
+              <label for="image" class="form-label">
+                <i class="fas fa-image me-2"></i>Service Image
+              </label>
+              <input
+                type="file"
+                class="form-control"
+                id="image"
+                name="image"
+                accept="image/*"
+                required
+              />
+              <div class="form-text">
+                Upload an image that represents this service (Max size: 2MB)
+              </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="mb-4 d-none" id="imagePreview">
+              <label class="form-label">Image Preview</label>
+              <div class="border rounded p-2 text-center">
+                <img
+                  id="preview"
+                  src="#"
+                  alt="Preview"
+                  style="max-height: 200px; max-width: 100%"
+                />
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Add Service
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Add this script at the bottom of your file -->
+<script>
+  // Image preview functionality
+  document.getElementById("image").addEventListener("change", function (e) {
+    const preview = document.getElementById("preview");
+    const previewContainer = document.getElementById("imagePreview");
+
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+        previewContainer.classList.remove("d-none");
+      };
+
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+</script>

@@ -54,53 +54,88 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// router.get("/:id/providers", async (req, res) => {
+//   try {
+//     // Get the service ID from the URL parameter
+//     const serviceId = req.params.id;
+
+//     // Fetch the category details from service id
+//     const category = await Service.findById(serviceId).select("category");
+
+//     if (!category) {
+//       return res
+//         .status(404)
+//         .render("pages/services", { error: "Category not found." });
+//     }
+
+//     // Fetch services that belong to the requested category
+//     const services = await Service.find({ category: category.category })
+//       .populate("category")
+//       .lean();
+
+//     if (!services || services.length === 0) {
+//       return res.status(404).render("pages/services", {
+//         error: "No services found for this category.",
+//       });
+//     }
+
+//     // Find providers who offer these services
+//     const providers = await ServiceProvider.find({
+//       servicesOffered: { $in: serviceId },
+//     })
+//       .populate("user") // Assuming 'user' is a reference to provider details
+//       .populate("servicesOffered")
+//       .lean(); // Use lean for better performance
+
+//     if (!providers || providers.length === 0) {
+//       return res.status(404).render("pages/providers", {
+//         error: "No providers found for this category.",
+//       });
+//     }
+
+//     // Render the providers list page, passing the providers and category
+//     res.render("pages/providers", { providers, category, services, serviceId });
+//   } catch (err) {
+//     console.error("Error fetching providers:", err);
+//     res.status(500).send("Server error");
+//   }
+// });
+
 router.get("/:id/providers", async (req, res) => {
   try {
     // Get the service ID from the URL parameter
     const serviceId = req.params.id;
 
-    // Fetch the category details from service id
-    const category = await Service.findById(serviceId).select("category");
+    // Fetch the service and populate its category
+    const service = await Service.findById(serviceId).populate("category");
 
-    if (!category) {
-      return res
-        .status(404)
-        .render("pages/services", { error: "Category not found." });
+    if (!service) {
+      req.flash("error", "Service not found");
+      return res.redirect("/services");
     }
 
-    // Fetch services that belong to the requested category
-    const services = await Service.find({ category: category.category })
-      .populate("category")
+    // Find providers who offer this service
+    const providers = await ServiceProvider.find({
+      servicesOffered: serviceId
+    })
+      .populate("user")
+      .populate("portfolio")
       .lean();
 
-    if (!services || services.length === 0) {
-      return res.status(404).render("pages/services", {
-        error: "No services found for this category.",
-      });
-    }
+    // Render the providers page with all necessary data
+    res.render("pages/providers", {
+      providers,
+      service,
+      category: service.category,
+      serviceId
+    });
 
-    // Find providers who offer these services
-    const providers = await ServiceProvider.find({
-      servicesOffered: { $in: serviceId },
-    })
-      .populate("user") // Assuming 'user' is a reference to provider details
-      .populate("servicesOffered")
-      .lean(); // Use lean for better performance
-
-    if (!providers || providers.length === 0) {
-      return res.status(404).render("pages/providers", {
-        error: "No providers found for this category.",
-      });
-    }
-
-    // Render the providers list page, passing the providers and category
-    res.render("pages/providers", { providers, category, services, serviceId });
   } catch (err) {
     console.error("Error fetching providers:", err);
-    res.status(500).send("Server error");
+    req.flash("error", "Unable to load providers");
+    res.redirect("/services");
   }
 });
-
 router.get("/:id/:provider/book", async (req, res) => {
   try {
     // Check if the user is authenticated
