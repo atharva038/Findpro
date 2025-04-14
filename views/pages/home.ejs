@@ -1,103 +1,235 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
+<style>
+  /* Custom Styles */
+  .hero-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 3rem 0;
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 3rem;
+  }
+
+  .heading-homepage {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+  }
+
+  .service-card-homepage {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .service-card-homepage:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .service-card-homepage .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .service-card-homepage:hover .card-img-top {
+    transform: scale(1.05);
+  }
+
+  .card-body-homepage {
+    padding: 1.5rem;
+  }
+
+  .card-title-homepage {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .card-text-homepage {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+  }
+
+  .service-link-homepage {
+    text-decoration: none;
+  }
+
+  .service-link-homepage:hover {
+    text-decoration: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .heading-homepage {
+      font-size: 2rem;
+    }
+
+    .service-card-homepage .card-img-top {
+      height: 150px;
+    }
+  }
+</style>
+
 <!-- Hero Section -->
-<div class="container-homepage text-center mt-4">
-  <h1 class="heading-homepage">Home services at your doorstep</h1>
-  <p>What are you looking for?</p>
-  <div class="row">
-    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-      <a href="/services" class="service-link-homepage">
-        <div class="card service-card-homepage">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTINLL7DXqLd10Fr8fvJaVk-1KOt1mxWBBIEw&s"
-            class="card-img-top"
-            alt="Gardening services"
-          />
-          <div class="card-body-homepage">
-            <h5 class="card-title-homepage mt-4 mb-4">Gardening services</h5>
+<div class="hero-section">
+  <div class="container text-center">
+    <h1 class="heading-homepage">Home services at your doorstep</h1>
+    <p class="lead text-muted mb-5">
+      Book professional services with just a few clicks
+    </p>
+
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <a href="/services" class="service-link-homepage">
+          <div class="card service-card-homepage">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTINLL7DXqLd10Fr8fvJaVk-1KOt1mxWBBIEw&s"
+              class="card-img-top"
+              alt="Gardening services"
+            />
+            <div class="card-body-homepage text-center">
+              <h5 class="card-title-homepage">Gardening services</h5>
+              <div class="btn btn-sm btn-outline-primary mt-2">Book Now</div>
+            </div>
           </div>
-        </div>
-      </a>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-      <a href="/services" class="service-link-homepage">
-        <div class="card service-card-homepage">
-          <img
-            src="https://www.usnews.com/dims4/USNEWS/be2ed29/2147483647/thumbnail/970x647/quality/85/?url=https%3A%2F%2Fwww.usnews.com%2Fcmsmedia%2F97%2Fa9%2F30d751a044c29bb00bead735dee8%2F211005-moving-company-stock-stock.jpg"
-            class="card-img-top"
-            alt="Moving services"
-          />
-          <div class="card-body-homepage">
-            <h5 class="card-title-homepage mt-4 mb-4">Moving services</h5>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <a href="/services" class="service-link-homepage">
+          <div class="card service-card-homepage">
+            <img
+              src="https://www.usnews.com/dims4/USNEWS/be2ed29/2147483647/thumbnail/970x647/quality/85/?url=https%3A%2F%2Fwww.usnews.com%2Fcmsmedia%2F97%2Fa9%2F30d751a044c29bb00bead735dee8%2F211005-moving-company-stock-stock.jpg"
+              class="card-img-top"
+              alt="Moving services"
+            />
+            <div class="card-body-homepage text-center">
+              <h5 class="card-title-homepage">Moving services</h5>
+              <div class="btn btn-sm btn-outline-primary mt-2">Book Now</div>
+            </div>
           </div>
-        </div>
-      </a>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-      <a href="/services" class="service-link-homepage">
-        <div class="card service-card-homepage">
-          <img
-            src="https://tiimg.tistatic.com/fp/1/007/031/air-conditioner-repair-service-090.jpg"
-            class="card-img-top"
-            alt="AC & Appliance Repair"
-          />
-          <div class="card-body-homepage">
-            <h5 class="card-title-homepage mt-4 mb-4">AC & Appliance Repair</h5>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <a href="/services" class="service-link-homepage">
+          <div class="card service-card-homepage">
+            <img
+              src="https://tiimg.tistatic.com/fp/1/007/031/air-conditioner-repair-service-090.jpg"
+              class="card-img-top"
+              alt="AC & Appliance Repair"
+            />
+            <div class="card-body-homepage text-center">
+              <h5 class="card-title-homepage">AC & Appliance Repair</h5>
+              <div class="btn btn-sm btn-outline-primary mt-2">Book Now</div>
+            </div>
           </div>
-        </div>
-      </a>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-      <a href="/services" class="service-link-homepage">
-        <div class="card service-card-homepage">
-          <img
-            src="https://5.imimg.com/data5/SELLER/Default/2024/3/396137618/NQ/TG/BL/3747135/fungus-pest-control-services-500x500.jpeg"
-            class="card-img-top"
-            alt="Cleaning & Pest Control"
-          />
-          <div class="card-body">
-            <h5 class="card-title-homepage mt-4 mb-4">
-              Cleaning & Pest Control
-            </h5>
+        </a>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <a href="/services" class="service-link-homepage">
+          <div class="card service-card-homepage">
+            <img
+              src="https://5.imimg.com/data5/SELLER/Default/2024/3/396137618/NQ/TG/BL/3747135/fungus-pest-control-services-500x500.jpeg"
+              class="card-img-top"
+              alt="Cleaning & Pest Control"
+            />
+            <div class="card-body-homepage text-center">
+              <h5 class="card-title-homepage">Cleaning & Pest Control</h5>
+              <div class="btn btn-sm btn-outline-primary mt-2">Book Now</div>
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Service Cards Section -->
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card service-card-homepage">
-        <img
-          src="https://sumesshmenonassociates.com/wp-content/uploads/2021/12/001.jpg"
-          class="card-img-top"
-          alt="Interior Design"
-        />
-        <div class="card-body-homepage">
-          <h5 class="card-title-homepage mt-3 ms-3">Interior Design</h5>
-          <p class="card-text-homepage ms-3">
-            Our beauty services are customized to your needs at home.
-          </p>
+<!-- Featured Services Section -->
+<div class="container mb-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">Featured Services</h2>
+    <p class="text-muted">Our most popular home service solutions</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card service-card-homepage h-100">
+        <div class="row g-0">
+          <div class="col-md-5">
+            <img
+              src="https://sumesshmenonassociates.com/wp-content/uploads/2021/12/001.jpg"
+              class="img-fluid rounded-start h-100"
+              alt="Interior Design"
+              style="object-fit: cover"
+            />
+          </div>
+          <div class="col-md-7">
+            <div class="card-body-homepage">
+              <h5 class="card-title-homepage">Interior Design</h5>
+              <p class="card-text-homepage">
+                Transform your living space with our expert interior design
+                services tailored to your unique style.
+              </p>
+              <div
+                class="d-flex justify-content-between align-items-center mt-3"
+              >
+                <span class="badge bg-primary">Popular</span>
+                <a href="#" class="btn btn-sm btn-primary">Explore</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6 mb-4">
-      <div class="card service-card-homepage">
-        <img
-          src="https://digishiftindia.in/wp-content/uploads/2021/02/home-deep-cleaning-services-in-delhi.jpg"
-          class="card-img-top"
-          alt="Home Cleaning"
-        />
-        <div class="card-body-homepage">
-          <h5 class="card-title-homepage mt-3 ms-3">Home Cleaning</h5>
-          <p class="card-text-homepage ms-3">
-            Professional home cleaning services for your comfort.
-          </p>
+
+    <div class="col-md-6">
+      <div class="card service-card-homepage h-100">
+        <div class="row g-0">
+          <div class="col-md-5">
+            <img
+              src="https://digishiftindia.in/wp-content/uploads/2021/02/home-deep-cleaning-services-in-delhi.jpg"
+              class="img-fluid rounded-start h-100"
+              alt="Home Cleaning"
+              style="object-fit: cover"
+            />
+          </div>
+          <div class="col-md-7">
+            <div class="card-body-homepage">
+              <h5 class="card-title-homepage">Home Cleaning</h5>
+              <p class="card-text-homepage">
+                Professional deep cleaning services that leave your home
+                sparkling clean and fresh.
+              </p>
+              <div
+                class="d-flex justify-content-between align-items-center mt-3"
+              >
+                <span class="badge bg-success">Trending</span>
+                <a href="#" class="btn btn-sm btn-primary">Explore</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Call to Action -->
+<div class="bg-light py-5">
+  <div class="container text-center">
+    <h3 class="mb-3">Ready to book your home service?</h3>
+    <p class="lead mb-4">
+      Join thousands of satisfied customers who trust our professionals
+    </p>
+    <a href="/services" class="btn btn-primary btn-lg px-4"
+      >Browse All Services</a
+    >
   </div>
 </div>
