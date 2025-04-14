@@ -9,14 +9,17 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
-    cloudinary,
+    cloudinary: cloudinary,
     params: {
         folder: 'KnockNFix',
         allowedFormats: ['jpeg', 'png', 'jpg']
     }
 });
+const upload = multer({ storage: storage });
+
 
 module.exports = {
     cloudinary,
-    storage
+    storage,
+    upload
 };
