@@ -7,70 +7,103 @@ const { body, validationResult } = require("express-validator");
 const passportLocalMongoose = require("passport-local-mongoose");
 const passport = require("passport");
 const ServiceProvider = require("../models/ServiceProvider");
+const { upload } = require('../config/cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-// Register route (both customers and providers)
 router.get("/register", (req, res) => {
-  res.render("pages/register.ejs");
+  res.render("pages/register");
 });
 
-// POST /register route
 router.post(
   "/register",
+  upload.single('image'), // Add multer middleware before validation
   [
-    body("name").notEmpty().withMessage("Name is required."),
+    body("name")
+      .trim()
+      .notEmpty().withMessage("Name is required.")
+      .isLength({ min: 2 }).withMessage("Name must be at least 2 characters long"),
+
     body("username")
-      .notEmpty()
-      .isAlphanumeric()
-      .withMessage("Username must contain only letters and numbers."),
+      .trim()
+      .notEmpty().withMessage("Username is required.")
+      .matches(/^[a-zA-Z0-9]+$/).withMessage("Username must contain only letters and numbers.")
+      .isLength({ min: 3 }).withMessage("Username must be at least 3 characters long"),
+
     body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters long."),
-    body("addresses").notEmpty().withMessage("Address is required."),
+      .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
+
+    body("addresses")
+      .trim()
+      .notEmpty().withMessage("Address is required."),
+
     body("phone")
-      .isMobilePhone()
-      .withMessage("Valid phone number is required."),
+      .trim()
+      .notEmpty().withMessage("Phone number is required.")
+      .matches(/^[0-9]{10}$/).withMessage("Please enter a valid 10-digit phone number"),
+
     body("role")
-      .isIn(["customer", "provider"])
-      .withMessage("Role must be either customer or provider."),
+      .trim()
+      .notEmpty().withMessage("Role is required.")
+      .isIn(["customer", "provider"]).withMessage("Role must be either customer or provider.")
   ],
   async (req, res) => {
-    // Handle validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const errorMessages = errors.array().map((err) => err.msg);
-      req.flash("error", errorMessages.join(", "));
-      return res.redirect("/register");
-    }
-
-    const { name, username, password, addresses, phone, role } = req.body;
-
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        // Clean up uploaded file if validation fails
+        if (req.file) {
+          await cloudinary.uploader.destroy(req.file.filename);
+        }
+        const errorMessages = errors.array().map((err) => err.msg);
+        req.flash("error", errorMessages.join(", "));
+        return res.redirect("/register");
+      }
+
+      const { name, username, password, addresses, phone, role } = req.body;
+
+      // Check if username already exists
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        if (req.file) {
+          await cloudinary.uploader.destroy(req.file.filename);
+        }
+        req.flash("error", "Username already exists");
+        return res.redirect("/register");
+      }
+
       // Create a new user
       const newUser = new User({
-        name,
-        username,
-        addresses,
-        phone,
-        role,
+        name: name.trim(),
+        username: username.trim(),
+        addresses: [addresses.trim()],
+        phone: phone.trim(),
+        role: role.trim(),
+        profileImage: req.file ? req.file.path : undefined, // Change 'image' to 'profileImage'
       });
 
-      // Register the user using passport-local-mongoose or save directly if not using it
+
+      // Register the user using passport-local-mongoose
       const registeredUser = await User.register(newUser, password);
 
-      // If role is 'provider', add to ServiceProvider collection
+      // Create service provider if role is provider
       if (role === "provider") {
         const newProvider = new ServiceProvider({
-          user: registeredUser._id, // Link the ServiceProvider to the user
-          // Add any additional fields for providers
+          user: registeredUser._id,
+          servicesOffered: [],
+          portfolio: []
         });
         await newProvider.save();
       }
 
-      req.flash("success", "Welcome to KnockNFix! You are registered"); // Flash success message
+      req.flash("success", "Welcome to KnockNFix! You are registered");
       return res.redirect("/login");
+
     } catch (err) {
       console.error("Error during user registration:", err);
-      req.flash("error", "Server error. Please try again later.");
+      if (req.file) {
+        await cloudinary.uploader.destroy(req.file.filename);
+      }
+      req.flash("error", "Registration failed. Please try again.");
       res.redirect("/register");
     }
   }

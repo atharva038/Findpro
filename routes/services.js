@@ -70,8 +70,18 @@ router.get("/:id/providers", async (req, res) => {
     const providers = await ServiceProvider.find({
       "servicesOffered.services.service": serviceId
     })
-      .populate("user")
+      .populate({
+        path: 'user',
+        select: 'name profileImage addresses phone' // Include profileImage in selection
+      })
       .lean();
+
+    // Add fallback image if profileImage is not available
+    providers.forEach(provider => {
+      if (!provider.user.profileImage) {
+        provider.user.profileImage = 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png';
+      }
+    });
 
     res.render("pages/providers", {
       providers,

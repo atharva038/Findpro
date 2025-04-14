@@ -15,7 +15,7 @@
       <div class="card shadow border-0 h-100 rounded-3 overflow-hidden">
         <!-- Profile Image -->
         <img
-          src="<%= provider.portfolio && provider.portfolio.length ? provider.portfolio[0].img : 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+          src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
           class="card-img-top object-fit-cover"
           style="height: 220px; object-fit: cover"
           alt="<%= provider.user.name %>"
