@@ -129,11 +129,9 @@ router.post("/login", (req, res, next) => {
       }
 
       req.session.userId = user._id; // Store user ID in session
-      console.log("User ID stored in session:", req.session.userId); // Log user ID
 
       req.flash("success", "Welcome back to KnockNFix! You are logged in"); // Flash success message
       let redirectUrl = res.locals.redirectUrl || "/"; // Default redirect URL
-      console.log(redirectUrl); // Debugging: check the value
       return res.redirect(redirectUrl); // Redirect after successful login
     });
   })(req, res, next);

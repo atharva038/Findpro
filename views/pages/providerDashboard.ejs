@@ -1,109 +1,227 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<div class="container-fluid">
-  <div class="row">
+<div class="container-fluid ">
+  <div class="row ">
     <!-- Sidebar -->
-    <div class="col-md-2 bg-dark text-light vh-100 p-4">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-light" href="/dashboard/registerService"
-            >Register for new Service</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#">Bookings</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#">Settings</a>
-        </li>
-      </ul>
+    <div class="col-md-2 bg-dark text-light min-vh-100 p-0">
+      <div class="sticky-top">
+        <div class="d-flex flex-column p-3">
+          <h5 class="text-light mb-4 border-bottom pb-2">Provider Panel</h5>
+          <ul class="nav flex-column gap-2">
+            <li class="nav-item">
+              <a
+                class="nav-link text-light d-flex align-items-center gap-2 active"
+                href="#"
+              >
+                <i class="fas fa-home"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link text-light d-flex align-items-center gap-2"
+                href="/dashboard/registerService"
+              >
+                <i class="fas fa-plus-circle"></i>
+                Register Service
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link text-light d-flex align-items-center gap-2"
+                href="#"
+              >
+                <i class="fas fa-calendar-check"></i>
+                Bookings
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link text-light d-flex align-items-center gap-2"
+                href="#"
+              >
+                <i class="fas fa-cog"></i>
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content Area -->
-    <div class="col-md-10">
-      <div class="row mt-4">
+    <div class="col-md-10 bg-light">
+      <div class="p-4">
         <!-- Greeting and Overview -->
-        <div class="col-md-12">
-          <h1>Welcome, <%= currUser.name %></h1>
-          <p>Here is your activity overview for the week:</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="mb-1">Welcome, <%= currUser.name %></h2>
+            <p class="text-muted mb-0">
+              Here is your activity overview for the week
+            </p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline-primary">
+              <i class="fas fa-download me-2"></i>Export Report
+            </button>
+          </div>
         </div>
 
-        <!-- Stats Section -->
-        <div class="col-md-4">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Total Bookings</h5>
-              <p class="card-text">45</p>
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div
+                    class="icon-circle bg-primary bg-opacity-10 text-primary"
+                  >
+                    <i class="fas fa-calendar-check fa-lg"></i>
+                  </div>
+                  <h5 class="card-title mb-0 ms-3">Total Bookings</h5>
+                </div>
+                <h2 class="mb-0">45</h2>
+                <p class="text-success mb-0">
+                  <i class="fas fa-arrow-up me-1"></i>12% increase
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div
+                    class="icon-circle bg-warning bg-opacity-10 text-warning"
+                  >
+                    <i class="fas fa-tools fa-lg"></i>
+                  </div>
+                  <h5 class="card-title mb-0 ms-3">Ongoing Services</h5>
+                </div>
+                <h2 class="mb-0">8</h2>
+                <p class="text-muted mb-0">Active right now</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div
+                    class="icon-circle bg-success bg-opacity-10 text-success"
+                  >
+                    <i class="fas fa-star fa-lg"></i>
+                  </div>
+                  <h5 class="card-title mb-0 ms-3">Average Rating</h5>
+                </div>
+                <h2 class="mb-0">4.5</h2>
+                <div class="text-warning mb-0">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Ongoing Services</h5>
-              <p class="card-text">8</p>
+        <!-- Recent Bookings Section -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Recent Bookings</h5>
+              <button class="btn btn-sm btn-outline-primary">View All</button>
             </div>
           </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Average Rating</h5>
-              <p class="card-text">4.5/5</p>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="py-3">Service</th>
+                    <th class="py-3">Date</th>
+                    <th class="py-3">Client Name</th>
+                    <th class="py-3">Status</th>
+                    <th class="py-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% bookings.forEach((booking) => { %>
+                  <tr>
+                    <td class="py-3">
+                      <%= (booking.service && booking.service.name) ?
+                      booking.service.name : 'N/A' %>
+                    </td>
+                    <td class="py-3">
+                      <%= booking.bookingDate ? new
+                      Date(booking.bookingDate).toLocaleString() : 'N/A' %>
+                    </td>
+                    <td class="py-3">
+                      <%= (booking.customer && booking.customer.name) ?
+                      booking.customer.name : 'N/A' %>
+                    </td>
+                    <td class="py-3">
+                      <span
+                        class="badge rounded-pill bg-<%= booking.status === 'Pending' ? 'warning' : 'success' %>"
+                      >
+                        <%= booking.status %>
+                      </span>
+                    </td>
+                    <td class="py-3">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary">
+                          View
+                        </button>
+                        <button class="btn btn-sm btn-outline-success">
+                          Accept
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Bookings Section -->
-      <div class="row mt-5">
-        <div class="col-md-12">
-          <h2>Recent Bookings</h2>
-          <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>Service</th>
-                  <th>Date</th>
-                  <th>Client Name</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <% bookings.forEach((booking) => { %>
-                <tr>
-                  <td>
-                    <%= (booking.service && booking.service.name) ?
-                    booking.service.name : 'N/A' %>
-                  </td>
-                  <td>
-                    <%= booking.bookingDate ? new Date(booking.bookingDate).toLocaleString() :
-                    'N/A' %>
-                  </td>
-                  <td>
-                    <%= (booking.customer && booking.customer.name) ?
-                    booking.customer.name : 'N/A' %>
-                  </td>
-                  <td>
-                    <span
-                      class="badge bg-<%= booking.status === 'Pending' ? 'warning' : 'success' %>"
-                    >
-                      <%= booking.status %>
-                    </span>
-                  </td>
-                </tr>
-                <% }); %>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Add this CSS to your stylesheet or in a <style> tag -->
+<style>
+  .icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-link {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .badge {
+    padding: 8px 12px;
+  }
+
+  .table > :not(caption) > * > * {
+    padding: 1rem;
+  }
+</style>
