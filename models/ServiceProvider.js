@@ -1,56 +1,53 @@
 const mongoose = require("mongoose");
 
-// Define the Service Provider Schema
 const serviceProviderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Reference to User model
+    ref: "User",
     required: true,
   },
+
+  // Group services category-wise
   servicesOffered: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Service", // Reference to Service
+      category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+        required: true,
+      },
+      services: [
+        {
+          service: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Service",
+            required: true,
+          },
+          customCost: { type: Number },
+          experience: { type: String }, // e.g. "2 years"
+        },
+      ],
     },
   ],
-  addresses:[
+
+  addresses: [
     {
-      type:mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
-  experience: {
-    type: Number,
-    min: 0, // Ensure experience is non-negative
-  },
+
   portfolio: [
     {
-      img: {
-        type: String,
-        required: false, // Image is optional
-      },
-      description: {
-        type: String,
-        required: false, // Description is optional
-      },
+      img: String,
+      description: String,
     },
   ],
-  serviceCategories: [
-    {
-      type: mongoose.Schema.Types.ObjectId, // Reference to Category model
-      ref: "Category",
-      required: true,
-    },
-  ],
-  cost: [
-    {
-      type: Number,
-    },
-  ],
+
+  // Optional general experience field
+  experience: {
+    type: Number,
+    min: 0,
+  },
 });
 
-const ServiceProvider = mongoose.model(
-  "ServiceProvider",
-  serviceProviderSchema
-);
-module.exports = ServiceProvider;
+module.exports = mongoose.model("ServiceProvider", serviceProviderSchema);

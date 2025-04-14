@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  profileImage:{
+  profileImage: {
     type: String,
   },
   role: {
@@ -18,7 +18,8 @@ const UserSchema = new mongoose.Schema({
 
   addresses: [
     {
-      type: String,
+      type: Array,
+      default: [], // Default to an empty array
     },
   ],
   phone: String,

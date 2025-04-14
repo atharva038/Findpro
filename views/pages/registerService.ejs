@@ -17,33 +17,36 @@
     >
       <!-- Select Category -->
       <div class="form-group mb-3">
-        <label for="serviceCategories" class="form-label"
-          >Service Category</label
-        >
+        <label for="serviceCategories" class="form-label">
+          <i class="fas fa-folder me-2"></i>Service Category
+        </label>
         <select
           name="serviceCategories"
           class="form-control custom-width"
           id="serviceCategories"
           onchange="updateServices()"
+          required
         >
           <option value="">Select a Category</option>
-          <option value="Plumbing">Plumbing</option>
-          <option value="Electrical">Electrical</option>
-          <option value="Cleaning">Cleaning</option>
-          <option value="Carpentry">Carpentry</option>
+          <% categories.forEach(category => { %>
+          <option value="<%= category._id %>"><%= category.name %></option>
+          <% }); %>
         </select>
       </div>
-
       <!-- Select Services -->
       <div class="form-group mb-3">
-        <label for="services" class="form-label"
-          >Select Services you are going to provide</label
+        <label for="services" class="form-label">
+          <i class="fas fa-tools me-2"></i>Select Services
+        </label>
+        <select
+          name="services"
+          class="form-control custom-width"
+          id="services"
+          required
         >
-        <select name="services" class="form-control custom-width" id="services">
-          <option value="">Select a service</option>
+          <option value="">First select a category</option>
         </select>
       </div>
-
       <!-- Price -->
 
       <div class="form-group mb-3">
@@ -71,46 +74,46 @@
 </div>
 
 <script>
+  // Store all services in a JavaScript object
+  const allServices =<%- JSON.stringify(services || []) %>;
+
   function updateServices() {
-    const category = document.getElementById("serviceCategories").value;
-    const services = document.getElementById("services");
+    const categoryId = document.getElementById("serviceCategories").value;
+    const servicesSelect = document.getElementById("services");
 
     // Clear previous options
-    services.innerHTML = '<option value="">Select a service</option>';
+    servicesSelect.innerHTML = '<option value="">Select a service</option>';
 
-    // Populate services based on the selected category
-    let options = [];
+    if (!categoryId) return;
+    // Filter services for selected category
+    const categoryServices = allServices.filter(
+      (service) => service.category._id === categoryId
+    );
 
-    if (category === "Plumbing") {
-      options = [
-        { value: "Leak Repair", text: "Leak Repair" },
-        { value: "Flush Tank Repair", text: "Flush Tank Repair" },
-        { value: "Pipe Installation", text: "Pipe Installation" },
-        { value: "Book expert for chekup and other problems", text: "Book expert for chekup and other problems" },
-      ];
-    } else if (category === "Electrical") {
-      options = [
-        { value: "Wiring", text: "Wiring" },
-        { value: "Lighting Installation", text: "Lighting Installation" },
-      ];
-    } else if (category === "Cleaning") {
-      options = [
-        { value: "Home Cleaning", text: "Home Cleaning" },
-        { value: "Office Cleaning", text: "Office Cleaning" },
-      ];
-    } else if (category === "Carpentry") {
-      options = [
-        { value: "Furniture Repair", text: "Furniture Repair" },
-        { value: "Woodworking", text: "Woodworking" },
-      ];
-    }
-
-    // Add the new options to the select element
-    options.forEach((option) => {
-      const newOption = document.createElement("option");
-      newOption.value = option.value;
-      newOption.text = option.text;
-      services.add(newOption);
+    // Add filtered services to select element
+    categoryServices.forEach((service) => {
+      const option = document.createElement("option");
+      option.value = service._id;
+      option.textContent = service.name;
+      servicesSelect.appendChild(option);
     });
   }
+
+  // Add form validation
+  (function () {
+    "use strict";
+    const form = document.querySelector(".needs-validation");
+
+    form.addEventListener(
+      "submit",
+      function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add("was-validated");
+      },
+      false
+    );
+  })();
 </script>
