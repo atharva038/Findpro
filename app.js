@@ -18,7 +18,7 @@ const servicesRoutes = require("./routes/services.js");
 const aboutRoutes = require("./routes/about.js");
 const dashboardRoutes = require("./routes/dashboard.js");
 const adminRoutes = require('./routes/admin');
-
+const locationRoutes = require('./routes/location');
 
 // Database connection
 
@@ -107,6 +107,7 @@ app.use("/", aboutRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/", bookingRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api/location', locationRoutes);
 
 // Listen on port
 app.listen(3000, () => {

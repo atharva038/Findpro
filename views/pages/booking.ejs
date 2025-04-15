@@ -1,298 +1,124 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<!-- Mapbox CSS -->
-<link
-  href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
-  rel="stylesheet"
-/>
-<!-- Mapbox JS -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<!-- Custom Styles -->
+<style>
+  #map {
+    height: 400px;
+    width: 100%;
+    margin: 15px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .controls {
+    margin-top: 10px;
+    border: 1px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+</style>
 
 <div class="container mt-5">
-  <div class="booking-card card shadow-lg">
-    <div class="card-header text-center bg-gradient">
-      <h2 class="text-white mb-0">
+  <div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header bg-primary bg-gradient text-white text-center py-3">
+      <h2 class="mb-0">
         <i class="fas fa-calendar-check me-2"></i>Book Service
       </h2>
     </div>
 
     <div class="card-body p-4">
       <!-- Service Overview -->
-      <div class="service-overview mb-4">
-        <div class="row align-items-center">
-          <div class="col-md-2">
-            <div class="service-icon">
-              <i class="fas fa-tools"></i>
-            </div>
-          </div>
-          <div class="col-md-10">
-            <div class="service-details">
-              <h3 class="service-name"><%= service.name %></h3>
-              <div class="provider-info">
-                <img
-                  src="<%= provider.user.profileImage || 'https://via.placeholder.com/40' %>"
-                  class="provider-image"
-                  alt="Provider"
-                />
-                <span class="provider-name"><%= provider.user.name %></span>
-              </div>
-              <div class="service-cost">
-                <span class="cost-label">Service Cost:</span>
-                <span class="cost-amount">$<%= provider.cost %></span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="bg-light rounded-3 p-4 mb-4">
+        <!-- ...existing service overview code... -->
       </div>
 
       <!-- Booking Form -->
-      <form action="/dashboard" method="post" class="booking-form ms-5">
+      <form action="/dashboard" method="post" id="bookingForm">
         <input type="hidden" name="serviceId" value="<%= service._id %>" />
         <input type="hidden" name="providerId" value="<%= provider._id %>" />
 
-        <!-- Date Selection -->
-        <div class="form-group mb-4">
-          <label for="date" class="form-label">
+        <!-- Date and Time -->
+        <div class="mb-4">
+          <label class="form-label">
             <i class="far fa-calendar-alt me-2"></i>Select Date and Time
           </label>
           <input
             type="datetime-local"
-            id="date"
             name="date"
-            class="form-control date-picker"
+            class="form-control"
             required
+            min="<%= new Date().toISOString().slice(0, 16) %>"
           />
         </div>
 
-        <!-- Address Selection -->
-        <div class="form-group mb-3">
-          <label for="address-input" class="form-label">
-            <i class="fas fa-search me-2"></i>Search Address
+        <!-- Location Selection -->
+        <div class="mb-4">
+          <label class="form-label">
+            <i class="fas fa-map-marker-alt me-2"></i>Location Details
           </label>
+
           <input
             type="text"
             id="address-input"
             class="form-control"
-            placeholder="Type an address to search..."
+            placeholder="Search for your location..."
           />
-        </div>
-        <div class="form-group mb-4">
-          <label class="form-label">
-            <i class="fas fa-map-marker-alt me-2"></i>Select Location on Map
-          </label>
-          <div id="geocoder" class="mb-3"></div>
-          <div
-            id="map"
-            style="height: 350px; width: 100%; border-radius: 10px"
-          ></div>
 
-          <!-- Hidden lat/lng fields -->
+          <button
+            type="button"
+            id="fetch-location-btn"
+            class="btn btn-outline-primary mt-2"
+          >
+            <i class="fas fa-location-arrow me-2"></i>Use Current Location
+          </button>
+
+          <!-- Map Container -->
+          <div id="map"></div>
+
+          <div class="mt-2">
+            <textarea
+              id="detailed-address"
+              name="detailedAddress"
+              class="form-control"
+              rows="2"
+              placeholder="Enter detailed address (flat no, landmark etc.)"
+              required
+            ></textarea>
+          </div>
+
           <input type="hidden" id="latitude" name="latitude" required />
           <input type="hidden" id="longitude" name="longitude" required />
-          <input
-            type="hidden"
-            name="selectedAddress"
-            id="selectedAddress"
-            required
-          />
+          <script src="/js/mapBooking.js"></script>
         </div>
 
-        <!-- Additional Notes -->
-        <div class="form-group mb-4">
-          <label for="notes" class="form-label">
+        <!-- Notes -->
+        <div class="mb-4">
+          <label class="form-label">
             <i class="fas fa-comment-alt me-2"></i>Special Instructions
           </label>
           <textarea
-            id="notes"
             name="notes"
-            rows="4"
-            class="form-control notes-area"
+            class="form-control"
+            rows="3"
             placeholder="Any specific requirements or instructions..."
           ></textarea>
         </div>
 
         <!-- Submit Button -->
-        <div class="text-center">
-          <button type="submit" class="btn btn-primary btn-lg submit-btn">
-            <i class="fas fa-check-circle me-2"></i>Confirm Booking
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary w-100 py-3">
+          <i class="fas fa-check-circle me-2"></i>Confirm Booking
+        </button>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Scripts -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js"></script>
-<script src="/js/mapBooking.js"></script>
-<style>
-  /* Add this to your existing style tag */
-  #address-input {
-    padding: 12px;
-    font-size: 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-
-  #address-input:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    outline: none;
-  }
-
-  .map-loading {
-    position: relative;
-  }
-
-  .map-loading::after {
-    content: "Loading...";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px 20px;
-    border-radius: 5px;
-    z-index: 1000;
-  }
-  .mapboxgl-ctrl-geocoder {
-    width: 100% !important;
-    max-width: none !important;
-    box-shadow: none !important;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-  }
-
-  .mapboxgl-ctrl-geocoder input {
-    padding: 0.75rem !important;
-  }
-
-  .mapboxgl-ctrl-geocoder--suggestion {
-    padding: 10px !important;
-  }
-  .booking-form {
-    margin-left: 100px;
-    /* border: 2px solid black;w */
-    padding: 10px;
-  }
-  .booking-card {
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .card-header.bg-gradient {
-    background: linear-gradient(135deg, #0d6efd, #0dcaf0);
-    padding: 1.5rem;
-  }
-
-  .service-overview {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-  }
-
-  .service-icon {
-    width: 60px;
-    height: 60px;
-    background: #e7f1ff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: #0d6efd;
-  }
-
-  .service-name {
-    color: #2c3e50;
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .provider-info {
-    display: flex;
-    align-items: center;
-    margin: 0.5rem 0;
-  }
-
-  .provider-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .provider-name {
-    font-weight: 500;
-    color: #6c757d;
-  }
-
-  .service-cost {
-    margin-top: 0.5rem;
-  }
-
-  .cost-label {
-    color: #6c757d;
-    margin-right: 0.5rem;
-  }
-
-  .cost-amount {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #198754;
-  }
-
-  .form-control,
-  .form-select {
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    transition: all 0.3s ease;
-  }
-
-  .form-control:focus,
-  .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-  }
-
-  .notes-area {
-    resize: none;
-  }
-
-  .submit-btn {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .new-address {
-    transition: all 0.3s ease;
-  }
-</style>
-
-<script>
-  document.getElementById("address").addEventListener("change", function () {
-    const newAddressText = document.getElementById("newAddress");
-    if (this.value === "new") {
-      newAddressText.style.display = "block";
-      newAddressText.focus();
-    } else {
-      newAddressText.style.display = "none";
-    }
-  });
-</script>
+<!-- Error Display -->
+<div id="map-error" class="alert alert-danger d-none">
+  Could not load Google Maps. Please refresh the page or try again later.
+</div>
+<!-- <script src="/js/mapBooking.js"></script> -->
