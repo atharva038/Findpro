@@ -1,47 +1,230 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<div class="container my-4">
-  <h4 class="text-center mb-4"><%= category.name %> Services</h4>
+<div class="services-page">
+  <div class="container py-4">
+    <h2 class="text-center mb-4 service-title">
+      <%= category.name %> Services
+    </h2>
 
-  <div class="row">
-    <% services.forEach(service => { %>
-    <div class="col-md-12 mb-4">
-      <div class="card shadow-sm p-3">
-        <div class="row g-0 align-items-center">
-          <!-- Service Image -->
-          <div class="col-md-2 text-center">
-            <img
-              src="<%= service.img %>"
-              class="img-fluid rounded"
-              alt="<%= service.name %> Image"
-              style="max-height: 100px"
-            />
-          </div>
-
-          <!-- Service Info -->
-          <div class="col-md-7">
-            <div class="card-body">
-              <h5 class="card-title mb-1"><%= service.name %></h5>
-              <p class="text-muted mb-1">
-                <i class="bi bi-star-fill"></i> <%= service.ratings %> (<%=
-                service.reviews %> reviews)
-              </p>
-              <p class="text-muted small mb-1">
-                ₹<%= service.cost %> • <%= service.duration %> mins
-              </p>
-              <a href="#" class="text-decoration-underline">View details</a>
+    <div class="row g-4">
+      <% services.forEach(service => { %>
+      <div class="col-12">
+        <div class="service-card">
+          <div class="row g-0 align-items-center">
+            <!-- Service Image -->
+            <div class="col-lg-2 col-md-3 col-sm-4 mb-3 mb-sm-0">
+              <div class="service-image">
+                <img
+                  src="<%= service.img %>"
+                  class="img-fluid rounded"
+                  alt="<%= service.name %>"
+                />
+              </div>
             </div>
-          </div>
 
-          <!-- Action Buttons -->
-          <div class="col-md-3 text-end">
-            <form action="/services/<%= service._id %>/providers" method="get">
-              <button class="btn btn-outline-primary">Book</button>
-            </form>
+            <!-- Service Info -->
+            <div class="col-lg-7 col-md-6 col-sm-8">
+              <div class="service-info">
+                <h5 class="service-name"><%= service.name %></h5>
+                <div class="rating-box">
+                  <span class="rating">
+                    <i class="fas fa-star"></i>
+                    <%= service.ratings %>
+                  </span>
+                  <span class="reviews">
+                    (<%= service.reviews %> reviews)
+                  </span>
+                </div>
+                <div class="service-meta">
+                  <span class="price">₹<%= service.cost %></span>
+                  <span class="duration">
+                    <i class="far fa-clock"></i>
+                    <%= service.duration %> mins
+                  </span>
+                </div>
+                <a href="#" class="details-link">View details</a>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-lg-3 col-md-3 text-end">
+              <form
+                action="/services/<%= service._id %>/providers"
+                method="get"
+              >
+                <button class="btn btn-book">Book Now</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+      <% }) %>
     </div>
-    <% }) %>
   </div>
 </div>
+
+<style>
+  .services-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 76px);
+    padding: 2rem 0;
+  }
+
+  .service-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 2rem;
+  }
+
+  .service-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .service-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+  }
+
+  .service-image img {
+    width: 100%;
+    max-width: 120px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  .service-info {
+    padding: 0 1rem;
+  }
+
+  .service-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+
+  .rating-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .rating {
+    color: #f6ad55;
+    font-weight: 500;
+  }
+
+  .rating i {
+    margin-right: 0.25rem;
+  }
+
+  .reviews {
+    color: #718096;
+    font-size: 0.9rem;
+  }
+
+  .service-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .price {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .duration {
+    color: #718096;
+    font-size: 0.9rem;
+  }
+
+  .duration i {
+    margin-right: 0.25rem;
+  }
+
+  .details-link {
+    color: #4299e1;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .details-link:hover {
+    text-decoration: underline;
+  }
+
+  .btn-book {
+    background-color: #4299e1;
+    color: white;
+    border: 2px solid #4299e1;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-book:hover {
+    background-color: transparent;
+    color: #4299e1;
+  }
+
+  @media (max-width: 768px) {
+    .service-card {
+      padding: 1rem;
+    }
+
+    .service-info {
+      padding: 1rem 0;
+    }
+
+    .service-image {
+      margin-bottom: 1rem;
+    }
+
+    .service-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .btn-book {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .services-page {
+      padding: 1rem 0;
+    }
+
+    .service-name {
+      font-size: 1.1rem;
+    }
+
+    .service-card {
+      padding: 1rem;
+    }
+
+    .rating-box {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
