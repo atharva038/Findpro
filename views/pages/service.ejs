@@ -1,28 +1,104 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<h4 class="text-center mt-4">Home Services at Your Doorstep</h4>
-<div class="all-services mt-5 ms-5">
-  <p class="text-center">What are you looking for?</p>
-  <br />
-  <div class="row all-services-cards">
+
+<!-- Service Header -->
+<div class="container">
+  <h4 class="text-center mt-4 service-title">Home Services at Your Doorstep</h4>
+  <p class="text-center service-subtitle">What are you looking for?</p>
+
+  <!-- Service Cards Grid -->
+  <div class="row g-4 justify-content-center py-4">
     <% categories.forEach(category => { %>
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0 svc p-3"> <!-- Added padding to the card -->
+    <div class="col-12 col-sm-6 col-lg-4">
+      <div class="card h-100 service-card shadow-sm border-0">
+        <div class="card-body p-4 text-center">
           <img
             src="<%= category.img %>"
-            class="card-img-top card-img mx-auto"
-            alt="<%= category.name %> Image"
+            class="card-img service-img mb-3"
+            alt="<%= category.name %>"
           />
-          <div class="card-body text-center">
-            <h5 class="card-title mb-2">
-              <%= category.name %>
-              <!-- Display the category name -->
-            </h5>
-            <a href="/services/<%= category._id %>" class="btn btn-dark mb-2 mt-4">
-              View Services
-            </a>
-          </div>
+          <h5 class="card-title"><%= category.name %></h5>
+          <a href="/services/<%= category._id %>" class="btn btn-dark mt-3">
+            View Services
+          </a>
         </div>
       </div>
+    </div>
     <% }) %>
   </div>
 </div>
+
+<style>
+  .service-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .service-subtitle {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    color: #666;
+    margin-top: 1rem;
+  }
+
+  .service-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .service-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto;
+    transition: transform 0.3s ease;
+  }
+
+  .service-card:hover .service-img {
+    transform: scale(1.05);
+  }
+
+  .card-title {
+    font-size: clamp(1.1rem, 3vw, 1.25rem);
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .btn-dark {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-dark:hover {
+    background-color: #2c3e50;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: 576px) {
+    .container {
+      padding: 0 1rem;
+    }
+
+    .service-card {
+      margin: 0 0.5rem;
+    }
+
+    .service-img {
+      width: 100px;
+      height: 100px;
+    }
+
+    .btn-dark {
+      width: 100%;
+    }
+  }
+</style>

@@ -63,7 +63,11 @@ app.use(flash());
 //   req.session.name = name;
 //   req.flash("success","user registered")
 // })
-
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 app.use(passport.initialize());
 app.use(passport.session());
 

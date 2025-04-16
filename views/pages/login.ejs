@@ -1,38 +1,175 @@
-<% layout("/layouts/boilerplate.ejs") %> <%= success %>
+<% layout("/layouts/boilerplate.ejs") %>
 
-<div class="wrapper">
-  <div class="shadow-lg border-0 mb-3 mt-3 login-container">
-    <p class="offset-3 col-6 mt-2" style="color: rgba(137, 135, 135, 0.775)">
-      Please enter your details
-    </p>
-    <h2 class="col-6 offset-3 mb-5 login-heading">Welcome Back</h2>
-    <div class="col-6 offset-3">
-      <form action="/login" method="post" class="needs-validation" novalidate>
-        <div class="mb-3">
-          <label for="username" class="form-label">Email</label>
+<div class="auth-page">
+  <div class="auth-card">
+    <!-- Card Header -->
+    <div class="text-center mb-4">
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="text-muted">Please enter your details</p>
+    </div>
+
+    <!-- Login Form -->
+    <form action="/login" method="post" class="needs-validation" novalidate>
+      <!-- Email Field -->
+      <div class="form-group mb-3">
+        <label for="username" class="form-label">Email</label>
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-envelope"></i>
+          </span>
           <input
-            name="username"
-            type="text"
+            type="email"
             id="username"
+            name="username"
             class="form-control"
+            placeholder="Enter your email"
             required
           />
         </div>
+      </div>
 
-        <div class="mb-5">
-          <label for="password" class="form-label">Password</label>
+      <!-- Password Field -->
+      <div class="form-group mb-4">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-lock"></i>
+          </span>
           <input
-            name="password"
             type="password"
             id="password"
+            name="password"
             class="form-control"
+            placeholder="Enter your password"
             required
           />
         </div>
-        <div class="d-grid gap-2">
-          <button class="btn btn-success mb-3 mt-3" type="submit">Login</button>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary w-100 py-2 mb-4">
+        Sign In
+      </button>
+
+      <!-- Sign Up Link -->
+      <div class="text-center">
+        <p class="mb-0">
+          Don't have an account?
+          <a href="/register" class="text-primary fw-semibold">Sign Up</a>
+        </p>
+      </div>
+    </form>
   </div>
 </div>
+
+<style>
+  .auth-page {
+    min-height: calc(100vh - 76px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: #f8f9fa;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 600px;
+    padding: 3rem 4rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+
+  .auth-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+  }
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .input-group {
+    margin-top: 0.5rem;
+  }
+  .input-group-text {
+    background-color: white;
+    border-right: none;
+
+    padding-right: 0.5rem;
+  }
+
+  .form-control {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+  }
+
+  .input-group-text,
+  .form-control {
+    border-color: #e2e8f0;
+  }
+
+  .btn-primary {
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    .auth-card {
+      max-width: 450px;
+      padding: 2.5rem;
+    }
+
+    .auth-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .auth-card {
+      max-width: 100%;
+      padding: 1.5rem;
+    }
+
+    .auth-title {
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .input-group-text,
+    .form-control {
+      padding: 0.625rem 0.875rem;
+    }
+
+    .btn-primary {
+      padding: 0.625rem;
+    }
+  }
+</style>
