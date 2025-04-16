@@ -1,48 +1,188 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">
+<nav
+  class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top px-4"
+>
+  <!-- Left side: Logo, Brand Name, and Nav Links -->
+  <div class="d-flex align-items-center">
+    <a class="navbar-brand d-flex align-items-center me-4" href="/">
       <img
         src="/img/icon.png"
-        alt=""
-        width="90"
-        height="90"
-        alt="Team Member"
-        class="rounded-circle mb-2"
+        width="45"
+        height="45"
+        alt="KnockNFix Logo"
+        class="rounded-circle"
       />
-      <a href="/" class="nav-link me-2 ">KnockNFix</a>
+      <span class="ms-2 fw-bold text-primary">KnockNFix</span>
     </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
 
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/services">All Services</a>
-        <!-- <a class="nav-link" href="/registerService">Register for new service</a> -->
+    <!-- All navigation links including dashboard -->
+    <div class="navbar-nav d-none d-lg-flex">
+      <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+      <a class="nav-link" href="/services"
+        ><i class="fas fa-tools me-1"></i> Services</a
+      >
+      <% if (typeof currProvider !== "undefined" && currProvider) { %>
+      <a class="nav-link" href="/dashboard"
+        ><i class="fas fa-columns me-1"></i> Dashboard</a
+      >
+      <% } %> <% if (typeof currCustomer !== "undefined" && currCustomer) { %>
+      <a class="nav-link" href="/dashboard"
+        ><i class="fas fa-user-circle me-1"></i> Dashboard</a
+      >
+      <% } %>
+    </div>
+  </div>
 
-        <% if (typeof currProvider !== "undefined" && currProvider) { %>
-        <a class="nav-link" href="/dashboard">Dashboard</a>
-        <% } %> <% if (typeof currCustomer !== "undefined" && currCustomer) { %>
-        <a class="nav-link" href="/dashboard">Dashboard</a>
-        <% } %>
-      </div>
-      <div class="navbar-nav ms-auto">
-        <% if(!currUser){ %>
-        <a class="nav-link" href="/login">Login</a>
-        <a class="nav-link" href="/register">SignUp</a>
-        <% } %> <% if(currUser) {%>
-        <a class="nav-link" href="/logout">Logout</a>
-        <% } %>
-      </div>
+  <!-- Toggle Button -->
+  <button
+    class="navbar-toggler border-0"
+    type="button"
+    data-bs-toggle="collapse"
+    data-bs-target="#navbarNavAltMarkup"
+    aria-controls="navbarNavAltMarkup"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar Content -->
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <!-- Mobile only navigation -->
+    <div class="d-lg-none">
+      <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+      <a class="nav-link" href="/services"
+        ><i class="fas fa-tools me-1"></i> Services</a
+      >
+      <% if (typeof currProvider !== "undefined" && currProvider) { %>
+      <a class="nav-link" href="/dashboard"
+        ><i class="fas fa-columns me-1"></i> Dashboard</a
+      >
+      <% } %> <% if (typeof currCustomer !== "undefined" && currCustomer) { %>
+      <a class="nav-link" href="/dashboard"
+        ><i class="fas fa-user-circle me-1"></i> Dashboard</a
+      >
+      <% } %>
+    </div>
+
+    <!-- Right-aligned Auth Links -->
+    <div class="navbar-nav ms-auto">
+      <% if(!currUser){ %>
+      <a class="nav-link auth-link" href="/login">
+        <i class="fas fa-sign-in-alt me-1"></i> Login
+      </a>
+      <a
+        class="nav-link btn btn-primary text-white signup-btn ms-2"
+        href="/register"
+      >
+        <i class="fas fa-user-plus me-1"></i> Sign Up
+      </a>
+      <% } else { %>
+      <a class="nav-link text-danger" href="/logout">
+        <i class="fas fa-sign-out-alt me-1"></i> Logout
+      </a>
+      <% } %>
     </div>
   </div>
 </nav>
+
+
+<style>
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.4rem;
+  }
+
+  .navbar-brand img {
+    transition: transform 0.3s ease;
+  }
+
+  .navbar-brand:hover img {
+    transform: scale(1.1);
+  }
+
+  .nav-link {
+    padding: 0.5rem 1rem;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .nav-link:not(.btn):not(.auth-link)::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: var(--bs-primary);
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:not(.btn):not(.auth-link):hover::after {
+    width: 100%;
+    left: 0;
+  }
+
+  .signup-btn {
+    background-color: var(--bs-primary);
+    border: 2px solid var(--bs-primary);
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .signup-btn:hover {
+    background-color: transparent;
+    color: var(--bs-primary) !important;
+  }
+
+  @media (max-width: 991.98px) {
+    .navbar-collapse {
+      background-color: white;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-nav {
+      padding: 0.5rem 0;
+    }
+
+    .nav-link {
+      padding: 0.7rem 1rem;
+      margin: 0.2rem 0;
+      border-radius: 0.25rem;
+    }
+
+    .signup-btn {
+      margin-top: 0.5rem;
+      width: 100%;
+      text-align: center;
+    }
+    .navbar .d-flex .navbar-nav {
+      margin-left: 1rem;
+    }
+
+    .navbar .d-flex .nav-link {
+      padding: 0.5rem 1rem;
+      color: var(--bs-gray-700);
+    }
+
+    @media (max-width: 991.98px) {
+      .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        padding: 1rem;
+        margin: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+</style>
