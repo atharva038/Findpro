@@ -28,8 +28,8 @@ const bookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed", "cancelled"],
-    default: "pending",
+    enum: ['pending', 'confirmed', 'rejected', 'completed', 'cancelled'],
+    default: 'pending'
   },
   location: {
     type: { type: String, default: 'Point' },
@@ -37,6 +37,42 @@ const bookingSchema = new mongoose.Schema({
   },
 
   notes: { type: String },
+  totalCost: {
+    type: Number,
+    required: true
+  },
+  providerConfirmation: {
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending'
+    },
+    confirmedAt: Date,
+    rejectionReason: String
+  },
+  advancePayment: {
+    amount: Number,
+    paymentId: String,
+    orderId: String,
+    paid: {
+      type: Boolean,
+      default: false
+    }
+  },
+  finalPayment: {
+    amount: Number,
+    paymentId: String,
+    orderId: String,
+    paid: {
+      type: Boolean,
+      default: false
+    }
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'refunded'],
+    default: 'pending'
+  },
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);

@@ -1,0 +1,108 @@
+<% layout("/layouts/boilerplate.ejs") %>
+<div class="payment-success-page">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card shadow-lg border-0">
+          <div class="card-body text-center p-5">
+            <!-- Success Icon -->
+            <div class="success-icon mb-4">
+              <i class="fas fa-check-circle"></i>
+            </div>
+
+            <!-- Success Message -->
+            <h2 class="mb-4">Payment Successful!</h2>
+            <p class="text-muted mb-4">
+              Your booking has been confirmed. Thank you for choosing KnockNFix!
+            </p>
+
+            <!-- Booking Details -->
+            <div class="booking-details text-start p-4 mb-4">
+              <h5 class="mb-3">Booking Details</h5>
+              <div class="detail-row">
+                <span class="label">Booking ID:</span>
+                <span class="value">#<%= booking._id %></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Service:</span>
+                <span class="value"><%= service.name %></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Provider:</span>
+                <span class="value"><%= provider.user.name %></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Amount Paid:</span>
+                <span class="value">₹<%= payment.amount %></span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Date & Time:</span>
+                <span class="value">
+                  <%= new Date(booking.scheduledTime).toLocaleString() %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2">
+              <a href="/dashboard" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Go to Dashboard
+              </a>
+              <button
+                onclick="window.print()"
+                class="btn btn-outline-secondary"
+              >
+                <i class="fas fa-print me-2"></i>Print Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .payment-success-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 76px);
+  }
+
+  .success-icon {
+    font-size: 5rem;
+    color: #10b981;
+  }
+
+  .booking-details {
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-row .label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .detail-row .value {
+    color: #1e293b;
+    font-weight: 600;
+  }
+
+  @media print {
+    .btn {
+      display: none;
+    }
+  }
+</style>
