@@ -5,6 +5,7 @@ const Booking = require("../models/Booking");
 const Service = require("../models/Service");
 const User = require("../models/User");
 const ServiceProvider = require("../models/ServiceProvider");
+const { isLoggedIn } = require("../middleware");
 
 // POST route to confirm booking
 router.post("/dashboard", async (req, res) => {
@@ -90,5 +91,79 @@ router.get("/mybookings", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+router.post("/confirm", async (req, res) => {
+  try {
+    const {
+      serviceId,
+      providerId,
+      date,
+      latitude,
+      longitude,
+      detailedAddress,
+      notes
+    } = req.body;
 
+
+    // Validate required fields
+    if (!serviceId || !providerId || !date || !detailedAddress) {
+      req.flash('error', 'All required fields must be filled');
+      return res.redirect('back');
+    }
+
+    // Get service and provider details with error handling
+    const [service, provider] = await Promise.all([
+      Service.findById(serviceId),
+      ServiceProvider.findById(providerId)
+        .populate('user')
+        .populate('servicesOffered')
+    ]);
+
+    if (!service || !provider) {
+      req.flash('error', 'Service or provider not found');
+      return res.redirect('/services');
+    }
+
+    let serviceDetails = null;
+    provider.servicesOffered.forEach(category => {
+      category.services.forEach(s => {
+        if (s.service.toString() === serviceId) {
+          serviceDetails = s;
+        }
+      });
+    });
+
+    if (!serviceDetails) {
+      req.flash('error', 'Service details not found');
+      return res.redirect('/services');
+    }
+    // Create booking data object
+    const bookingData = {
+      serviceId,
+      providerId,
+      date: new Date(date),
+      location: {
+        type: 'Point',
+        coordinates: [parseFloat(longitude), parseFloat(latitude)]
+      },
+      detailedAddress,
+      notes: notes || '',
+      customerId: req.user._id,
+      cost: serviceDetails.customCost // Add the custom cost
+
+    };
+
+    // Render confirmation page
+    res.render('pages/booking-confirm', {
+      service,
+      provider,
+      bookingData,
+      serviceDetails,
+      user: req.user
+    });
+  } catch (err) {
+    console.error('Error in booking confirmation:', err);
+    req.flash('error', 'Something went wrong');
+    res.redirect('/services');
+  }
+});
 module.exports = router;

@@ -1,124 +1,131 @@
 <% layout("/layouts/boilerplate.ejs") %>
+<link rel="stylesheet" href="/css/booking.css" />
 
-<!-- Custom Styles -->
-<style>
-  #map {
-    height: 400px;
-    width: 100%;
-    margin: 15px 0;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .controls {
-    margin-top: 10px;
-    border: 1px solid transparent;
-    border-radius: 2px 0 0 2px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    height: 32px;
-    outline: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  }
-</style>
-
-<div class="container mt-5">
-  <div class="card shadow-lg border-0 rounded-4">
-    <div class="card-header bg-primary bg-gradient text-white text-center py-3">
-      <h2 class="mb-0">
-        <i class="fas fa-calendar-check me-2"></i>Book Service
-      </h2>
-    </div>
-
-    <div class="card-body p-4">
-      <!-- Service Overview -->
-      <div class="bg-light rounded-3 p-4 mb-4">
-        <!-- ...existing service overview code... -->
+<div class="booking-page">
+  <div class="container py-4">
+    <div class="card shadow-lg border-0 booking-card">
+      <div class="card-header bg-primary text-white py-4">
+        <h2 class="text-center mb-0">
+          <i class="fas fa-calendar-check me-2"></i>Book Service
+        </h2>
       </div>
 
-      <!-- Booking Form -->
-      <form action="/dashboard" method="post" id="bookingForm">
-        <input type="hidden" name="serviceId" value="<%= service._id %>" />
-        <input type="hidden" name="providerId" value="<%= provider._id %>" />
-
-        <!-- Date and Time -->
-        <div class="mb-4">
-          <label class="form-label">
-            <i class="far fa-calendar-alt me-2"></i>Select Date and Time
-          </label>
-          <input
-            type="datetime-local"
-            name="date"
-            class="form-control"
-            required
-            min="<%= new Date().toISOString().slice(0, 16) %>"
-          />
+      <div class="card-body p-4">
+        <!-- Service Overview -->
+        <div class="service-overview mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-2 text-center mb-3 mb-md-0">
+              <img
+                src="<%= service.img %>"
+                alt="<%= service.name %>"
+                class="service-img"
+              />
+            </div>
+            <div class="col-md-7 mb-3 mb-md-0">
+              <h3 class="service-name"><%= service.name %></h3>
+              <p class="provider-name mb-2">
+                <i class="fas fa-user me-2"></i><%= provider.user.name %>
+              </p>
+              <div class="service-details">
+                <span class="price">₹<%= serviceDetails.customCost %></span>
+                <span class="duration">
+                  <i class="far fa-clock me-1"></i><%= service.duration %> mins
+                </span>
+                <% if (serviceDetails.experience) { %>
+                <span class="experience">
+                  <i class="fas fa-briefcase me-1"></i><%=
+                  serviceDetails.experience %>
+                </span>
+                <% } %>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Location Selection -->
-        <div class="mb-4">
-          <label class="form-label">
-            <i class="fas fa-map-marker-alt me-2"></i>Location Details
-          </label>
+        <!-- Booking Form -->
+        <form action="/booking/confirm" method="post" id="bookingForm">
+          <input type="hidden" name="serviceId" value="<%= service._id %>" />
+          <input type="hidden" name="providerId" value="<%= provider._id %>" />
 
-          <input
-            type="text"
-            id="address-input"
-            class="form-control"
-            placeholder="Search for your location..."
-          />
-
-          <button
-            type="button"
-            id="fetch-location-btn"
-            class="btn btn-outline-primary mt-2"
-          >
-            <i class="fas fa-location-arrow me-2"></i>Use Current Location
-          </button>
-
-          <!-- Map Container -->
-          <div id="map"></div>
-
-          <div class="mt-2">
-            <textarea
-              id="detailed-address"
-              name="detailedAddress"
+          <!-- Date and Time -->
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="far fa-calendar-alt me-2"></i>Select Date and Time
+            </label>
+            <input
+              type="datetime-local"
+              name="date"
               class="form-control"
-              rows="2"
-              placeholder="Enter detailed address (flat no, landmark etc.)"
               required
+              min="<%= new Date().toISOString().slice(0, 16) %>"
+            />
+          </div>
+
+          <!-- Location Selection -->
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-map-marker-alt me-2"></i>Location Details
+            </label>
+
+            <input
+              type="text"
+              id="address-input"
+              class="form-control"
+              placeholder="Search for your location..."
+            />
+
+            <button
+              type="button"
+              id="fetch-location-btn"
+              class="btn btn-outline-primary mt-2"
+            >
+              <i class="fas fa-location-arrow me-2"></i>Use Current Location
+            </button>
+
+            <!-- Map Container -->
+            <div id="map"></div>
+
+            <div class="mt-2">
+              <textarea
+                id="detailed-address"
+                name="detailedAddress"
+                class="form-control"
+                rows="2"
+                placeholder="Enter detailed address (flat no, landmark etc.)"
+                required
+              ></textarea>
+            </div>
+
+            <input type="hidden" id="latitude" name="latitude" required />
+            <input type="hidden" id="longitude" name="longitude" required />
+            <script src="/js/mapBooking.js"></script>
+          </div>
+
+          <!-- Notes -->
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-comment-alt me-2"></i>Special Instructions
+            </label>
+            <textarea
+              name="notes"
+              class="form-control"
+              rows="3"
+              placeholder="Any specific requirements or instructions..."
             ></textarea>
           </div>
 
-          <input type="hidden" id="latitude" name="latitude" required />
-          <input type="hidden" id="longitude" name="longitude" required />
-          <script src="/js/mapBooking.js"></script>
-        </div>
-
-        <!-- Notes -->
-        <div class="mb-4">
-          <label class="form-label">
-            <i class="fas fa-comment-alt me-2"></i>Special Instructions
-          </label>
-          <textarea
-            name="notes"
-            class="form-control"
-            rows="3"
-            placeholder="Any specific requirements or instructions..."
-          ></textarea>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary w-100 py-3">
-          <i class="fas fa-check-circle me-2"></i>Confirm Booking
-        </button>
-      </form>
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-100 py-3">
+            <i class="fas fa-check-circle me-2"></i>Confirm Booking
+          </button>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Error Display -->
-<div id="map-error" class="alert alert-danger d-none">
-  Could not load Google Maps. Please refresh the page or try again later.
+  <!-- Error Display -->
+  <div id="map-error" class="alert alert-danger d-none">
+    Could not load Google Maps. Please refresh the page or try again later.
+  </div>
+  <!-- <script src="/js/mapBooking.js"></script> -->
 </div>
-<!-- <script src="/js/mapBooking.js"></script> -->

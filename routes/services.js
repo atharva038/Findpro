@@ -97,70 +97,136 @@ router.get("/:id/providers", async (req, res) => {
   }
 });
 
+// router.get("/:id/:provider/book", async (req, res) => {
+//   try {
+//     // Check if the user is authenticated
+//     if (!req.isAuthenticated()) {
+//       req.flash("error", "You must be logged in to book a service.");
+//       return res.redirect("back"); // Redirects to the previous page
+//     }
+
+//     // Extract service and provider IDs from the URL
+//     const { id: serviceId, provider: providerId } = req.params;
+
+//     // Fetch the specific service by ID
+//     const service = await Service.findById(serviceId)
+//       .populate("category")
+//       .lean();
+
+//     if (!service) {
+//       return res
+//         .status(404)
+//         .render("pages/services", { error: "Service not found." });
+//     }
+
+//     // Fetch the specific provider by ID
+//     const provider = await ServiceProvider.findById(providerId)
+//       .populate("user") // Assuming 'user' has provider details
+//       .populate("servicesOffered")
+//       .lean();
+
+//     if (!provider) {
+//       return res
+//         .status(404)
+//         .render("pages/services", { error: "Provider not found." });
+//     }
+
+//     // Fetch the user's saved addresses
+//     const user = await User.findById(req.user._id).lean(); // Ensure user is authenticated
+//     const addresses = user ? user.addresses : []; // Get saved addresses if they exist
+
+//     // Render the booking page with the fetched service, provider, and addresses
+//     res.render("pages/booking", { service, provider, addresses });
+//   } catch (error) {
+//     console.error("Error fetching service or provider:", error);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+// // Route for customers to book a service
+// router.post("/book/:serviceId", async (req, res) => {
+//   try {
+//     const service = await Service.findById(req.params.serviceId);
+//     if (!service) {
+//       return res.status(404).send("Service not found");
+//     }
+
+//     const booking = new Booking({
+//       customer: req.user.id, // Assuming customer is logged in
+//       service: req.params.serviceId,
+//       provider: service.provider,
+//     });
+
+//     await booking.save();
+//     res.redirect("/bookings");
+//   } catch (err) {
+//     res.status(500).send("Server error");
+//   }
+// });
+// Update the book route
 router.get("/:id/:provider/book", async (req, res) => {
   try {
     // Check if the user is authenticated
     if (!req.isAuthenticated()) {
       req.flash("error", "You must be logged in to book a service.");
-      return res.redirect("back"); // Redirects to the previous page
+      return res.redirect(req.get("Referrer") || "/"); // Updated redirect
     }
 
-    // Extract service and provider IDs from the URL
     const { id: serviceId, provider: providerId } = req.params;
 
-    // Fetch the specific service by ID
-    const service = await Service.findById(serviceId)
-      .populate("category")
-      .lean();
+    // Fetch service and provider
+    const [service, provider] = await Promise.all([
+      Service.findById(serviceId).populate("category").lean(),
+      ServiceProvider.findById(providerId)
+        .populate("user")
+        .populate("servicesOffered.services.service")
+        .lean()
+    ]);
 
     if (!service) {
-      return res
-        .status(404)
-        .render("pages/services", { error: "Service not found." });
+      req.flash("error", "Service not found");
+      return res.redirect("/services");
     }
-
-    // Fetch the specific provider by ID
-    const provider = await ServiceProvider.findById(providerId)
-      .populate("user") // Assuming 'user' has provider details
-      .populate("servicesOffered")
-      .lean();
 
     if (!provider) {
-      return res
-        .status(404)
-        .render("pages/services", { error: "Provider not found." });
+      req.flash("error", "Provider not found");
+      return res.redirect("/services");
     }
 
-    // Fetch the user's saved addresses
-    const user = await User.findById(req.user._id).lean(); // Ensure user is authenticated
-    const addresses = user ? user.addresses : []; // Get saved addresses if they exist
-
-    // Render the booking page with the fetched service, provider, and addresses
-    res.render("pages/booking", { service, provider, addresses });
-  } catch (error) {
-    console.error("Error fetching service or provider:", error);
-    res.status(500).send("Server error");
-  }
-});
-
-// Route for customers to book a service
-router.post("/book/:serviceId", async (req, res) => {
-  try {
-    const service = await Service.findById(req.params.serviceId);
-    if (!service) {
-      return res.status(404).send("Service not found");
-    }
-
-    const booking = new Booking({
-      customer: req.user.id, // Assuming customer is logged in
-      service: req.params.serviceId,
-      provider: service.provider,
+    // Find the specific service details from provider's servicesOffered
+    let serviceDetails = null;
+    provider.servicesOffered.forEach(category => {
+      category.services.forEach(s => {
+        if (s.service._id.toString() === serviceId) {
+          serviceDetails = s;
+        }
+      });
     });
 
-    await booking.save();
-    res.redirect("/bookings");
-  } catch (err) {
-    res.status(500).send("Server error");
+    // If service details not found
+    if (!serviceDetails) {
+      req.flash("error", "Service details not found");
+      return res.redirect("/services");
+    }
+
+    // Fetch user addresses
+    const user = await User.findById(req.user._id).lean();
+    const addresses = user ? user.addresses : [];
+
+    // Add custom cost to service object
+    service.cost = serviceDetails.customCost;
+    service.providerExperience = serviceDetails.experience;
+
+    res.render("pages/booking", {
+      service,
+      provider,
+      addresses,
+      serviceDetails
+    });
+  } catch (error) {
+    console.error("Error fetching service or provider:", error);
+    req.flash("error", "Something went wrong");
+    res.redirect("/services");
   }
 });
 module.exports = router;

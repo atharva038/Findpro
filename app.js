@@ -112,6 +112,7 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/", bookingRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/booking', bookingRoutes);
 
 // Listen on port
 app.listen(3000, () => {

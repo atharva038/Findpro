@@ -1,58 +1,109 @@
 <% layout("/layouts/boilerplate.ejs") %>
+<link rel="stylesheet" href="/css/customerDashboard.css" />
 
-<div class="container mt-5">
-  <!-- Profile Section -->
-  <div class="profile-section mb-5">
-    <div class="card shadow-sm">
-      <div class="card-body">
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <img
+        src="<%= user.profileImage %>"
+        alt="Profile"
+        class="sidebar-profile-img"
+      />
+      <h5 class="sidebar-name"><%= user.name %></h5>
+      <p class="sidebar-email"><%= user.username %></p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#profile" class="nav-link active" data-section="profile">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <a href="#bookings" class="nav-link" data-section="bookings">
+        <i class="fas fa-calendar-check"></i>
+        <span>Bookings</span>
+      </a>
+      <a href="#settings" class="nav-link" data-section="settings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="/logout" class="nav-link text-danger">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Profile Section -->
+    <section id="profile" class="dashboard-section active">
+      <div class="section-header">
+        <h2><i class="fas fa-user-circle me-2"></i>Profile Information</h2>
+      </div>
+      <div class="content-card">
         <div class="row">
-          <!-- Profile Picture -->
           <div class="col-md-4 text-center">
-            <div class="profile-image-container mb-3">
+            <div class="profile-image-container mb-4">
               <img
                 src="<%= user.profileImage %>"
-                alt="Profile Picture"
+                alt="Profile"
                 class="profile-image"
               />
+              <div class="image-overlay">
+                <i class="fas fa-camera"></i>
+                <span>Change Photo</span>
+              </div>
             </div>
-            <h3 class="mb-2"><%= user.name %></h3>
-            <p class="text-muted"><%= user.username %></p>
+            <h3 class="user-name mb-2"><%= user.name %></h3>
+            <p class="user-email mb-4"><%= user.username %></p>
           </div>
 
-          <!-- Profile Details and Edit Options -->
           <div class="col-md-8">
-            <h4 class="mb-4">Edit Profile</h4>
-            <form action="/i" method="POST">
+            <form action="/profile/update" method="POST" class="profile-form">
               <div class="form-group mb-3">
-                <label for="profileImage" class="form-label"
-                  >Profile Photo URL</label
-                >
-                <div class="input-group">
-                  <span class="input-group-text"
-                    ><i class="fas fa-image"></i
-                  ></span>
-                  <input
-                    type="text"
-                    id="profileImage"
-                    name="profileImage"
-                    placeholder="Enter image URL"
-                    class="form-control"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="name" class="form-label">Full Name</label>
+                <label class="form-label">Full Name</label>
                 <div class="input-group">
                   <span class="input-group-text"
                     ><i class="fas fa-user"></i
                   ></span>
                   <input
                     type="text"
-                    id="name"
                     name="name"
-                    placeholder="Enter new name"
                     class="form-control"
+                    value="<%= user.name %>"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-envelope"></i
+                  ></span>
+                  <input
+                    type="email"
+                    name="email"
+                    class="form-control"
+                    value="<%= user.username %>"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-phone"></i
+                  ></span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    class="form-control"
+                    value="<%= user.phone || '' %>"
                   />
                 </div>
               </div>
@@ -64,134 +115,208 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Bookings Section -->
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h4 class="card-title mb-4">Your Bookings</h4>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Service</th>
-              <th>Provider</th>
-              <th>Date</th>
-              <th>Address</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% bookings.forEach(booking => { %>
-            <tr>
-              <td>
-                <i class="fas fa-tools me-2 text-primary"></i>
-                <%= booking.service.name %>
-              </td>
-              <td>
-                <img
-                  src="<%= booking.provider.user.profileImage || 'https://via.placeholder.com/30' %>"
-                  class="rounded-circle me-2"
-                  width="30"
-                  height="30"
-                  alt="Provider"
-                />
-                <%= booking.provider.user.name %>
-              </td>
-              <td>
-                <i class="far fa-calendar-alt me-2 text-muted"></i>
-                <%= booking.bookingDate.toLocaleString() %>
-              </td>
-              <td>
-                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                <%= booking.address %>
-              </td>
-              <td>
-                <% const statusClasses = { 'pending': 'bg-warning', 'confirmed':
-                'bg-success', 'completed': 'bg-info', 'cancelled': 'bg-danger' }
-                %>
-                <span
-                  class="badge <%= statusClasses[booking.status.toLowerCase()] || 'bg-secondary' %>"
-                >
-                  <%= booking.status %>
-                </span>
-              </td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
+    <!-- Bookings Section -->
+    <section id="bookings" class="dashboard-section">
+      <div class="section-header">
+        <h2><i class="fas fa-calendar-alt me-2"></i>Your Bookings</h2>
+        <div class="section-actions">
+          <select class="form-select status-filter">
+            <option value="all">All Bookings</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
       </div>
-    </div>
+
+      <div class="content-card">
+        <div class="table-responsive">
+          <table class="table table-hover booking-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Provider</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% bookings.forEach(booking => { %>
+              <tr>
+                <td>
+                  <div class="service-info">
+                    <i class="fas fa-tools service-icon"></i>
+                    <div>
+                      <div class="service-name">
+                        <%= booking.service.name %>
+                      </div>
+                      <div class="service-price">
+                        ₹<%= booking.service.cost %>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="provider-info">
+                    <img
+                      src="<%= booking.provider.user.profileImage || '/img/default-avatar.png' %>"
+                      alt="Provider"
+                      class="provider-img"
+                    />
+                    <div class="provider-name">
+                      <%= booking.provider.user.name %>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="booking-time">
+                    <div class="booking-date">
+                      <%= new
+                      Date(booking.scheduledTime).toLocaleDateString('en-US', {
+                      weekday: 'short', year: 'numeric', month: 'short', day:
+                      'numeric' }) %>
+                    </div>
+                    <div class="booking-hour">
+                      <%= new
+                      Date(booking.scheduledTime).toLocaleTimeString('en-US', {
+                      hour: '2-digit', minute: '2-digit' }) %>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="status-badge status-<%= booking.status.toLowerCase() %>"
+                  >
+                    <%= booking.status %>
+                  </span>
+                </td>
+                <td>
+                  <div class="booking-actions">
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      title="View Details"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <% if (booking.status === 'pending') { %>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      title="Cancel Booking"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings" class="dashboard-section">
+      <div class="section-header">
+        <h2><i class="fas fa-cog me-2"></i>Settings</h2>
+      </div>
+      <div class="content-card">
+        <div class="settings-grid">
+          <div class="setting-item">
+            <div class="setting-header">
+              <i class="fas fa-bell"></i>
+              <h3>Notifications</h3>
+            </div>
+            <div class="setting-content">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="emailNotif"
+                />
+                <label class="form-check-label" for="emailNotif"
+                  >Email Notifications</label
+                >
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="smsNotif" />
+                <label class="form-check-label" for="smsNotif"
+                  >SMS Notifications</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-header">
+              <i class="fas fa-lock"></i>
+              <h3>Security</h3>
+            </div>
+            <div class="setting-content">
+              <button class="btn btn-outline-primary mb-2 w-100">
+                <i class="fas fa-key me-2"></i>Change Password
+              </button>
+              <button class="btn btn-outline-primary w-100">
+                <i class="fas fa-shield-alt me-2"></i>Two-Factor Authentication
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
-<style>
-  .profile-image-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
 
-  .profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Handle section navigation
+    const navLinks = document.querySelectorAll(".nav-link[data-section]");
+    const sections = document.querySelectorAll(".dashboard-section");
 
-  .profile-image:hover {
-    transform: scale(1.05);
-  }
+    navLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        const targetSection = this.getAttribute("data-section");
 
-  .card {
-    border: none;
-    border-radius: 15px;
-    transition: transform 0.2s ease;
-  }
+        // Update active states
+        navLinks.forEach((l) => l.classList.remove("active"));
+        this.classList.add("active");
 
-  .card:hover {
-    transform: translateY(-5px);
-  }
+        // Show/hide sections
+        sections.forEach((section) => {
+          section.style.display =
+            section.id === targetSection ? "block" : "none";
+        });
+      });
+    });
 
-  .form-control {
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    padding: 0.75rem 1rem;
-  }
+    // Handle booking status filter
+    const statusFilter = document.querySelector(".status-filter");
+    if (statusFilter) {
+      statusFilter.addEventListener("change", function () {
+        const rows = document.querySelectorAll(".booking-table tbody tr");
+        const selectedStatus = this.value.toLowerCase();
 
-  .form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
-  }
+        rows.forEach((row) => {
+          const status = row
+            .querySelector(".status-badge")
+            .textContent.toLowerCase();
+          row.style.display =
+            selectedStatus === "all" || status === selectedStatus ? "" : "none";
+        });
+      });
+    }
 
-  .input-group-text {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-  }
-
-  .btn-primary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-  }
-
-  .table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    color: #6c757d;
-  }
-
-  .badge {
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-  }
-
-  .table td {
-    vertical-align: middle;
-  }
-</style>
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll("[title]");
+    tooltips.forEach((el) => {
+      new bootstrap.Tooltip(el);
+    });
+  });
+</script>
