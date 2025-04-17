@@ -1,141 +1,308 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<div class="container py-5">
-  <h1 class="text-center mb-5 text-primary">
-    <%= category.name %> - Service Providers
-  </h1>
+<div class="providers-page">
+  <div class="container py-5">
+    <h1 class="text-center mb-5">
+      <span class="category-name"><%= category.name %></span>
+      <span class="title-separator">-</span>
+      <span class="title-sub">Service Providers</span>
+    </h1>
 
-  <% if (providers && providers.length > 0) { %>
-  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4">
-    <% providers.forEach(provider => { let matchedService = null;
-    provider.servicesOffered.forEach(offer => { offer.services.forEach(s => { if
-    (s.service == serviceId) matchedService = s; }); }); %>
+    <% if (providers && providers.length > 0) { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <% providers.forEach(provider => { let matchedService = null;
+      provider.servicesOffered.forEach(offer => { offer.services.forEach(s => {
+      if (s.service == serviceId) matchedService = s; }); }); %>
+      <div class="col">
+        <div class="provider-card">
+          <!-- Profile Image -->
+          <div class="profile-image">
+            <img
+              src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+              alt="<%= provider.user.name %>"
+            />
+          </div>
 
-    <div class="col">
-      <div class="card shadow border-0 h-100 rounded-3 overflow-hidden">
-        <!-- Profile Image -->
-        <div class="card-img-wrapper">
-          <img
-            src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-            class="card-img-top"
-            alt="<%= provider.user.name %>"
-          />
-        </div>
+          <!-- Provider Info -->
+          <div class="provider-info">
+            <h2 class="provider-name"><%= provider.user.name %></h2>
 
-        <!-- Provider Info -->
-        <div class="card-body text-center">
-          <h5 class="card-title mb-2 fw-bold text-dark">
-            <%= provider.user.name %>
-          </h5>
+            <div class="info-grid">
+              <div class="info-item">
+                <i class="fas fa-briefcase"></i>
+                <span class="label">Experience:</span>
+                <span class="value"
+                  ><%= matchedService && matchedService.experience ?
+                  matchedService.experience : "N/A" %></span
+                >
+              </div>
 
-          <p class="card-text mb-1">
-            <strong>Experience:</strong>
-            <%= matchedService && matchedService.experience ?
-            matchedService.experience : "N/A" %>
-          </p>
+              <div class="info-item">
+                <i class="fas fa-rupee-sign"></i>
+                <span class="label">Price:</span>
+                <span class="value"
+                  >₹<%= matchedService && matchedService.customCost ?
+                  matchedService.customCost : "N/A" %></span
+                >
+              </div>
 
-          <p class="card-text mb-1">
-            <strong>Price:</strong> ₹ <%= matchedService &&
-            matchedService.customCost ? matchedService.customCost : "N/A" %>
-          </p>
+              <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span class="label">Location:</span>
+                <span class="value"
+                  ><%= provider.address || "Not Available" %></span
+                >
+              </div>
+            </div>
+          </div>
 
-          <p class="card-text mb-0">
-            <strong>Location:</strong>
-            <%= provider.address || "Not Available" %>
-          </p>
-        </div>
-
-        <!-- Action Button -->
-        <div class="card-footer bg-transparent border-0 text-center">
-          <form
-            action="/services/<%= serviceId %>/<%= provider._id %>/book"
-            method="get"
-          >
-            <button class="btn btn-primary w-100">
-              <i class="fas fa-calendar-check me-2"></i>Book this Provider
-            </button>
-          </form>
+          <!-- Action Button -->
+          <div class="provider-action">
+            <form
+              action="/services/<%= serviceId %>/<%= provider._id %>/book"
+              method="get"
+            >
+              <button class="book-btn">
+                <i class="fas fa-calendar-check"></i>
+                Book this Provider
+              </button>
+            </form>
+          </div>
         </div>
       </div>
+      <% }); %>
     </div>
-    <% }); %>
-  </div>
 
-  <% } else { %>
-  <!-- No Providers -->
-  <div class="text-center py-5">
-    <div class="card shadow-sm border-0">
-      <div class="card-body py-5">
-        <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
-        <h3 class="text-muted mb-3">No Providers Available</h3>
-        <p class="text-muted mb-4">
-          Sorry, there are currently no providers for this service.
-        </p>
-        <a href="/services" class="btn btn-outline-primary">
-          <i class="fas fa-arrow-left me-2"></i>Back to Services
+    <% } else { %>
+    <!-- No Providers -->
+    <div class="empty-state">
+      <div class="empty-card">
+        <i class="fas fa-user-slash"></i>
+        <h3>No Providers Available</h3>
+        <p>Sorry, there are currently no providers for this service.</p>
+        <a href="/services" class="back-btn">
+          <i class="fas fa-arrow-left"></i>
+          Back to Services
         </a>
       </div>
     </div>
+    <% } %>
   </div>
-  <% } %>
 </div>
 
 <style>
-  /* Adjust image to fit the card */
-  .card-img-wrapper {
-    height: 220px; /* Set a consistent height for all images */
+  .providers-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 76px);
+    padding: 2rem 0;
+  }
+
+  .category-name {
+    color: #3182ce;
+    font-weight: 700;
+  }
+
+  .title-separator {
+    color: #718096;
+    margin: 0 0.5rem;
+  }
+
+  .title-sub {
+    color: #4a5568;
+  }
+
+  .provider-card {
+    background: white;
+    border-radius: 1rem;
     overflow: hidden;
-    border-bottom: 2px solid #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .card-img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ensures the image fills the space while maintaining aspect ratio */
-    transition: transform 0.3s ease;
-  }
-
-  .card-img-wrapper img:hover {
-    transform: scale(1.05); /* Slight zoom effect on hover */
-  }
-
-  /* Card styling */
-  .card {
-    border-radius: 15px;
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
+  .provider-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 
-  .card-footer {
-    background-color: #f8f9fa;
+  .profile-image {
+    height: 200px;
+    overflow: hidden;
+    border-bottom: 2px solid #f0f0f0;
   }
 
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+  .profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .provider-card:hover .profile-image img {
+    transform: scale(1.05);
+  }
+
+  .provider-info {
+    padding: 1.5rem;
+  }
+
+  .provider-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .info-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .info-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .info-item i {
+    color: #4299e1;
+    font-size: 1rem;
+    grid-row: span 2;
+  }
+
+  .info-item .label {
+    color: #718096;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .info-item .value {
+    color: #2d3748;
+    font-weight: 500;
+  }
+
+  .provider-action {
+    padding: 1.5rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .book-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .book-btn:hover {
+    background-color: #2c5282;
+  }
+
+  .empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+  }
+
+  .empty-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .empty-card i {
+    font-size: 4rem;
+    color: #a0aec0;
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-card h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+  }
+
+  .empty-card p {
+    color: #718096;
+    margin-bottom: 2rem;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    color: #3182ce;
+    border: 2px solid #3182ce;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
     transition: all 0.3s ease;
   }
 
-  .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+  .back-btn:hover {
+    background-color: #3182ce;
+    color: white;
   }
 
-  h1 {
-    font-size: 2rem;
-    font-weight: bold;
+  @media (max-width: 768px) {
+    .providers-page {
+      padding: 1rem 0;
+    }
+
+    .provider-card {
+      margin: 0 0.5rem;
+    }
+
+    .profile-image {
+      height: 180px;
+    }
+
+    .provider-info {
+      padding: 1rem;
+    }
+
+    .provider-action {
+      padding: 1rem;
+    }
+
+    .empty-card {
+      padding: 2rem 1rem;
+    }
   }
 
-  .card-title {
-    font-size: 1.25rem;
-  }
+  @media (max-width: 576px) {
+    h1 {
+      font-size: 1.5rem;
+    }
 
-  .card-text {
-    font-size: 0.95rem;
-    color: #6c757d;
+    .provider-name {
+      font-size: 1.1rem;
+    }
+
+    .info-item {
+      grid-template-columns: auto 1fr;
+    }
+
+    .info-item .label,
+    .info-item .value {
+      font-size: 0.875rem;
+    }
+
+    .empty-card i {
+      font-size: 3rem;
+    }
   }
 </style>
