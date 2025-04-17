@@ -19,6 +19,7 @@ const aboutRoutes = require("./routes/about.js");
 const dashboardRoutes = require("./routes/dashboard.js");
 const adminRoutes = require('./routes/admin');
 const locationRoutes = require('./routes/location');
+const paymentRoutes = require('./routes/payment');
 
 // Database connection
 
@@ -40,6 +41,8 @@ main();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.engine("ejs", ejsMate);
+app.use(express.json());
+
 app.use(express.static(path.join(__dirname, "/public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -109,10 +112,11 @@ app.use("/", authorisationRoutes);
 app.use("/services", servicesRoutes);
 app.use("/", aboutRoutes);
 app.use("/dashboard", dashboardRoutes);
-app.use("/", bookingRoutes);
+// app.use("/", bookingRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/booking', bookingRoutes);
+app.use('/payment', paymentRoutes);
 
 // Listen on port
 app.listen(3000, () => {

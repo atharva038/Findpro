@@ -91,7 +91,7 @@ router.get("/mybookings", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-router.post("/confirm", async (req, res) => {
+router.post("/confirm", isLoggedIn, async (req, res) => {
   try {
     const {
       serviceId,
@@ -102,7 +102,6 @@ router.post("/confirm", async (req, res) => {
       detailedAddress,
       notes
     } = req.body;
-
 
     // Validate required fields
     if (!serviceId || !providerId || !date || !detailedAddress) {
@@ -118,41 +117,55 @@ router.post("/confirm", async (req, res) => {
         .populate('servicesOffered')
     ]);
 
+    // Check if service and provider exist
     if (!service || !provider) {
       req.flash('error', 'Service or provider not found');
       return res.redirect('/services');
     }
 
+    // Find service details from provider's offerings
     let serviceDetails = null;
     provider.servicesOffered.forEach(category => {
-      category.services.forEach(s => {
-        if (s.service.toString() === serviceId) {
-          serviceDetails = s;
-        }
-      });
+      if (category.services && Array.isArray(category.services)) {
+        category.services.forEach(s => {
+          if (s.service && s.service.toString() === serviceId) {
+            serviceDetails = s;
+          }
+        });
+      }
     });
 
+    // Check if service details were found
     if (!serviceDetails) {
       req.flash('error', 'Service details not found');
       return res.redirect('/services');
     }
-    // Create booking data object
+
+    // Create booking data object with validation
     const bookingData = {
       serviceId,
       providerId,
       date: new Date(date),
       location: {
         type: 'Point',
-        coordinates: [parseFloat(longitude), parseFloat(latitude)]
+        coordinates: [
+          parseFloat(longitude) || 0,
+          parseFloat(latitude) || 0
+        ]
       },
       detailedAddress,
       notes: notes || '',
       customerId: req.user._id,
-      cost: serviceDetails.customCost // Add the custom cost
-
+      cost: serviceDetails.customCost
     };
 
-    // Render confirmation page
+    // Check if user exists
+    if (!req.user || !req.user._id) {
+      req.flash('error', 'Please login to continue');
+      return res.redirect('/login');
+    }
+
+    // Render confirmation page with all required data
     res.render('pages/booking-confirm', {
       service,
       provider,
@@ -160,10 +173,12 @@ router.post("/confirm", async (req, res) => {
       serviceDetails,
       user: req.user
     });
+
   } catch (err) {
-    console.error('Error in booking confirmation:', err);
+    console.error('Booking confirmation error:', err);
     req.flash('error', 'Something went wrong');
     res.redirect('/services');
   }
 });
+
 module.exports = router;

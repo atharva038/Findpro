@@ -48,6 +48,10 @@ const serviceProviderSchema = new mongoose.Schema({
     type: Number,
     min: 0,
   },
+  earnings: {
+    type: Number,
+    default: 0
+  }
 });
 
 module.exports = mongoose.model("ServiceProvider", serviceProviderSchema);

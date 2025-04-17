@@ -96,35 +96,18 @@
 
         <!-- Action Buttons -->
         <div class="d-grid gap-2">
-          <form action="/booking/dashboard" method="POST">
-            <input type="hidden" name="serviceId" value="<%= service._id %>" />
-            <input
-              type="hidden"
-              name="providerId"
-              value="<%= provider._id %>"
-            />
-            <input type="hidden" name="date" value="<%= bookingData.date %>" />
-            <input
-              type="hidden"
-              name="address"
-              value="<%= bookingData.detailedAddress %>"
-            />
-            <input
-              type="hidden"
-              name="notes"
-              value="<%= bookingData.notes %>"
-            />
-            <input
-              type="hidden"
-              name="cost"
-              value="<%= serviceDetails.customCost %>"
-            />
-
-            <button type="submit" class="btn btn-primary btn-lg w-100">
-              <i class="fas fa-check-circle me-2"></i>Confirm & Proceed to
-              Payment
-            </button>
-          </form>
+          <button
+            type="button"
+            id="rzp-button"
+            class="btn btn-primary btn-lg w-100"
+            disabled
+          >
+            <span
+              class="spinner-border spinner-border-sm me-2 d-none"
+              role="status"
+            ></span>
+            <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+          </button>
           <a href="javascript:history.back()" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Go Back
           </a>
@@ -134,55 +117,38 @@
   </div>
 </div>
 
-<style>
-  .detail-item {
-    background: #fff;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #e2e8f0;
-  }
+<input
+  type="hidden"
+  id="booking-data"
+  value='<%= JSON.stringify({
+        date: bookingData.date,
+        detailedAddress: bookingData.detailedAddress,
+        notes: bookingData.notes || ""
+    }) %>'
+/>
 
-  .detail-item .label {
-    display: block;
-    color: #64748b;
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-  }
+<input
+  type="hidden"
+  id="user-data"
+  value='<%= JSON.stringify({
+        name: user.name,
+        email: user.username,
+        phone: user.phone || "",
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID
+    }) %>'
+/>
 
-  .detail-item .value {
-    color: #1e293b;
-    font-weight: 500;
-  }
+<input
+  type="hidden"
+  id="service-data"
+  value="<%= JSON.stringify({
+        serviceId: service._id,
+        providerId: provider._id,
+        customCost: serviceDetails.customCost
+    }) %>"
+/>
 
-  .payment-breakdown .card {
-    border: 1px solid #e2e8f0;
-  }
-
-  /* Add these styles for the confirmation page */
-  .service-details {
-    transition: all 0.3s ease;
-  }
-
-  .service-details:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  }
-
-  .detail-item {
-    transition: all 0.3s ease;
-  }
-
-  .detail-item:hover {
-    transform: translateY(-2px);
-    border-color: #3182ce;
-  }
-
-  .btn-primary {
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
-  }
-</style>
+<!-- Add these script tags at the bottom of the file -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/js/payment.js"></script>
