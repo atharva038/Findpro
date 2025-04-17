@@ -1,0 +1,151 @@
+<button id="sidebarToggle" class="sidebar-toggle">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img
+      src="<%= user.profileImage %>"
+      alt="Profile"
+      class="sidebar-profile-img"
+    />
+    <h5 class="sidebar-name"><%= user.name %></h5>
+    <p class="sidebar-email"><%= user.username %></p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#bookings" class="nav-link active" data-section="bookings">
+      <i class="fas fa-calendar-check"></i>
+      <span>Bookings</span>
+    </a>
+    <a href="#profile" class="nav-link" data-section="profile">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+    <a href="#settings" class="nav-link" data-section="settings">
+      <i class="fas fa-cog"></i>
+      <span>Settings</span>
+    </a>
+    <a href="/logout" class="nav-link text-danger">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </a>
+  </nav>
+</div>
+
+<style>
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+  }
+
+  .dashboard-section {
+    display: none;
+  }
+
+  .dashboard-section.active {
+    display: block;
+  }
+  /* Sidebar Styles */
+
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 85px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar {
+    width: 280px;
+    position: sticky;
+    background-color: #fff;
+    border-right: 1px solid #e5e7eb;
+    top: 76px; /* Height of navbar */
+    left: 0;
+    height: calc(100vh - 76px);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 1.5rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .sidebar-profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e9ecef;
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-email {
+    color: #718096;
+    font-size: 0.875rem;
+  }
+
+  .sidebar-nav {
+    padding: 1.5rem 1rem;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #4a5568;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-link i {
+    width: 1.5rem;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+    text-align: center;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background-color: #edf2f7;
+    color: #3182ce;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-toggle {
+      display: block;
+    }
+
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>
