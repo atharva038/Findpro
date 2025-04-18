@@ -1,0 +1,361 @@
+<section id="services" class="dashboard-section">
+  <div class="section-header">
+    <h2><i class="fas fa-tools me-2"></i>My Services</h2>
+    <a href="/dashboard/registerService" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-2"></i>Add New Service
+    </a>
+  </div>
+
+  <% if (provider && provider.servicesOffered && provider.servicesOffered.length
+  > 0) { %>
+  <div class="services-container">
+    <% provider.servicesOffered.forEach(function(categoryGroup) { %>
+    <div class="category-group mb-4">
+      <div class="category-header">
+        <h3>
+          <%= categoryGroup.category ? categoryGroup.category.name :
+          'Uncategorized' %>
+        </h3>
+      </div>
+
+      <div class="services-grid">
+        <% if (categoryGroup.services && categoryGroup.services.length > 0) { %>
+        <% categoryGroup.services.forEach(function(serviceItem) { %>
+        <div
+          class="service-card"
+          data-service-id="<%= typeof serviceItem.service === 'string' ? serviceItem.service : (serviceItem.service?._id || '') %>"
+        >
+          <% if (typeof serviceItem.service === 'object' && serviceItem.service
+          !== null) { %>
+          <!-- Service is already populated -->
+          <div class="service-header">
+            <h4><%= serviceItem.service.name || 'Unnamed Service' %></h4>
+          </div>
+          <div class="service-image">
+            <img
+              src="<%= serviceItem.service.img || 'https://placehold.co/300x200?text=No+Image' %>"
+              alt="<%= serviceItem.service.name || 'Service' %>"
+              onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
+            />
+          </div>
+          <% } else { %>
+         
+          <div class="service-header">
+            <h4 class="service-name">Loading...</h4>
+          </div>
+          <div class="service-image">
+            <img
+              src="https://placehold.co/300x200?text=Loading..."
+              alt="Loading service"
+              class="service-img"
+              onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
+            />
+          </div>
+          <% } %>
+
+          <div class="service-details">
+            <div class="detail-row">
+              <span class="label">Price:</span>
+              <span class="value">₹<%= serviceItem.customCost || 'N/A' %></span>
+            </div>
+            <% if (serviceItem.experience) { %>
+            <div class="detail-row">
+              <span class="label">Experience:</span>
+              <span class="value"><%= serviceItem.experience %></span>
+            </div>
+            <% } %>
+          </div>
+
+          <div class="service-actions">
+            <a
+              href="/dashboard/editService/<%= serviceItem._id %>?category=<%= categoryGroup.category._id %>"
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="fas fa-edit me-1"></i>Edit
+            </a>
+            <button
+              class="btn btn-sm btn-outline-danger delete-service"
+              data-id="<%= serviceItem._id %>"
+              data-category="<%= categoryGroup.category._id %>"
+            >
+              <i class="fas fa-trash me-1"></i>Delete
+            </button>
+          </div>
+        </div>
+        <% }); %> <% } else { %>
+        <div class="empty-category">
+          <p>No services added in this category</p>
+        </div>
+        <% } %>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <div class="empty-content">
+      <i class="fas fa-tools fa-3x mb-3"></i>
+      <h4>No services yet</h4>
+      <p>Start by adding your first service</p>
+      <a href="/dashboard/registerService" class="btn btn-primary mt-3">
+        <i class="fas fa-plus-circle me-2"></i>Add Service
+      </a>
+    </div>
+  </div>
+  <% } %>
+</section>
+
+<!-- Modal for delete confirmation -->
+<div class="modal fade" id="deleteServiceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Service</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this service?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteService">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .services-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .category-group {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .category-header {
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .category-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .service-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service-header {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .service-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .service-image {
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+  }
+
+  .service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .service-details {
+    padding: 1rem;
+    flex-grow: 1;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .label {
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+  .value {
+    font-weight: 600;
+  }
+
+  .service-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .empty-state {
+    background-color: white;
+    border-radius: 8px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .empty-category {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    grid-column: 1 / -1;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const deleteButtons = document.querySelectorAll(".delete-service");
+
+    if (typeof bootstrap === "undefined") {
+      console.error("Bootstrap is not defined");
+      return;
+    }
+
+    const deleteModalElement = document.getElementById("deleteServiceModal");
+    if (!deleteModalElement) {
+      console.error("Modal element not found");
+      return;
+    }
+
+    const deleteModal = new bootstrap.Modal(deleteModalElement);
+    const confirmDeleteBtn = document.getElementById("confirmDeleteService");
+    let serviceIdToDelete;
+    let categoryIdToDelete;
+
+    deleteButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        serviceIdToDelete = this.getAttribute("data-id");
+        categoryIdToDelete = this.getAttribute("data-category");
+        console.log("Delete clicked:", serviceIdToDelete, categoryIdToDelete);
+        deleteModal.show();
+      });
+    });
+
+    confirmDeleteBtn.addEventListener("click", async function () {
+      try {
+        const response = await fetch(
+          `/dashboard/service/delete/${serviceIdToDelete}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ categoryId: categoryIdToDelete }),
+          }
+        );
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.message || "Failed to delete service");
+        }
+      } catch (error) {
+        console.error("Error deleting service:", error);
+        alert("An error occurred while deleting service");
+      } finally {
+        deleteModal.hide();
+      }
+    });
+
+    // Fetch and populate service details
+    const serviceCards = document.querySelectorAll(
+      ".service-card[data-service-id]"
+    );
+    serviceCards.forEach(function (card) {
+      const serviceId = card.getAttribute("data-service-id");
+      if (serviceId && serviceId !== "undefined" && serviceId !== "null") {
+        fetchServiceDetails(serviceId, card);
+      }
+    });
+
+    async function fetchServiceDetails(serviceId, card) {
+      try {
+        // Skip invalid serviceIds
+        if (
+          !serviceId ||
+          serviceId === "undefined" ||
+          serviceId === "null" ||
+          serviceId === "[object Object]"
+        ) {
+          console.warn("Invalid service ID:", serviceId);
+          const nameElement = card.querySelector(".service-name");
+          const imageElement = card.querySelector(".service-img");
+
+          if (nameElement) nameElement.textContent = "Unknown Service";
+          if (imageElement)
+            imageElement.src =
+              "https://placehold.co/300x200?text=Unknown+Service";
+          return;
+        }
+
+        const response = await fetch(`/dashboard/service/${serviceId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch service: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.success && data.service) {
+          const nameElement = card.querySelector(".service-name");
+          const imageElement = card.querySelector(".service-img");
+
+          if (nameElement)
+            nameElement.textContent = data.service.name || "Unnamed Service";
+          if (imageElement) {
+            imageElement.src =
+              data.service.img || "https://placehold.co/300x200?text=No+Image";
+            imageElement.alt = data.service.name || "Service";
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching service details:", error);
+        // Handle error by setting fallback content
+        const nameElement = card.querySelector(".service-name");
+        const imageElement = card.querySelector(".service-img");
+
+        if (nameElement) nameElement.textContent = "Error Loading Service";
+        if (imageElement)
+          imageElement.src = "https://placehold.co/300x200?text=Error";
+      }
+    }
+  });
+</script>

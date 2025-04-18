@@ -12,7 +12,11 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'KnockNFix',
-        allowedFormats: ['jpeg', 'png', 'jpg']
+        allowedFormats: ['jpeg', 'png', 'jpg'],
+        transformation: [
+            { width: 500, height: 500, crop: 'limit' },
+            { quality: 'auto:good' }
+        ]
     }
 });
 const upload = multer({ storage: storage });

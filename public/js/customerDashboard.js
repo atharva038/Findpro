@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-    
     // Set bookings section as active by default
     const defaultSection = document.getElementById('bookings');
     const defaultNavLink = document.querySelector('.nav-link[data-section="bookings"]');

@@ -37,39 +37,6 @@
   padding: 1.5rem;
 }
 
-/* Profile Section */
-.profile-image-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.profile-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.image-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 0.5rem;
-  color: white;
-  font-size: 0.875rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.profile-image-container:hover .image-overlay {
-  opacity: 1;
-}
 
 @media (max-width: 576px) {
   .sidebar {

@@ -1,0 +1,176 @@
+<button id="sidebarToggle" class="sidebar-toggle">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <img
+      src="<%= user.profileImage || '/img/default-avatar.png' %>"
+      alt="Profile"
+      class="sidebar-profile-img"
+    />
+    <h5 class="sidebar-name"><%= user.name %></h5>
+    <p class="sidebar-email"><%= user.username %></p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#overview" class="nav-link active" data-section="overview">
+      <i class="fas fa-home"></i>
+      <span>Dashboard</span>
+    </a>
+    <a href="#services" class="nav-link" data-section="services">
+      <i class="fas fa-tools"></i>
+      <span>My Services</span>
+    </a>
+    <a href="#bookings" class="nav-link" data-section="bookings">
+      <i class="fas fa-calendar-check"></i>
+      <span>Bookings</span>
+    </a>
+    <a href="#profile" class="nav-link" data-section="profile">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+    <a href="#settings" class="nav-link" data-section="settings">
+      <i class="fas fa-cog"></i>
+      <span>Settings</span>
+    </a>
+    <a href="/dashboard/registerService" class="nav-link">
+      <i class="fas fa-plus-circle"></i>
+      <span>Register Service</span>
+    </a>
+    <a href="/logout" class="nav-link logout-link">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </a>
+  </nav>
+</div>
+
+<style>
+  /* Sidebar Styles */
+  .sidebar {
+    width: 280px;
+    position: sticky;
+    background-color: #ffffff;
+    top: 76px;
+    left: 0;
+    height: calc(100vh - 76px);
+    overflow-y: auto;
+    z-index: 100;
+    color: #333;
+    transition: transform 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    padding-bottom: 76px; /* Add padding at bottom to prevent footer overlap */
+  }
+
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 85px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px;
+    background: #ffffff;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-header {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+  }
+
+  .sidebar-profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-name {
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-email {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+  }
+
+  .sidebar-nav {
+    padding: 1.5rem 1rem;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .nav-link:hover {
+    background-color: #f3f4f6;
+    color: #4f46e5;
+  }
+
+  .nav-link.active {
+    background-color: #eef2ff;
+    color: #4f46e5;
+    font-weight: 500;
+  }
+
+  .nav-link i {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  .logout-link {
+    color: #dc2626;
+    margin-top: 2rem;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 1rem;
+  }
+
+  .logout-link:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+
+  /* Handle footer overlap for small screens */
+  @media (max-height: 700px) {
+    .sidebar {
+      padding-bottom: 100px;
+    }
+  }
+
+  /* Responsive sidebar */
+  @media (max-width: 768px) {
+    .sidebar-toggle {
+      display: block;
+    }
+
+    .sidebar {
+      transform: translateX(-100%);
+      width: 280px;
+    }
+
+    .sidebar.active {
+      transform: translateX(0);
+    }
+  }
+</style>
