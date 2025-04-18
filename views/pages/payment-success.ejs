@@ -36,73 +36,85 @@
                 <span class="value">₹<%= payment.amount %></span>
               </div>
               <div class="detail-row">
-                <span class="label">Date & Time:</span>
+                <span class="label">Date:</span>
                 <span class="value">
-                  <%= new Date(booking.scheduledTime).toLocaleString() %>
+                  <% const bookingDate = new Date(booking.scheduledTime); if
+                  (!isNaN(bookingDate.getTime())) { %> <%=
+                  bookingDate.toLocaleDateString('en-IN', { weekday: 'long',
+                  year: 'numeric', month: 'long', day: 'numeric' }) %> <% } else
+                  { %> Date not available <% } %>
                 </span>
               </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="d-grid gap-2">
-              <a href="/dashboard" class="btn btn-primary btn-lg">
-                <i class="fas fa-home me-2"></i>Go to Dashboard
-              </a>
-              <button
-                onclick="window.print()"
-                class="btn btn-outline-secondary"
-              >
-                <i class="fas fa-print me-2"></i>Print Receipt
-              </button>
+              <div class="detail-row">
+                <span class="label">Time:</span>
+                <span class="value">
+                  <% if (!isNaN(bookingDate.getTime())) { %> <%=
+                  bookingDate.toLocaleTimeString('en-IN', { hour: '2-digit',
+                  minute: '2-digit', hour12: true }) %> <% } else { %> Time not
+                  available <% } %>
+                </span>
+              </div>
+              <!-- Action Buttons -->
+              <div class="d-grid gap-2">
+                <a href="/dashboard" class="btn btn-primary btn-lg">
+                  <i class="fas fa-home me-2"></i>Go to Dashboard
+                </a>
+                <button
+                  onclick="window.print()"
+                  class="btn btn-outline-secondary"
+                >
+                  <i class="fas fa-print me-2"></i>Print Receipt
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<style>
-  .payment-success-page {
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 76px);
-  }
-
-  .success-icon {
-    font-size: 5rem;
-    color: #10b981;
-  }
-
-  .booking-details {
-    background-color: #f8fafc;
-    border-radius: 0.5rem;
-    border: 1px solid #e2e8f0;
-  }
-
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .detail-row:last-child {
-    border-bottom: none;
-  }
-
-  .detail-row .label {
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  .detail-row .value {
-    color: #1e293b;
-    font-weight: 600;
-  }
-
-  @media print {
-    .btn {
-      display: none;
+  <style>
+    .payment-success-page {
+      background-color: #f8f9fa;
+      min-height: calc(100vh - 76px);
     }
-  }
-</style>
+
+    .success-icon {
+      font-size: 5rem;
+      color: #10b981;
+    }
+
+    .booking-details {
+      background-color: #f8fafc;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-row .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .detail-row .value {
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    @media print {
+      .btn {
+        display: none;
+      }
+    }
+  </style>
+</div>

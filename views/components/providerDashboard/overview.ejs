@@ -1,0 +1,130 @@
+<section id="overview" class="dashboard-section active">
+  <!-- Greeting and Overview -->
+  <div class="section-header">
+    <h2>Welcome, <%= user.name %></h2>
+    <div class="btn-group">
+      <button class="btn btn-outline-primary">
+        <i class="fas fa-download me-2"></i>Export Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+          <i class="fas fa-calendar-check fa-lg"></i>
+        </div>
+        <h5>Total Bookings</h5>
+      </div>
+      <h2><%= bookingStats.total || 0 %></h2>
+      <p class="text-success">
+        <i class="fas fa-arrow-up me-1"></i><%= bookingStats.increase || 0 %>%
+        increase
+      </p>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="icon-circle bg-warning bg-opacity-10 text-warning">
+          <i class="fas fa-tools fa-lg"></i>
+        </div>
+        <h5>Ongoing Services</h5>
+      </div>
+      <h2><%= bookingStats.ongoing || 0 %></h2>
+      <p class="text-muted">Active right now</p>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="icon-circle bg-success bg-opacity-10 text-success">
+          <i class="fas fa-star fa-lg"></i>
+        </div>
+        <h5>Average Rating</h5>
+      </div>
+      <h2><%= ratings.average || 0 %></h2>
+      <div class="text-warning">
+        <% for (let i = 1; i <= 5; i++) { %> <% if (i <=
+        Math.floor(ratings.average || 0)) { %>
+        <i class="fas fa-star"></i>
+        <% } else if (i - 0.5 <= (ratings.average || 0)) { %>
+        <i class="fas fa-star-half-alt"></i>
+        <% } else { %>
+        <i class="far fa-star"></i>
+        <% } %> <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Bookings Preview -->
+  <div class="content-card mt-4">
+    <div class="card-header">
+      <h3>Recent Bookings</h3>
+      <a
+        href="#bookings"
+        class="btn btn-sm btn-outline-primary"
+        data-section="bookings"
+        >View All</a
+      >
+    </div>
+    <div class="table-responsive">
+      <table class="table booking-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% bookings.slice(0, 5).forEach(booking => { %>
+          <tr>
+            <td>
+              <%= (booking.service && booking.service.name) ?
+              booking.service.name : 'N/A' %>
+            </td>
+            <td>
+              <% try { %> <%= new
+              Date(booking.bookingDate).toLocaleDateString('en-IN', { year:
+              'numeric', month: 'short', day: 'numeric' }) %> <% } catch(e) { %>
+              N/A <% } %>
+            </td>
+            <td>
+              <%= (booking.customer && booking.customer.name) ?
+              booking.customer.name : 'N/A' %>
+            </td>
+            <td>
+              <span
+                class="status-badge status-<%= booking.status.toLowerCase() %>"
+              >
+                <%= booking.status %>
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn btn-sm btn-outline-primary view-booking"
+                  data-id="<%= booking._id %>"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+                <% if (booking.status === 'pending') { %>
+                <button
+                  class="btn btn-sm btn-outline-success accept-booking"
+                  data-id="<%= booking._id %>"
+                >
+                  <i class="fas fa-check"></i>
+                </button>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
