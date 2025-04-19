@@ -51,10 +51,15 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const response = await fetch(`/api/bookings/${bookingId}/accept`, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
 
                 const data = await response.json();
                 if (data.success) {
+                    // Show success message
+                    alert('Booking accepted successfully!');
                     // Update UI
                     window.location.reload();
                 } else {
@@ -75,10 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = await fetch(`/api/bookings/${bookingId}/reject`, {
                         method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
 
                     const data = await response.json();
                     if (data.success) {
+                        // Show success message
+                        alert('Booking rejected successfully!');
                         // Update UI
                         window.location.reload();
                     } else {

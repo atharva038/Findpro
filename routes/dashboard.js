@@ -185,6 +185,7 @@ router.get("/", isLoggedIn, async (req, res) => {
   }
 });
 
+
 // Add this to your dashboard.js
 router.post('/service/delete/:id', async (req, res) => {
   try {
@@ -224,6 +225,8 @@ router.post('/service/delete/:id', async (req, res) => {
   }
 });
 
+
+
 // Add this route to fetch service details by ID
 router.get('/service/:id', async (req, res) => {
   try {
@@ -256,6 +259,115 @@ router.get('/service/:id', async (req, res) => {
   } catch (err) {
     console.error('Error fetching service:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+// Add this route to the existing bookings API file
+
+// Mark booking as completed and process final payment
+router.post('/:id/complete-payment', isLoggedIn, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found'
+      });
+    }
+
+    // Verify that the user is the customer for this booking
+    if (booking.customer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to complete payment for this booking'
+      });
+    }
+
+    // Check if booking status allows payment
+    if (booking.status !== 'confirmed') {
+      return res.status(400).json({
+        success: false,
+        error: 'Can only complete payment for confirmed bookings'
+      });
+    }
+
+    // Process payment (this would connect to payment gateway in production)
+    // For now, just mark as paid
+    booking.finalPayment = {
+      paid: true,
+      amount: booking.totalCost * 0.9, // 90% of total cost
+      date: new Date()
+    };
+
+    // Update booking status
+    booking.status = 'completed';
+    booking.paymentStatus = 'completed';
+
+    await booking.save();
+
+    res.json({
+      success: true,
+      message: 'Payment completed successfully'
+    });
+  } catch (error) {
+    console.error('Error completing payment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process payment'
+    });
+  }
+});
+
+// Route to handle advance payment (for pending bookings)
+router.post('/:id/advance-payment', isLoggedIn, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found'
+      });
+    }
+
+    // Verify that the user is the customer for this booking
+    if (booking.customer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to make payment for this booking'
+      });
+    }
+
+    // Check if booking status allows payment
+    if (booking.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        error: 'Can only make advance payment for pending bookings'
+      });
+    }
+
+    // Process payment (this would connect to payment gateway in production)
+    // For now, just mark as paid
+    booking.advancePayment = {
+      paid: true,
+      amount: booking.totalCost * 0.1, // 10% of total cost
+      date: new Date()
+    };
+
+    booking.paymentStatus = 'partially_paid';
+
+    await booking.save();
+
+    res.json({
+      success: true,
+      message: 'Advance payment completed successfully'
+    });
+  } catch (error) {
+    console.error('Error processing advance payment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process payment'
+    });
   }
 });
 router.get('/registerService',
