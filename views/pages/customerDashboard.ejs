@@ -3,15 +3,20 @@
 
 <div class="dashboard-container">
   <!-- Sidebar -->
-  <%- include('../components/customerDashboard/customerSidebar') %>
+  <%- include('../components/customerDashboard/customerSidebar', { user:
+  currUser }) %>
 
   <!-- Main Content -->
   <div class="main-content">
-    <%- include('../components/customerDashboard/bookings') %> <%-
-    include('../components/customerDashboard/profile') %> <%-
-    include('../components/customerDashboard/settings') %>
+    <% try { %> <%- include('../components/customerDashboard/bookings', {
+    bookings }) %> <% } catch (e) { %>
+    <div class="alert alert-danger">
+      Error loading bookings component: <%= e.message %>
+    </div>
+    <% } %> <%- include('../components/customerDashboard/profile', { user:
+    currUser }) %> <%- include('../components/customerDashboard/settings') %>
   </div>
 </div>
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/customerDashboard.js"></script>
 <script src="/js/sidebarToggle.js"></script>

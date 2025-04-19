@@ -77,15 +77,19 @@
             <td>
               <div class="booking-actions">
                 <button
-                  class="btn btn-sm btn-outline-primary"
+                  class="btn btn-sm btn-outline-primary view-booking-btn"
                   title="View Details"
+                  data-id="<%= booking._id %>"
+                  data-bs-toggle="modal"
+                  data-bs-target="#viewBookingModal"
                 >
                   <i class="fas fa-eye"></i>
                 </button>
                 <% if (booking.status === 'pending') { %>
                 <button
-                  class="btn btn-sm btn-outline-danger"
+                  class="btn btn-sm btn-outline-danger cancel-booking-btn"
                   title="Cancel Booking"
+                  data-id="<%= booking._id %>"
                 >
                   <i class="fas fa-times"></i>
                 </button>
@@ -98,8 +102,96 @@
       </table>
     </div>
   </div>
-</section>
 
+  <div
+    class="modal fade"
+    id="viewBookingModal"
+    tabindex="-1"
+    aria-labelledby="viewBookingModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewBookingModalLabel">
+            Booking Details
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="booking-details-container">
+            <div class="row booking-header">
+              <div class="col-md-8">
+                <h3 id="modal-service-name">Loading...</h3>
+                <p class="provider-name">
+                  <i class="fas fa-user-tie me-2"></i>
+                  <span id="modal-provider-name">Loading...</span>
+                </p>
+              </div>
+              <div class="col-md-4 text-end">
+                <span id="modal-booking-status" class="status-badge"
+                  >Loading...</span
+                >
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-6">
+                <div class="detail-group">
+                  <label>Booking Date</label>
+                  <p id="modal-booking-date">Loading...</p>
+                </div>
+
+                <div class="detail-group">
+                  <label>Booking Address</label>
+                  <p id="modal-booking-address">Loading...</p>
+                </div>
+
+                <div class="detail-group">
+                  <label>Notes</label>
+                  <p id="modal-booking-notes">Loading...</p>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="detail-group">
+                  <label>Total Cost</label>
+                  <h4 id="modal-booking-cost">Loading...</h4>
+                </div>
+
+                <div class="detail-group">
+                  <label>Payment Status</label>
+                  <p id="modal-payment-status">Loading...</p>
+                </div>
+
+                <div id="payment-info-container" class="mt-3">
+                  <!-- Payment information will be injected here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <div id="modal-action-buttons">
+            <!-- Action buttons will be injected here based on booking status -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <style>
   .booking-table th {
     font-weight: 600;
@@ -165,5 +257,39 @@
   .booking-hour {
     color: #4a5568;
     font-size: 0.875rem;
+  }
+  .detail-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-group p {
+    font-size: 1rem;
+    margin: 0;
+    color: #334155;
+  }
+
+  .booking-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+  }
+
+  #modal-booking-cost {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3182ce;
+    margin: 0;
+  }
+
+  .payment-action-btn {
+    margin-top: 1rem;
   }
 </style>
