@@ -142,7 +142,37 @@ async function calculateProviderRatings(providerId) {
   };
 }
 
+router.post('/provider/update-info', isLoggedIn, async (req, res) => {
+  try {
+    // Make sure we're using the correct model name here
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
 
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        error: 'Provider profile not found'
+      });
+    }
+
+    // Update provider fields if they are provided in the request
+    if (req.body.experience !== undefined) provider.experience = req.body.experience;
+    if (req.body.specialization !== undefined) provider.specialization = req.body.specialization;
+    if (req.body.bio !== undefined) provider.bio = req.body.bio;
+
+    await provider.save();
+
+    res.json({
+      success: true,
+      message: 'Provider information updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating provider information:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update provider information: ' + error.message
+    });
+  }
+});
 router.get("/", isLoggedIn, async (req, res) => {
   try {
     const userId = req.session.userId;
