@@ -76,22 +76,28 @@ async function getCurrentLocation() {
     const addressInput = document.getElementById('address-input');
 
     try {
+        // Show loading state
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Fetching...';
+
+        // Clear previous errors
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
 
         // First check if we have permission
         const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
 
         if (permissionStatus.state === 'denied') {
             showError('Location permission is denied. Please enable location access in your browser settings.');
+            showLocationEnableInstructions();
             return;
         }
 
-        // Improved geolocation options
+        // Enhanced geolocation options for better accuracy
         const options = {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+            enableHighAccuracy: true,  // Request the best possible results
+            timeout: 15000,            // Wait up to 15 seconds for a response
+            maximumAge: 0              // Don't use cached position data
         };
 
         // Wrap getCurrentPosition in a promise
@@ -99,10 +105,16 @@ async function getCurrentLocation() {
             navigator.geolocation.getCurrentPosition(resolve, reject, options);
         });
 
+        // Log accuracy for debugging
+        console.log(`Location accuracy: ${position.coords.accuracy} meters`);
+
         const pos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
         };
+
+        // Show interim message
+        addressInput.value = 'Getting address details...';
 
         // Verify location using reverse geocoding
         const response = await axios.get('/api/location/current-location', {
@@ -118,10 +130,24 @@ async function getCurrentLocation() {
 
             // Update address inputs
             addressInput.value = response.data.data.formatted_address;
+
+            // Update any additional address fields
             const detailedAddress = document.getElementById('detailed-address');
             if (detailedAddress) {
                 detailedAddress.value = response.data.data.formatted_address;
             }
+
+            // Show success message
+            const successMessage = document.createElement('div');
+            successMessage.className = 'alert alert-success mt-2';
+            successMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>Your current location has been successfully detected.';
+            addressInput.parentElement.appendChild(successMessage);
+
+            // Auto-remove success message after 5 seconds
+            setTimeout(() => {
+                successMessage.remove();
+            }, 5000);
+
         } else {
             throw new Error('Failed to verify location');
         }
@@ -132,22 +158,27 @@ async function getCurrentLocation() {
         if (error.code) {
             switch (error.code) {
                 case error.PERMISSION_DENIED:
-                    errorMessage += 'Please allow location access in your browser settings.';
-                    // Show instructions for enabling location
+                    errorMessage += 'Location access was denied. Please enable location services in your browser.';
                     showLocationEnableInstructions();
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    errorMessage += 'Location information is unavailable.';
+                    errorMessage += 'Your current position is unavailable. Try again in a different location or with a better connection.';
                     break;
                 case error.TIMEOUT:
-                    errorMessage += 'Location request timed out.';
+                    errorMessage += 'The request timed out. Please try again.';
                     break;
                 default:
                     errorMessage += error.message || 'Unknown error occurred.';
             }
+        } else if (error.response) {
+            // Server returned an error
+            errorMessage += `Server error: ${error.response.data.message || 'Unknown error'}`;
+        } else {
+            errorMessage += error.message || 'Unknown error occurred.';
         }
         showError(errorMessage);
     } finally {
+        // Reset button state
         button.disabled = false;
         button.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use Current Location';
     }

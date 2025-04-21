@@ -115,9 +115,14 @@ router.get('/autocomplete', async (req, res) => {
     }
 });
 // Current location route
+// Update this in routes/location.js
+// Current location route
 router.get('/current-location', async (req, res) => {
     try {
         const { lat, lng } = req.query;
+
+        // Log incoming request for debugging
+        console.log(`Received location request for: ${lat}, ${lng}`);
 
         if (!lat || !lng) {
             return res.status(400).json({
@@ -126,23 +131,72 @@ router.get('/current-location', async (req, res) => {
             });
         }
 
+        // Parse coordinates as floats
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lng);
+
+        // Validate coordinates
+        if (isNaN(latitude) || isNaN(longitude) ||
+            latitude < -90 || latitude > 90 ||
+            longitude < -180 || longitude > 180) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid coordinates provided'
+            });
+        }
+
+        // Make reverse geocoding request with enhanced parameters
         const response = await client.reverseGeocode({
             params: {
-                latlng: { lat: parseFloat(lat), lng: parseFloat(lng) },
+                latlng: { lat: latitude, lng: longitude },
                 key: process.env.GOOGLE_MAPS_API_KEY,
                 language: 'en',
                 region: 'in',
-                locationTypes: ['GEOMETRIC_CENTER', 'ROOFTOP'],
-                resultType: ['street_address', 'premise']
+                locationTypes: ['ROOFTOP', 'RANGE_INTERPOLATED', 'GEOMETRIC_CENTER', 'APPROXIMATE'],
+                resultType: ['street_address', 'premise', 'subpremise', 'route']
             }
         });
+
+        // Log response status
+        console.log('Google API response status:', response.data.status);
 
         if (!response.data.results || response.data.results.length === 0) {
             throw new Error('No results found for this location');
         }
 
-        // Get the most accurate result
+        // Get the most accurate result - first result is typically the most precise
         const result = response.data.results[0];
+
+        // Extract useful components for more detailed response
+        let locality = '';
+        let administrative_area_level_1 = '';
+        let administrative_area_level_2 = '';
+        let postal_code = '';
+        let sublocality = '';
+        let route = '';
+
+        if (result.address_components) {
+            for (const component of result.address_components) {
+                if (component.types.includes('locality')) {
+                    locality = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                    administrative_area_level_1 = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_2')) {
+                    administrative_area_level_2 = component.long_name;
+                }
+                if (component.types.includes('postal_code')) {
+                    postal_code = component.long_name;
+                }
+                if (component.types.includes('sublocality')) {
+                    sublocality = component.long_name;
+                }
+                if (component.types.includes('route')) {
+                    route = component.long_name;
+                }
+            }
+        }
 
         res.json({
             status: 'success',
@@ -150,7 +204,14 @@ router.get('/current-location', async (req, res) => {
                 formatted_address: result.formatted_address,
                 location: result.geometry.location,
                 place_id: result.place_id,
-                address_components: result.address_components
+                address_components: result.address_components,
+                locality: locality,
+                administrative_area_level_1: administrative_area_level_1,
+                administrative_area_level_2: administrative_area_level_2,
+                postal_code: postal_code,
+                sublocality: sublocality,
+                route: route,
+                accuracy: result.geometry.location_type
             }
         });
 
