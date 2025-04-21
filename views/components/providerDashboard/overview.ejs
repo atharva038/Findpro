@@ -1,3 +1,93 @@
+<!-- Add this at the end of your overview.ejs file -->
+<!-- Booking Details Modal -->
+<div
+  class="modal fade"
+  id="viewBookingModal"
+  tabindex="-1"
+  aria-labelledby="viewBookingModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewBookingModalLabel">Booking Details</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="booking-details-container">
+          <div class="row booking-header">
+            <div class="col-md-8">
+              <h3 id="modal-service-name">Loading...</h3>
+              <p class="provider-name">
+                <i class="fas fa-user me-2"></i>
+                <span id="modal-customer-name">Loading...</span>
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <span id="modal-booking-status" class="status-badge"
+                >Loading...</span
+              >
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="detail-group">
+                <label>Booking Date</label>
+                <p id="modal-booking-date">Loading...</p>
+              </div>
+
+              <div class="detail-group">
+                <label>Booking Address</label>
+                <p id="modal-booking-address">Loading...</p>
+              </div>
+
+              <div class="detail-group">
+                <label>Notes</label>
+                <p id="modal-booking-notes">Loading...</p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="detail-group">
+                <label>Total Cost</label>
+                <h4 id="modal-booking-cost">Loading...</h4>
+              </div>
+
+              <div class="detail-group">
+                <label>Payment Status</label>
+                <p id="modal-payment-status">Loading...</p>
+              </div>
+
+              <div class="detail-group">
+                <label>Customer Contact</label>
+                <p>
+                  Phone: <span id="modal-customer-phone">Not provided</span>
+                </p>
+                <p>
+                  Email: <span id="modal-customer-email">Not provided</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <div id="modal-action-buttons">
+          <!-- Action buttons will be injected here based on booking status -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <section id="overview" class="dashboard-section active">
   <!-- Greeting and Overview -->
   <div class="section-header">

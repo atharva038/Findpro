@@ -9,87 +9,115 @@
   <% if (provider && provider.servicesOffered && provider.servicesOffered.length
   > 0) { %>
   <div class="services-container">
-    <% provider.servicesOffered.forEach(function(categoryGroup) { %>
-    <div class="category-group mb-4">
-      <div class="category-header">
-        <h3>
-          <%= categoryGroup.category ? categoryGroup.category.name :
-          'Uncategorized' %>
-        </h3>
-      </div>
+    <div class="accordion" id="servicesAccordion">
+      <% provider.servicesOffered.forEach(function(categoryGroup, index) { %>
+      <div class="accordion-item category-group mb-3">
+        <h2 class="accordion-header" id="heading<%= index %>">
+          <button
+            class="accordion-button <%= index > 0 ? 'collapsed' : '' %>"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse<%= index %>"
+            aria-expanded="<%= index === 0 ? 'true' : 'false' %>"
+            aria-controls="collapse<%= index %>"
+          >
+            <div class="category-title">
+              <span class="category-name"
+                ><%= categoryGroup.category ? categoryGroup.category.name :
+                'Uncategorized' %></span
+              >
+              <span class="service-count badge bg-primary rounded-pill ms-2">
+                <%= categoryGroup.services ? categoryGroup.services.length : 0
+                %>
+              </span>
+            </div>
+          </button>
+        </h2>
 
-      <div class="services-grid">
-        <% if (categoryGroup.services && categoryGroup.services.length > 0) { %>
-        <% categoryGroup.services.forEach(function(serviceItem) { %>
         <div
-          class="service-card"
-          data-service-id="<%= typeof serviceItem.service === 'string' ? serviceItem.service : (serviceItem.service?._id || '') %>"
+          id="collapse<%= index %>"
+          class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>"
+          aria-labelledby="heading<%= index %>"
+          data-bs-parent="#servicesAccordion"
         >
-          <% if (typeof serviceItem.service === 'object' && serviceItem.service
-          !== null) { %>
-          <!-- Service is already populated -->
-          <div class="service-header">
-            <h4><%= serviceItem.service.name || 'Unnamed Service' %></h4>
-          </div>
-          <div class="service-image">
-            <img
-              src="<%= serviceItem.service.img || 'https://placehold.co/300x200?text=No+Image' %>"
-              alt="<%= serviceItem.service.name || 'Service' %>"
-              onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
-            />
-          </div>
-          <% } else { %>
-         
-          <div class="service-header">
-            <h4 class="service-name">Loading...</h4>
-          </div>
-          <div class="service-image">
-            <img
-              src="https://placehold.co/300x200?text=Loading..."
-              alt="Loading service"
-              class="service-img"
-              onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
-            />
-          </div>
-          <% } %>
+          <div class="accordion-body p-0">
+            <div class="services-grid">
+              <% if (categoryGroup.services && categoryGroup.services.length >
+              0) { %> <% categoryGroup.services.forEach(function(serviceItem) {
+              %>
+              <div
+                class="service-card"
+                data-service-id="<%= typeof serviceItem.service === 'string' ? serviceItem.service : (serviceItem.service?._id || '') %>"
+              >
+                <% if (typeof serviceItem.service === 'object' &&
+                serviceItem.service !== null) { %>
+                <!-- Service is already populated -->
+                <div class="service-header">
+                  <h4><%= serviceItem.service.name || 'Unnamed Service' %></h4>
+                </div>
+                <div class="service-image">
+                  <img
+                    src="<%= serviceItem.service.img || 'https://placehold.co/300x200?text=No+Image' %>"
+                    alt="<%= serviceItem.service.name || 'Service' %>"
+                    onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
+                  />
+                </div>
+                <% } else { %>
+                <div class="service-header">
+                  <h4 class="service-name">Loading...</h4>
+                </div>
+                <div class="service-image">
+                  <img
+                    src="https://placehold.co/300x200?text=Loading..."
+                    alt="Loading service"
+                    class="service-img"
+                    onerror="this.onerror=null; this.src='https://placehold.co/300x200?text=No+Image';"
+                  />
+                </div>
+                <% } %>
 
-          <div class="service-details">
-            <div class="detail-row">
-              <span class="label">Price:</span>
-              <span class="value">₹<%= serviceItem.customCost || 'N/A' %></span>
-            </div>
-            <% if (serviceItem.experience) { %>
-            <div class="detail-row">
-              <span class="label">Experience:</span>
-              <span class="value"><%= serviceItem.experience %></span>
-            </div>
-            <% } %>
-          </div>
+                <div class="service-details">
+                  <div class="detail-row">
+                    <span class="label">Price:</span>
+                    <span class="value"
+                      >₹<%= serviceItem.customCost || 'N/A' %></span
+                    >
+                  </div>
+                  <% if (serviceItem.experience) { %>
+                  <div class="detail-row">
+                    <span class="label">Experience:</span>
+                    <span class="value"><%= serviceItem.experience %></span>
+                  </div>
+                  <% } %>
+                </div>
 
-          <div class="service-actions">
-            <a
-              href="/dashboard/editService/<%= serviceItem._id %>?category=<%= categoryGroup.category._id %>"
-              class="btn btn-sm btn-outline-primary"
-            >
-              <i class="fas fa-edit me-1"></i>Edit
-            </a>
-            <button
-              class="btn btn-sm btn-outline-danger delete-service"
-              data-id="<%= serviceItem._id %>"
-              data-category="<%= categoryGroup.category._id %>"
-            >
-              <i class="fas fa-trash me-1"></i>Delete
-            </button>
+                <div class="service-actions">
+                  <a
+                    href="/dashboard/editService/<%= serviceItem._id %>?category=<%= categoryGroup.category._id %>"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    <i class="fas fa-edit me-1"></i>Edit
+                  </a>
+                  <button
+                    class="btn btn-sm btn-outline-danger delete-service"
+                    data-id="<%= serviceItem._id %>"
+                    data-category="<%= categoryGroup.category._id %>"
+                  >
+                    <i class="fas fa-trash me-1"></i>Delete
+                  </button>
+                </div>
+              </div>
+              <% }); %> <% } else { %>
+              <div class="empty-category">
+                <p>No services added in this category</p>
+              </div>
+              <% } %>
+            </div>
           </div>
         </div>
-        <% }); %> <% } else { %>
-        <div class="empty-category">
-          <p>No services added in this category</p>
-        </div>
-        <% } %>
       </div>
+      <% }); %>
     </div>
-    <% }); %>
   </div>
   <% } else { %>
   <div class="empty-state">
@@ -136,40 +164,71 @@
   .services-container {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
-  .category-group {
-    background: white;
-    border-radius: 8px;
+  /* Accordion Style Overrides */
+  .accordion-item {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 8px !important;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
   }
 
-  .category-header {
-    background-color: #f8f9fa;
+  .accordion-button {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e9ecef;
+    font-weight: 500;
+    background-color: #f8f9fa;
   }
 
-  .category-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
+  .accordion-button:not(.collapsed) {
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    box-shadow: none;
   }
 
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(13, 110, 253, 0.25);
+  }
+
+  .category-title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .category-name {
+    font-size: 1.1rem;
+    color: #212529;
+  }
+
+  .service-count {
+    font-size: 0.85rem;
+  }
+
+  /* Services Grid Layout */
   .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    padding: 1.25rem;
   }
 
+  /* Service Card Styling */
   .service-card {
     border: 1px solid #e9ecef;
     border-radius: 8px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: white;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
 
   .service-header {
@@ -181,10 +240,13 @@
   .service-header h4 {
     margin: 0;
     font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .service-image {
-    height: 180px;
+    height: 160px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -196,6 +258,11 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .service-card:hover .service-image img {
+    transform: scale(1.05);
   }
 
   .service-details {
@@ -221,10 +288,12 @@
   .service-actions {
     display: flex;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
   }
 
+  /* Empty States */
   .empty-state {
     background-color: white;
     border-radius: 8px;
@@ -238,6 +307,22 @@
     padding: 2rem;
     color: #6c757d;
     grid-column: 1 / -1;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px dashed #dee2e6;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .services-grid {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+  }
+
+  @media (max-width: 576px) {
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
@@ -357,5 +442,40 @@
           imageElement.src = "https://placehold.co/300x200?text=Error";
       }
     }
+
+    // Save accordion state in localStorage
+    const accordionItems = document.querySelectorAll(".accordion-button");
+
+    // Load saved states
+    accordionItems.forEach((item, index) => {
+      const storageKey = `serviceCategory_${index}`;
+      const savedState = localStorage.getItem(storageKey);
+
+      if (savedState === "open") {
+        const targetId = item.getAttribute("data-bs-target");
+        const targetPanel = document.querySelector(targetId);
+
+        item.classList.remove("collapsed");
+        item.setAttribute("aria-expanded", "true");
+        if (targetPanel) {
+          targetPanel.classList.add("show");
+        }
+      }
+    });
+
+    // Save state on click
+    accordionItems.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        const isExpanded = item.getAttribute("aria-expanded") === "true";
+        const storageKey = `serviceCategory_${index}`;
+
+        // After click, the state will be toggled, so we save the opposite
+        if (isExpanded) {
+          localStorage.setItem(storageKey, "closed");
+        } else {
+          localStorage.setItem(storageKey, "open");
+        }
+      });
+    });
   });
 </script>
