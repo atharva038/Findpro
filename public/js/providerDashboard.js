@@ -1,290 +1,12 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Section navigation
-    const navLinks = document.querySelectorAll('.nav-link[data-section]');
-    const sections = document.querySelectorAll('.dashboard-section');
-
-    function showSection(sectionId) {
-        sections.forEach(section => {
-            section.classList.remove('active');
-        });
-
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        }
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-section') === sectionId) {
-                link.classList.add('active');
-            }
-        });
+// Global functions defined outside DOMContentLoaded to make them globally available
+function openEditModal() {
+    const editProfileModal = document.getElementById('editProfileModal');
+    if (editProfileModal && typeof bootstrap !== 'undefined') {
+        const profileModal = new bootstrap.Modal(editProfileModal);
+        profileModal.show();
     }
+}
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-            history.pushState(null, null, '#' + sectionId);
-        });
-    });
-
-    // Show section based on URL hash or default to overview
-    const defaultSection = window.location.hash.slice(1) || 'overview';
-    showSection(defaultSection);
-
-    // Booking actions
-    const viewButtons = document.querySelectorAll('.view-booking');
-    const acceptButtons = document.querySelectorAll('.accept-booking');
-    const rejectButtons = document.querySelectorAll('.reject-booking');
-    const completeButtons = document.querySelectorAll('.complete-booking');
-
-    const bookingModalElement = document.getElementById('viewBookingModal');
-    let bookingModal = null;
-
-    if (bookingModalElement && typeof bootstrap !== 'undefined') {
-        bookingModal = new bootstrap.Modal(bookingModalElement);
-    }
-
-    viewButtons.forEach(button => {
-        button.addEventListener('click', async function () {
-            const bookingId = this.getAttribute('data-id');
-            try {
-                await fetchBookingDetails(bookingId);
-                if (bookingModal) {
-                    bookingModal.show();
-                }
-            } catch (error) {
-                console.error('Error showing booking details:', error);
-                alert('Failed to load booking details. Please try again.');
-            }
-        });
-    });
-
-    async function fetchBookingDetails(bookingId) {
-        try {
-            // First check if all modal elements exist
-            const modalElements = [
-                'modal-service-name',
-                'modal-customer-name',
-                'modal-booking-date',
-                'modal-booking-address',
-                'modal-booking-notes',
-                'modal-booking-cost',
-                'modal-payment-status',
-                'modal-booking-status',
-                'modal-customer-phone',
-                'modal-customer-email',
-                'modal-action-buttons'
-            ];
-
-            // Check if modal elements exist - avoid null errors
-            for (const elementId of modalElements) {
-                if (!document.getElementById(elementId)) {
-                    console.error(`Missing modal element: ${elementId}`);
-                    throw new Error(`Modal element ${elementId} not found in the DOM`);
-                }
-            }
-
-            // Show loading state
-            document.getElementById('modal-service-name').textContent = "Loading...";
-            document.getElementById('modal-customer-name').textContent = "Loading...";
-            document.getElementById('modal-booking-date').textContent = "Loading...";
-            document.getElementById('modal-booking-address').textContent = "Loading...";
-            document.getElementById('modal-booking-notes').textContent = "Loading...";
-            document.getElementById('modal-booking-cost').textContent = "Loading...";
-            document.getElementById('modal-payment-status').textContent = "Loading...";
-            document.getElementById('modal-booking-status').textContent = "Loading...";
-            document.getElementById('modal-customer-phone').textContent = "Not provided";
-            document.getElementById('modal-customer-email').textContent = "Not provided";
-
-            // Fetch booking details from the server
-            const response = await fetch(`/api/bookings/${bookingId}`);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch booking details");
-            }
-
-            // Update modal with booking details
-            const booking = data.booking;
-
-            // Basic info
-            document.getElementById('modal-service-name').textContent = booking.service.name;
-            document.getElementById('modal-customer-name').textContent = booking.customer.name;
-
-            // Format date
-            const bookingDate = new Date(booking.bookingDate);
-            const dateStr = bookingDate.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            const timeStr = bookingDate.toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            });
-            document.getElementById('modal-booking-date').textContent = `${dateStr} at ${timeStr}`;
-
-            // Address and notes
-            document.getElementById('modal-booking-address').textContent = booking.address || "Not specified";
-            document.getElementById('modal-booking-notes').textContent = booking.notes || "No notes provided";
-
-            // Cost and payment
-            document.getElementById('modal-booking-cost').textContent = `₹${booking.totalCost}`;
-
-            // Payment status
-            let paymentStatusText = "Pending";
-            if (booking.paymentStatus === "completed") {
-                paymentStatusText = "Fully Paid";
-            } else if (booking.paymentStatus === "partially_paid") {
-                paymentStatusText = "Advance Paid";
-            }
-            document.getElementById('modal-payment-status').textContent = paymentStatusText;
-
-            // Status badge
-            const statusBadge = document.getElementById('modal-booking-status');
-            statusBadge.textContent = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
-            statusBadge.className = `status-badge status-${booking.status.toLowerCase()}`;
-
-            // Set customer information
-            if (booking.customer) {
-                if (booking.customer.phone) {
-                    document.getElementById('modal-customer-phone').textContent = booking.customer.phone;
-                }
-                if (booking.customer.email) {
-                    document.getElementById('modal-customer-email').textContent = booking.customer.email;
-                }
-            }
-
-            // Update action buttons based on booking status
-            const actionButtonsContainer = document.getElementById('modal-action-buttons');
-            actionButtonsContainer.innerHTML = '';
-
-            if (booking.status === 'pending') {
-                actionButtonsContainer.innerHTML = `
-                    <button type="button" class="btn btn-success accept-booking-modal" data-id="${booking._id}">
-                        <i class="fas fa-check me-2"></i>Accept Booking
-                    </button>
-                    <button type="button" class="btn btn-danger reject-booking-modal" data-id="${booking._id}">
-                        <i class="fas fa-times me-2"></i>Reject Booking
-                    </button>
-                `;
-
-                // Add event listeners to the newly created buttons
-                const acceptModalBtn = actionButtonsContainer.querySelector('.accept-booking-modal');
-                const rejectModalBtn = actionButtonsContainer.querySelector('.reject-booking-modal');
-
-                if (acceptModalBtn) {
-                    acceptModalBtn.addEventListener('click', function () {
-                        acceptBooking(this.getAttribute('data-id'));
-                    });
-                }
-
-                if (rejectModalBtn) {
-                    rejectModalBtn.addEventListener('click', function () {
-                        rejectBooking(this.getAttribute('data-id'));
-                    });
-                }
-
-            } else if (booking.status === 'confirmed') {
-                actionButtonsContainer.innerHTML = `
-                    <button type="button" class="btn btn-primary complete-booking-modal" data-id="${booking._id}">
-                        <i class="fas fa-check-circle me-2"></i>Mark as Completed
-                    </button>
-                `;
-
-                const completeModalBtn = actionButtonsContainer.querySelector('.complete-booking-modal');
-                if (completeModalBtn) {
-                    completeModalBtn.addEventListener('click', function () {
-                        completeBooking(this.getAttribute('data-id'));
-                    });
-                }
-            }
-
-        } catch (error) {
-            console.error('Error fetching booking details:', error);
-            throw error;
-        }
-    }
-
-    // Handle existing table buttons
-    if (acceptButtons && acceptButtons.length > 0) {
-        acceptButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const bookingId = this.getAttribute('data-id');
-                acceptBooking(bookingId);
-            });
-        });
-    }
-
-    if (rejectButtons && rejectButtons.length > 0) {
-        rejectButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const bookingId = this.getAttribute('data-id');
-                rejectBooking(bookingId);
-            });
-        });
-    }
-
-    if (completeButtons && completeButtons.length > 0) {
-        completeButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const bookingId = this.getAttribute('data-id');
-                completeBooking(bookingId);
-            });
-        });
-    }
-
-    // Filter bookings by status
-    const filterItems = document.querySelectorAll('.filter-item');
-
-    filterItems.forEach(item => {
-        item.addEventListener('click', function (e) {
-            e.preventDefault();
-            const status = this.getAttribute('data-status');
-
-            const bookingRows = document.querySelectorAll('.booking-table tbody tr');
-
-            bookingRows.forEach(row => {
-                if (status === 'all' || row.getAttribute('data-status') === status) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Update filter button text
-            const filterDropdown = document.getElementById('filterDropdown');
-            if (filterDropdown) {
-                filterDropdown.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-            }
-        });
-    });
-
-    // Search bookings
-    const searchInput = document.getElementById('bookingSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            const searchTerm = this.value.toLowerCase();
-            const bookingRows = document.querySelectorAll('.booking-table tbody tr');
-
-            bookingRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    }
-});
-
-// Global functions for booking actions
 function acceptBooking(bookingId) {
     if (confirm('Are you sure you want to accept this booking?')) {
         fetch(`/api/bookings/${bookingId}/accept`, {
@@ -356,3 +78,442 @@ function completeBooking(bookingId) {
             });
     }
 }
+
+function saveProfileChanges() {
+
+    try {
+        const form = document.getElementById('editProfileForm');
+        if (!form) {
+            console.error('Edit profile form not found');
+            return;
+        }
+
+        const formData = new FormData(form);
+        // Show loading state
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+        // Make the fetch request to update profile
+        fetch('/profile/update', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to update profile');
+                }
+
+                // Now update provider-specific info
+                return updateProviderInfo(formData);
+            })
+            .then(() => {
+                // Show success and close modal
+                const editProfileModal = document.getElementById('editProfileModal');
+                if (editProfileModal && typeof bootstrap !== 'undefined') {
+                    const profileModal = bootstrap.Modal.getInstance(editProfileModal);
+                    if (profileModal) profileModal.hide();
+                }
+
+                alert('Profile updated successfully!');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+                alert('Failed to update profile: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML = 'Save Changes';
+            });
+
+    } catch (error) {
+        console.error('Error in saveProfileChanges:', error);
+        alert('An error occurred while updating profile: ' + error.message);
+    }
+}
+
+// Helper function to update provider-specific information
+function updateProviderInfo(formData) {
+    const providerData = {
+        experience: formData.get('experience') || undefined,
+        specialization: formData.get('specialization') || undefined,
+        bio: formData.get('bio') || undefined
+    };
+
+    // Only send request if we have data to update
+    if (providerData.experience === undefined &&
+        providerData.specialization === undefined &&
+        providerData.bio === undefined) {
+        return Promise.resolve(); // Nothing to update
+    }
+
+    return fetch('/dashboard/provider/update-info', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(providerData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to update provider information');
+            }
+            return data;
+        });
+}
+
+// Main event listener for when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+    // Connect save profile button to the saveProfileChanges function
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', saveProfileChanges);
+    } else {
+        console.log('Save Profile button not found');
+    }
+
+    // SECTION 1: DASHBOARD NAVIGATION
+    // ---------------------------------------------
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+    const sections = document.querySelectorAll('.dashboard-section');
+
+    function showSection(sectionId) {
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === sectionId) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const sectionId = this.getAttribute('data-section');
+            showSection(sectionId);
+            history.pushState(null, null, '#' + sectionId);
+        });
+    });
+
+    // Show section based on URL hash or default to overview
+    const defaultSection = window.location.hash.slice(1) || 'overview';
+    showSection(defaultSection);
+
+    // SECTION 2: PROFILE MANAGEMENT
+    // ---------------------------------------------
+    // Profile image preview functionality
+    const profileImage = document.getElementById('profileImage');
+    const modalProfileImage = document.getElementById('modalProfileImage');
+    const profilePreview = document.getElementById('profilePreview');
+    const modalProfilePreview = document.getElementById('modalProfilePreview');
+
+    function previewImage(input, imgElement) {
+        if (input.files && input.files[0] && imgElement) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imgElement.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    if (profileImage) {
+        profileImage.addEventListener('change', function () {
+            previewImage(this, profilePreview);
+        });
+    }
+
+    if (modalProfileImage) {
+        modalProfileImage.addEventListener('change', function () {
+            previewImage(this, modalProfilePreview);
+            // Also update the main profile preview
+            if (profilePreview) {
+                previewImage(this, profilePreview);
+            }
+        });
+    }
+
+    // SECTION 3: BOOKING MANAGEMENT
+    // ---------------------------------------------
+    // Booking actions
+    const viewButtons = document.querySelectorAll('.view-booking');
+    const acceptButtons = document.querySelectorAll('.accept-booking');
+    const rejectButtons = document.querySelectorAll('.reject-booking');
+    const completeButtons = document.querySelectorAll('.complete-booking');
+
+    const bookingModalElement = document.getElementById('viewBookingModal');
+    let bookingModal = null;
+
+    if (bookingModalElement && typeof bootstrap !== 'undefined') {
+        bookingModal = new bootstrap.Modal(bookingModalElement);
+    }
+
+    // View booking details
+    viewButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            const bookingId = this.getAttribute('data-id');
+            try {
+                await fetchBookingDetails(bookingId);
+                if (bookingModal) {
+                    bookingModal.show();
+                }
+            } catch (error) {
+                console.error('Error showing booking details:', error);
+                alert('Failed to load booking details. Please try again.');
+            }
+        });
+    });
+
+    async function fetchBookingDetails(bookingId) {
+        try {
+            // Define required and optional elements
+            const requiredModalElements = [
+                'modal-service-name',
+                'modal-customer-name',
+                'modal-booking-date',
+                'modal-booking-address',
+                'modal-booking-notes',
+                'modal-booking-cost',
+                'modal-payment-status',
+                'modal-booking-status',
+                'modal-action-buttons'
+            ];
+
+            const optionalModalElements = [
+                'modal-customer-phone',
+                'modal-customer-email'
+            ];
+
+            // Check if required modal elements exist
+            let missingElements = [];
+            for (const elementId of requiredModalElements) {
+                if (!document.getElementById(elementId)) {
+                    missingElements.push(elementId);
+                }
+            }
+
+            if (missingElements.length > 0) {
+                console.error(`Missing modal elements: ${missingElements.join(', ')}`);
+                throw new Error(`Modal element ${missingElements[0]} not found in the DOM`);
+            }
+
+            // Show loading state
+            document.getElementById('modal-service-name').textContent = "Loading...";
+            document.getElementById('modal-customer-name').textContent = "Loading...";
+            document.getElementById('modal-booking-date').textContent = "Loading...";
+            document.getElementById('modal-booking-address').textContent = "Loading...";
+            document.getElementById('modal-booking-notes').textContent = "Loading...";
+            document.getElementById('modal-booking-cost').textContent = "Loading...";
+            document.getElementById('modal-payment-status').textContent = "Loading...";
+            document.getElementById('modal-booking-status').textContent = "Loading...";
+
+            // Set loading for optional elements if they exist
+            optionalModalElements.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = elementId.includes('phone') || elementId.includes('email')
+                        ? "Not provided"
+                        : "Loading...";
+                }
+            });
+
+            // Fetch booking details from the server
+            const response = await fetch(`/api/bookings/${bookingId}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to fetch booking details");
+            }
+
+            // Update modal with booking details
+            const booking = data.booking;
+
+            // Basic info
+            document.getElementById('modal-service-name').textContent = booking.service.name;
+            document.getElementById('modal-customer-name').textContent = booking.customer.name;
+
+            // Format date
+            const bookingDate = new Date(booking.bookingDate);
+            const dateStr = bookingDate.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const timeStr = bookingDate.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            document.getElementById('modal-booking-date').textContent = `${dateStr} at ${timeStr}`;
+
+            // Address and notes
+            document.getElementById('modal-booking-address').textContent = booking.address || "Not specified";
+            document.getElementById('modal-booking-notes').textContent = booking.notes || "No notes provided";
+
+            // Cost and payment
+            document.getElementById('modal-booking-cost').textContent = `₹${booking.totalCost}`;
+
+            // Payment status
+            let paymentStatusText = "Pending";
+            if (booking.paymentStatus === "completed") {
+                paymentStatusText = "Fully Paid";
+            } else if (booking.paymentStatus === "partially_paid") {
+                paymentStatusText = "Advance Paid";
+            }
+            document.getElementById('modal-payment-status').textContent = paymentStatusText;
+
+            // Status badge
+            const statusBadge = document.getElementById('modal-booking-status');
+            statusBadge.textContent = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+            statusBadge.className = `status-badge status-${booking.status.toLowerCase()}`;
+
+            // Set customer information
+            const customerPhone = document.getElementById('modal-customer-phone');
+            const customerEmail = document.getElementById('modal-customer-email');
+
+            if (customerPhone && booking.customer && booking.customer.phone) {
+                customerPhone.textContent = booking.customer.phone;
+            }
+
+            if (customerEmail && booking.customer && booking.customer.email) {
+                customerEmail.textContent = booking.customer.email;
+            }
+
+            // Update action buttons based on booking status
+            const actionButtonsContainer = document.getElementById('modal-action-buttons');
+            actionButtonsContainer.innerHTML = '';
+
+            if (booking.status === 'pending') {
+                actionButtonsContainer.innerHTML = `
+                    <button type="button" class="btn btn-success accept-booking-modal" data-id="${booking._id}">
+                        <i class="fas fa-check me-2"></i>Accept Booking
+                    </button>
+                    <button type="button" class="btn btn-danger reject-booking-modal" data-id="${booking._id}">
+                        <i class="fas fa-times me-2"></i>Reject Booking
+                    </button>
+                `;
+
+                // Add event listeners to the newly created buttons
+                const acceptModalBtn = actionButtonsContainer.querySelector('.accept-booking-modal');
+                const rejectModalBtn = actionButtonsContainer.querySelector('.reject-booking-modal');
+
+                if (acceptModalBtn) {
+                    acceptModalBtn.addEventListener('click', function () {
+                        acceptBooking(this.getAttribute('data-id'));
+                    });
+                }
+
+                if (rejectModalBtn) {
+                    rejectModalBtn.addEventListener('click', function () {
+                        rejectBooking(this.getAttribute('data-id'));
+                    });
+                }
+
+            } else if (booking.status === 'confirmed') {
+                actionButtonsContainer.innerHTML = `
+                    <button type="button" class="btn btn-primary complete-booking-modal" data-id="${booking._id}">
+                        <i class="fas fa-check-circle me-2"></i>Mark as Completed
+                    </button>
+                `;
+
+                const completeModalBtn = actionButtonsContainer.querySelector('.complete-booking-modal');
+                if (completeModalBtn) {
+                    completeModalBtn.addEventListener('click', function () {
+                        completeBooking(this.getAttribute('data-id'));
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching booking details:', error);
+            throw error;
+        }
+    }
+
+    // Handle existing table buttons
+    if (acceptButtons && acceptButtons.length > 0) {
+        acceptButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const bookingId = this.getAttribute('data-id');
+                acceptBooking(bookingId);
+            });
+        });
+    }
+
+    if (rejectButtons && rejectButtons.length > 0) {
+        rejectButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const bookingId = this.getAttribute('data-id');
+                rejectBooking(bookingId);
+            });
+        });
+    }
+
+    if (completeButtons && completeButtons.length > 0) {
+        completeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const bookingId = this.getAttribute('data-id');
+                completeBooking(bookingId);
+            });
+        });
+    }
+
+    // SECTION 4: BOOKING FILTERING & SEARCH
+    // ---------------------------------------------
+    // Filter bookings by status
+    const filterItems = document.querySelectorAll('.filter-item');
+
+    filterItems.forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            const status = this.getAttribute('data-status');
+
+            const bookingRows = document.querySelectorAll('.booking-table tbody tr');
+
+            bookingRows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update filter button text
+            const filterDropdown = document.getElementById('filterDropdown');
+            if (filterDropdown) {
+                filterDropdown.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            }
+        });
+    });
+
+    // Search bookings
+    const searchInput = document.getElementById('bookingSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            const bookingRows = document.querySelectorAll('.booking-table tbody tr');
+
+            bookingRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
