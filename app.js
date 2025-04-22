@@ -97,7 +97,37 @@ function setCurrentProvider(req, res, next) {
 // Apply this middleware globally in app.js (before routes)
 app.use(setCurrentProvider);
 
-passport.use(new LocalStrategy(User.authenticate()));
+// Add this custom authentication strategy
+
+// Customize the authentication strategy to allow login with email or phone
+passport.use(new LocalStrategy(
+  async function (username, password, done) {
+    try {
+      // Check if username is an email or phone number
+      let user;
+      if (username.includes('@')) {
+        // Login with email
+        user = await User.findOne({ username: username });
+      } else {
+        // Login with phone number
+        user = await User.findOne({ phone: username });
+      }
+
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username or password.' });
+      }
+
+      // Let passport-local-mongoose handle the password verification
+      user.authenticate(password, function (err, result) {
+        if (err) { return done(err); }
+        if (!result) { return done(null, false, { message: 'Incorrect password.' }); }
+        return done(null, user);
+      });
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());

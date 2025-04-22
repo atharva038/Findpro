@@ -1,175 +1,242 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<div class="auth-page">
-  <div class="auth-card">
-    <!-- Card Header -->
-    <div class="text-center mb-4">
-      <h2 class="auth-title">Welcome Back</h2>
-      <p class="text-muted">Please enter your details</p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <!-- Card Header -->
+      <div class="auth-header">
+        <h2>Welcome Back</h2>
+        <p class="text-muted">Log in to your account</p>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-body">
+        <form action="/login" method="post" class="needs-validation" novalidate>
+          <!-- Email/Phone Field -->
+          <div class="form-group mb-3">
+            <label for="username" class="form-label">Email or Phone</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-user"></i>
+              </span>
+              <input type="text" id="username" name="username" class="form-control"
+                placeholder="Enter your email or phone number" required />
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-lock"></i>
+              </span>
+              <input type="password" id="password" name="password" class="form-control"
+                placeholder="Enter your password" required />
+              <button type="button" class="btn btn-outline-secondary toggle-password" tabindex="-1">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="d-flex justify-content-between mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+              <label class="form-check-label" for="rememberMe">
+                Remember me
+              </label>
+            </div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="auth-footer">
+        <p class="mb-0">Don't have an account? <a href="/register">Sign Up</a></p>
+      </div>
     </div>
-
-    <!-- Login Form -->
-    <form action="/login" method="post" class="needs-validation" novalidate>
-      <!-- Email Field -->
-      <div class="form-group mb-3">
-        <label for="username" class="form-label">Email</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-envelope"></i>
-          </span>
-          <input
-            type="email"
-            id="username"
-            name="username"
-            class="form-control"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-      </div>
-
-      <!-- Password Field -->
-      <div class="form-group mb-4">
-        <label for="password" class="form-label">Password</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-lock"></i>
-          </span>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-control"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-      </div>
-
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary w-100 py-2 mb-4">
-        Sign In
-      </button>
-
-      <!-- Sign Up Link -->
-      <div class="text-center">
-        <p class="mb-0">
-          Don't have an account?
-          <a href="/register" class="text-primary fw-semibold">Sign Up</a>
-        </p>
-      </div>
-    </form>
   </div>
-</div>
 
-<style>
-  .auth-page {
-    min-height: calc(100vh - 76px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-    background-color: #f8f9fa;
-  }
+  <style>
+    .auth-page {
+      min-height: calc(100vh - 76px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-color: #f8f9fa;
+      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
 
-  .auth-card {
-    width: 100%;
-    max-width: 600px;
-    padding: 3rem 4rem;
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease;
-  }
-
-  .auth-card:hover {
-    transform: translateY(-5px);
-  }
-
-  .auth-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 0.75rem;
-  }
-
-  .form-label {
-    font-weight: 500;
-    color: #4a5568;
-    margin-bottom: 0.5rem;
-  }
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .input-group {
-    margin-top: 0.5rem;
-  }
-  .input-group-text {
-    background-color: white;
-    border-right: none;
-
-    padding-right: 0.5rem;
-  }
-
-  .form-control {
-    border-left: none;
-    padding-left: 0;
-  }
-
-  .form-control:focus {
-    box-shadow: none;
-    border-color: #ced4da;
-  }
-
-  .input-group-text,
-  .form-control {
-    border-color: #e2e8f0;
-  }
-
-  .btn-primary {
-    font-weight: 500;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  }
-
-  @media (max-width: 768px) {
     .auth-card {
+      width: 100%;
       max-width: 450px;
-      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      transition: all 0.3s ease;
     }
 
-    .auth-title {
-      font-size: 1.75rem;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .auth-card {
-      max-width: 100%;
-      padding: 1.5rem;
+    .auth-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 45px rgba(50, 50, 93, 0.15), 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
-    .auth-title {
-      font-size: 1.5rem;
+    .auth-header {
+      padding: 1.75rem 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
+    .auth-header h2 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
     }
 
-    .input-group-text,
+    .auth-body {
+      padding: 2rem;
+    }
+
+    .auth-footer {
+      padding: 1rem;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+      background-color: #f8f9fa;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-right: none;
+      color: #6c757d;
+    }
+
     .form-control {
-      padding: 0.625rem 0.875rem;
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+      border-color: #ced4da;
+    }
+
+    .form-control:focus+.input-group-text {
+      border-color: #ced4da;
+    }
+
+    .toggle-password {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      color: #6c757d;
+    }
+
+    .toggle-password:hover {
+      background-color: transparent;
+      color: #495057;
+    }
+
+    .forgot-password {
+      color: #764ba2;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .forgot-password:hover {
+      color: #667eea;
+      text-decoration: underline;
     }
 
     .btn-primary {
-      padding: 0.625rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
     }
-  }
-</style>
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-check-input:checked {
+      background-color: #764ba2;
+      border-color: #764ba2;
+    }
+
+    .auth-footer a {
+      color: #764ba2;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+      .auth-card {
+        border-radius: 15px;
+      }
+
+      .auth-header {
+        padding: 1.5rem;
+      }
+
+      .auth-body {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Password visibility toggle
+      const togglePassword = document.querySelector('.toggle-password');
+      const passwordInput = document.getElementById('password');
+
+      if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function () {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+
+          // Toggle icon
+          const icon = this.querySelector('i');
+          icon.classList.toggle('fa-eye');
+          icon.classList.toggle('fa-eye-slash');
+        });
+      }
+
+      // Form validation
+      const form = document.querySelector('form');
+
+      if (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        });
+      }
+    });
+  </script>
