@@ -1,169 +1,532 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<style>
-  .custom-file-input::-webkit-file-upload-button {
-    visibility: hidden;
-  }
 
-  #imagePreview img {
-    transition: all 0.3s ease;
-  }
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Create Your Account</h2>
+        <p class="text-muted">Join KnockNFix and get started with our services</p>
+      </div>
 
-  #imagePreview img:hover {
-    transform: scale(1.1);
-  }
+      <div class="auth-body">
+        <form action="/register" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
 
-  .form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-  }
-</style>
-<div class="wrapper">
-  <div class="shadow-lg border-0 mb-3 mt-3 signup-container">
-    <h2 class="col-6 offset-3 mb-5 signup-heading">Create an Account</h2>
-    <div class="col-8 offset-2">
-      <!-- Adjusted width -->
-      <form
-        action="/register"
-        method="post"
-        class="needs-validation"
-        enctype="multipart/form-data"
-        novalidate
-      >
-        <!-- Name Input -->
-        <div class="form-group mb-3">
-          <label for="name">Name:</label>
-          <input
-            type="text"
-            name="name"
-            class="form-control custom-width"
-            required
-          />
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="username">Username</label>
-          <input
-            type="username"
-            name="username"
-            required
-            class="form-control custom-width"
-            id="username"
-            placeholder="Enter your Username"
-          />
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            required
-            class="form-control custom-width"
-            id="password"
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="addresses">Address</label>
-          <input
-            type="text"
-            name="addresses"
-            class="form-control custom-width"
-            id="addresses"
-            placeholder="Enter your address"
-          />
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="phone">Phone Number</label>
-          <input
-            type="text"
-            name="phone"
-            class="form-control custom-width"
-            id="phone"
-            placeholder="Enter your phone number"
-          />
-        </div>
-        <!-- Profile Image Input -->
-        <div class="form-group mb-3">
-          <label for="image" class="form-label">
-            <i class="fas fa-user-circle me-2"></i>Profile Image
-          </label>
-          <input
-            type="file"
-            name="image"
-            class="form-control custom-width"
-            id="image"
-            accept="image/*"
-          />
-          <div class="form-text">
-            Upload a profile picture (Optional, max 5MB)
+          <!-- Profile Image Section -->
+          <div class="profile-upload mb-4">
+            <div class="profile-preview" id="imagePreview">
+              <img src="https://ui-avatars.com/api/?name=User+Preview&background=764ba2&color=fff&size=200"
+                alt="Profile Preview" id="previewImg" />
+              <div class="upload-overlay">
+                <i class="fas fa-camera"></i>
+                <span>Add Photo</span>
+              </div>
+            </div>
+            <input type="file" name="image" id="image" accept="image/*" class="visually-hidden" />
+            <p class="upload-hint">Click to upload profile photo<br><small>(Optional, max 5MB)</small></p>
           </div>
 
-          <!-- Image Preview Container -->
-          <div class="mt-2 d-none" id="imagePreview">
-            <img
-              src="#"
-              alt="Profile Preview"
-              class="rounded-circle border"
-              style="width: 100px; height: 100px; object-fit: cover"
-            />
+          <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6 pe-md-2">
+              <!-- Name Input -->
+              <div class="form-group mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                  <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name"
+                    required />
+                </div>
+              </div>
+
+              <!-- Email Input -->
+              <div class="form-group mb-3">
+                <label for="username" class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  <input type="email" name="username" id="username" class="form-control" placeholder="Enter your email"
+                    required />
+                </div>
+                <small class="form-text">We'll send a verification code to this email</small>
+              </div>
+
+              <!-- Password Input -->
+              <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input type="password" name="password" id="password" class="form-control"
+                    placeholder="Create a password" required />
+                  <button type="button" class="btn btn-outline-secondary toggle-password" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                <div class="password-strength mt-1" id="passwordStrength">
+                  <div class="progress" style="height: 5px;">
+                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <small class="form-text">Use 8+ characters with letters, numbers & symbols</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6 ps-md-2">
+              <!-- Phone Input -->
+              <div class="form-group mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                  <input type="text" name="phone" id="phone" class="form-control" placeholder="10-digit number"
+                    required />
+                </div>
+                <small class="form-text">We'll send a verification code to this number</small>
+              </div>
+
+              <!-- Address Input -->
+              <div class="form-group mb-3">
+                <label for="addresses" class="form-label">Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                  <input type="text" name="addresses" id="addresses" class="form-control" placeholder="Your address"
+                    required />
+                </div>
+              </div>
+
+              <!-- Role Selection -->
+              <div class="form-group mb-3">
+                <label for="role" class="form-label">I want to join as</label>
+                <div class="role-selector">
+                  <div class="role-option">
+                    <input type="radio" name="role" id="customer" value="customer" checked />
+                    <label for="customer">
+                      <div class="role-icon">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      <div class="role-name">Customer</div>
+                      <small>Looking for services</small>
+                    </label>
+                  </div>
+                  <div class="role-option">
+                    <input type="radio" name="role" id="provider" value="provider" />
+                    <label for="provider">
+                      <div class="role-icon">
+                        <i class="fas fa-tools"></i>
+                      </div>
+                      <div class="role-name">Provider</div>
+                      <small>Offering services</small>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <!-- Role Input: Customer or Service Provider -->
-        <div class="form-group mb-3">
-          <label for="role" class="form-label">Sign Up As</label>
-          <select
-            name="role"
-            id="role"
-            class="form-control custom-width"
-            required
-          >
-            <option value="" disabled selected>Select Role</option>
-            <option value="customer">Customer</option>
-            <option value="provider">Service Provider</option>
-          </select>
-        </div>
 
-        <!-- Submit Button -->
-        <div class="d-grid gap-2 mb-3">
-          <button class="btn btn-success mb-3 mt-3" type="submit">
-            Sign Up
-          </button>
-        </div>
-      </form>
+          <div class="terms-policy mt-4 mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+              <label class="form-check-label" for="agreeTerms">
+                I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy"
+                  target="_blank">Privacy Policy</a>
+              </label>
+            </div>
+          </div>
 
-      <!-- Already Have Account -->
-      <div class="text-center">
-        <p>Already have an account? <a href="/login">Log In</a></p>
+          <!-- Submit Button -->
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" type="submit" id="registerButton" disabled>
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login">Sign In</a></p>
       </div>
     </div>
   </div>
-</div>
-<script>
-  document.getElementById("image").addEventListener("change", function (e) {
-    const preview = document.querySelector("#imagePreview img");
-    const previewContainer = document.getElementById("imagePreview");
 
-    if (this.files && this.files[0]) {
-      // File size validation (5MB limit)
-      if (this.files[0].size > 5 * 1024 * 1024) {
-        alert("File size too large. Maximum size is 5MB.");
-        this.value = "";
-        return;
+  <style>
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 76px);
+      padding: 2rem;
+      background-color: #f8f9fa;
+      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 900px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .auth-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 45px rgba(50, 50, 93, 0.15), 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-header {
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .auth-header h2 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-body {
+      padding: 2rem;
+    }
+
+    .auth-footer {
+      padding: 1.5rem;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-right: none;
+      color: #6c757d;
+    }
+
+    .form-control {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+      border-color: #ced4da;
+    }
+
+    .form-control:focus+.input-group-text {
+      border-color: #ced4da;
+    }
+
+    .toggle-password {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      color: #6c757d;
+    }
+
+    .toggle-password:hover {
+      background-color: transparent;
+      color: #495057;
+    }
+
+    .profile-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile-preview {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      border: 3px solid #764ba2;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .profile-preview:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-preview:hover .upload-overlay {
+      opacity: 1;
+    }
+
+    .profile-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(118, 75, 162, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 10px;
+    }
+
+    .upload-overlay i {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+    }
+
+    .upload-overlay span {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      margin-top: -5px;
+    }
+
+    .upload-hint {
+      font-size: 0.875rem;
+      color: #6c757d;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .role-option {
+      flex: 1;
+    }
+
+    .role-option input[type="radio"] {
+      display: none;
+    }
+
+    .role-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .role-option input[type="radio"]:checked+label {
+      border-color: #667eea;
+      background-color: rgba(102, 126, 234, 0.05);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .role-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      color: #764ba2;
+      transition: transform 0.3s ease;
+    }
+
+    .role-option label:hover .role-icon {
+      transform: scale(1.2);
+    }
+
+    .role-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-primary:disabled {
+      background: linear-gradient(135deg, #a5b1e9 0%, #b597cb 100%);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .terms-policy {
+      font-size: 0.875rem;
+    }
+
+    .terms-policy a {
+      color: #764ba2;
+      text-decoration: none;
+    }
+
+    .terms-policy a:hover {
+      text-decoration: underline;
+    }
+
+    .password-strength .progress-bar {
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    @media (max-width: 767.98px) {
+      .auth-card {
+        margin: 1rem;
       }
 
-      const reader = new FileReader();
+      .auth-body {
+        padding: 1.5rem;
+      }
 
-      reader.onload = function (e) {
-        preview.src = e.target.result;
-        previewContainer.classList.remove("d-none");
-      };
-
-      reader.readAsDataURL(this.files[0]);
-    } else {
-      previewContainer.classList.add("d-none");
+      .role-selector {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
     }
-  });
-</script>
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Profile image upload
+      const imagePreview = document.getElementById('imagePreview');
+      const previewImg = document.getElementById('previewImg');
+      const imageInput = document.getElementById('image');
+
+      imagePreview.addEventListener('click', () => {
+        imageInput.click();
+      });
+
+      imageInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+          // File size validation (5MB limit)
+          if (this.files[0].size > 5 * 1024 * 1024) {
+            alert('File size too large. Maximum size is 5MB.');
+            this.value = '';
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImg.src = e.target.result;
+          };
+          reader.readAsDataURL(this.files[0]);
+        }
+      });
+
+      // Password visibility toggle
+      const togglePassword = document.querySelector('.toggle-password');
+      const passwordInput = document.getElementById('password');
+
+      togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle icon
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      });
+
+      // Password strength meter
+      const passwordStrength = document.getElementById('passwordStrength');
+      const progressBar = passwordStrength.querySelector('.progress-bar');
+      const strengthText = passwordStrength.querySelector('.form-text');
+
+      passwordInput.addEventListener('input', function () {
+        const password = this.value;
+        let strength = 0;
+        let tips = '';
+
+        // Length check
+        if (password.length >= 8) {
+          strength += 25;
+        }
+
+        // Contains lowercase
+        if (password.match(/[a-z]/)) {
+          strength += 25;
+        }
+
+        // Contains uppercase
+        if (password.match(/[A-Z]/)) {
+          strength += 25;
+        }
+
+        // Contains number or special char
+        if (password.match(/[0-9]/) || password.match(/[^a-zA-Z0-9]/)) {
+          strength += 25;
+        }
+
+        // Update progress bar
+        progressBar.style.width = `${strength}%`;
+
+        // Set color based on strength
+        if (strength <= 25) {
+          progressBar.style.backgroundColor = '#dc3545';
+          tips = 'Very weak password. Try adding numbers and symbols.';
+        } else if (strength <= 50) {
+          progressBar.style.backgroundColor = '#ffc107';
+          tips = 'Add uppercase letters and symbols for stronger password.';
+        } else if (strength <= 75) {
+          progressBar.style.backgroundColor = '#17a2b8';
+          tips = 'Good password. Try adding more variety of characters.';
+        } else {
+          progressBar.style.backgroundColor = '#28a745';
+          tips = 'Strong password! Great job.';
+        }
+
+        strengthText.textContent = tips;
+      });
+
+      // Terms checkbox validation
+      const agreeTerms = document.getElementById('agreeTerms');
+      const registerButton = document.getElementById('registerButton');
+
+      agreeTerms.addEventListener('change', function () {
+        registerButton.disabled = !this.checked;
+      });
+
+      // Phone number validation
+      const phoneInput = document.getElementById('phone');
+
+      phoneInput.addEventListener('input', function () {
+        // Remove non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Limit to 10 digits
+        if (this.value.length > 10) {
+          this.value = this.value.slice(0, 10);
+        }
+      });
+    });
+  </script>
