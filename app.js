@@ -22,6 +22,7 @@ const paymentRoutes = require('./routes/payment');
 const profileRoutes = require('./routes/profile');
 const bookingApiRoutes = require('./routes/api/bookings');
 const addRoutes = require("./routes/admin/add.js");
+const feedbackRoutes = require('./routes/feedback.js');
 // Database connection
 
 // Update the database connection section
@@ -149,6 +150,7 @@ app.use('/api/location', locationRoutes);
 app.use('/booking', bookingRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/profile', profileRoutes);
+app.use('/feedback', feedbackRoutes);
 app.use('/api/bookings', bookingApiRoutes);
 app.use('/', addRoutes);
 // Listen on port

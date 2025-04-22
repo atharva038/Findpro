@@ -1,0 +1,213 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+    <div class="feedback-page">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="card shadow-lg border-0">
+                        <!-- Service Summary Section -->
+                        <div class="service-summary p-4 bg-light border-bottom">
+                            <div class="d-flex align-items-center">
+                                <div class="service-icon me-3">
+                                    <i class="fas fa-tools fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1">
+                                        <%= booking.service.name %>
+                                    </h4>
+                                    <p class="mb-0 text-muted">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        <%= new Date(booking.bookingDate).toLocaleDateString('en-US', { weekday: 'long'
+                                            , year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <form id="feedbackForm" class="needs-validation" novalidate>
+                                <input type="hidden" name="bookingId" value="<%= booking._id %>">
+
+                                <!-- Rating Section -->
+                                <div class="text-center mb-4">
+                                    <h5 class="mb-3">How would you rate your experience?</h5>
+                                    <div class="star-rating">
+                                        <% for(let i=5; i>= 1; i--) { %>
+                                            <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>"
+                                                required>
+                                            <label for="star<%= i %>" title="<%= i %> stars">
+                                                <i class="fas fa-star"></i>
+                                            </label>
+                                            <% } %>
+                                    </div>
+                                    <div class="rating-text mt-2">
+                                        <span id="ratingDescription" class="text-muted">Click to rate</span>
+                                    </div>
+                                </div>
+
+                                <!-- Provider Section -->
+                                <div class="provider-section mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="<%= booking.provider.user.profileImage || '/images/default-avatar.png' %>"
+                                            alt="Provider" class="provider-image rounded-circle me-3">
+                                        <div>
+                                            <h6 class="mb-1">Service Provider</h6>
+                                            <p class="mb-0">
+                                                <%= booking.provider.user.name %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Comment Section -->
+                                <div class="form-group mb-4">
+                                    <label for="comment" class="form-label">Share your experience</label>
+                                    <textarea class="form-control" id="comment" name="comment" rows="4"
+                                        placeholder="Tell us what you liked or what could be improved..."
+                                        required></textarea>
+                                </div>
+
+                                <!-- Recommendation Section -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label d-block">Would you recommend our service?</label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="recommend" id="recommend-yes"
+                                            value="yes" required>
+                                        <label class="btn btn-outline-success" for="recommend-yes">
+                                            <i class="fas fa-thumbs-up me-2"></i>Yes
+                                        </label>
+
+                                        <input type="radio" class="btn-check" name="recommend" id="recommend-no"
+                                            value="no">
+                                        <label class="btn btn-outline-danger" for="recommend-no">
+                                            <i class="fas fa-thumbs-down me-2"></i>No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                                    </button>
+                                    <a href="/dashboard" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .feedback-page {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 76px);
+        }
+
+        .service-summary {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .provider-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #dee2e6;
+            transition: all 0.2s ease;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover~label,
+        .star-rating input:checked~label {
+            color: #ffc107;
+        }
+
+        .rating-text {
+            min-height: 24px;
+        }
+
+        .btn-check:checked+.btn-outline-success {
+            background-color: #198754;
+            color: white;
+        }
+
+        .btn-check:checked+.btn-outline-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('feedbackForm');
+            const ratingDescription = document.getElementById('ratingDescription');
+            const ratingTexts = {
+                1: 'Poor - Very Dissatisfied',
+                2: 'Fair - Could Be Better',
+                3: 'Good - Satisfactory',
+                4: 'Very Good - Above Expectations',
+                5: 'Excellent - Outstanding Service'
+            };
+
+            // Update rating description
+            document.querySelectorAll('input[name="rating"]').forEach(input => {
+                input.addEventListener('change', function () {
+                    ratingDescription.textContent = ratingTexts[this.value];
+                });
+            });
+
+            // Form submission
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (!form.checkValidity()) {
+                    e.stopPropagation();
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                try {
+                    const formData = new FormData(this);
+                    const response = await fetch('/feedback/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(Object.fromEntries(formData))
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Thank you for your feedback!');
+                        window.location.href = '/dashboard';
+                    } else {
+                        throw new Error(data.error || 'Failed to submit feedback');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to submit feedback. Please try again.');
+                }
+            });
+        });
+    </script>
