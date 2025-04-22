@@ -382,8 +382,14 @@ function verifyPayment(response, bookingId, paymentType) {
         })
         .then(data => {
             if (data.success) {
-                alert('Payment processed successfully!');
-                window.location.reload();
+
+                if (paymentType === 'final') {
+                    // Redirect to feedback page after final payment
+                    window.location.href = `/feedback/${bookingId}`;
+                } else {
+                    alert('Payment processed successfully!');
+                    window.location.reload();
+                }
             } else {
                 throw new Error(data.error || 'Payment verification failed');
             }
@@ -415,6 +421,5 @@ function cancelBooking(bookingId) {
 }
 
 function rateService(bookingId) {
-    // Redirect to rating page or show rating modal
-    alert('Rating feature coming soon!');
+    window.location.href = `/feedback/${bookingId}`;
 }

@@ -73,6 +73,25 @@ const bookingSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'refunded'],
     default: 'pending'
   },
+  feedback: {
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    comment: {
+      type: String,
+      maxLength: 1000
+    },
+    recommend: {
+      type: Boolean,
+      default: null
+    },
+    submittedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
