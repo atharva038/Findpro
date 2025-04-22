@@ -10,6 +10,10 @@ const categorySchema = new mongoose.Schema({
     type: String, // Field for the category image URL
     required: true, // Ensure an image is provided
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   services: [
     {
       type: mongoose.Schema.Types.ObjectId, // Change to ObjectId

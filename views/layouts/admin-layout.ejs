@@ -1,0 +1,661 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KnockNFix Admin Dashboard">
+    <meta name="author" content="KnockNFix">
+    <title><%= locals.title || "Admin Panel" %> - KnockNFix</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Admin Panel CSS -->
+    <link rel="stylesheet" href="/css/adminPanel.css">
+    
+    <!-- Additional page-specific styles -->
+    <% if (locals.pageStyle) { %>
+        <style><%- locals.pageStyle %></style>
+    <% } %>
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --primary-hover: #3a5bd7;
+            --secondary-color: #6c757d;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --header-height: 70px;
+            --border-radius: 10px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fc;
+            color: #5a5c69;
+        }
+        
+        /* Improved sidebar styling */
+        .admin-sidebar {
+            background: linear-gradient(180deg, #4e73df 0%, #3a5bd7 100%);
+            width: var(--sidebar-width);
+            transition: width var(--transition-speed) ease;
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+        }
+        
+        .admin-sidebar .sidebar-header {
+            padding: 20px;
+            color: #fff;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-sidebar .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .nav-item .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active .nav-link {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        
+        /* Collapsed sidebar */
+        .sidebar-collapsed .admin-sidebar {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .sidebar-collapsed .sidebar-header h3,
+        .sidebar-collapsed .nav-link span {
+            display: none;
+        }
+        
+        .sidebar-collapsed .nav-item {
+            text-align: center;
+        }
+        
+        .sidebar-collapsed .nav-item .nav-link {
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        .sidebar-collapsed .nav-item i {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* Header styling */
+        .admin-header {
+            height: var(--header-height);
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .admin-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #b7b9cc;
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .notification-btn, .profile-btn {
+            background: transparent;
+            border: none;
+            position: relative;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .notification-btn:hover, .profile-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .notification-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.4rem;
+        }
+        
+        .profile-btn img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+        }
+        
+        .notification-dropdown {
+            min-width: 280px;
+            padding: 0;
+            border: none;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-header {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 12px 15px;
+        }
+        
+        .dropdown-header h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .notification-item .icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-radius: 50%;
+            color: #fff;
+        }
+        
+        .notification-item .content p {
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .notification-item .content small {
+            color: var(--secondary-color);
+        }
+        
+        /* Page content container */
+        .admin-page-content {
+            background-color: #f8f9fc;
+            min-height: calc(100vh - var(--header-height));
+            transition: padding var(--transition-speed) ease;
+        }
+        
+        /* Dynamic content positioning */
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed) ease;
+            flex: 1;
+        }
+        
+        .sidebar-collapsed .admin-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+        
+        /* Component styling */
+        .admin-card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: all var(--transition-speed) ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .admin-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        .admin-section-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 991px) {
+            :root {
+                --sidebar-width: 200px;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .admin-container {
+                position: relative;
+            }
+            
+            .admin-sidebar {
+                position: fixed;
+                height: 100%;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                z-index: 1030;
+            }
+            
+            .admin-content {
+                margin-left: 0 !important;
+            }
+            
+            .sidebar-collapsed .admin-sidebar {
+                transform: translateX(0);
+                width: var(--sidebar-width);
+            }
+            
+            .sidebar-collapsed .sidebar-header h3,
+            .sidebar-collapsed .nav-link span {
+                display: block;
+            }
+            
+            .sidebar-collapsed .nav-item .nav-link {
+                justify-content: flex-start;
+            }
+            
+            .sidebar-collapsed .nav-item i {
+                margin-right: 10px;
+            }
+            
+            .admin-sidebar::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: -1;
+                opacity: 0;
+                visibility: hidden;
+                transition: all var(--transition-speed) ease;
+            }
+            
+            .sidebar-collapsed .admin-sidebar::after {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container d-flex">
+        <!-- Sidebar -->
+        <div class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>KnockNFix</h3>
+                <button class="btn text-white sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="fas fa-angles-left"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-menu py-2">
+                <ul class="nav flex-column">
+                    <li class="nav-item <%= locals.currentPath === '/admin/dashboard' ? 'active' : '' %>">
+                        <a href="/admin/dashboard" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/users' ? 'active' : '' %>">
+                        <a href="/admin/users" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/categories' ? 'active' : '' %>">
+                        <a href="/admin/categories" class="nav-link">
+                            <i class="fas fa-th-large"></i>
+                            <span>Categories</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/services' ? 'active' : '' %>">
+                        <a href="/admin/services" class="nav-link">
+                            <i class="fas fa-tools"></i>
+                            <span>Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/bookings' ? 'active' : '' %>">
+                        <a href="/admin/bookings" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Bookings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/providers' ? 'active' : '' %>">
+                        <a href="/admin/providers" class="nav-link">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Service Providers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item <%= locals.currentPath === '/admin/settings' ? 'active' : '' %>">
+                        <a href="/admin/settings" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-auto border-top pt-2 mt-2">
+                        <a href="/logout" class="nav-link text-white-50 hover-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="d-flex align-items-center">
+                    <button class="btn sidebar-toggle d-md-none" id="mobileSidebarToggle" aria-label="Mobile Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumbs ms-3">
+                        <% if (locals.breadcrumbs && Array.isArray(locals.breadcrumbs)) { %>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item">
+                                        <a href="/admin/dashboard">
+                                            <i class="fas fa-home small me-1"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <% locals.breadcrumbs.forEach(function(breadcrumb) { %>
+                                        <li class="breadcrumb-item <%= breadcrumb.active ? 'active' : '' %>">
+                                            <% if (breadcrumb.url && !breadcrumb.active) { %>
+                                                <a href="<%= breadcrumb.url %>"><%= breadcrumb.text %></a>
+                                            <% } else { %>
+                                                <%= breadcrumb.text %>
+                                            <% } %>
+                                        </li>
+                                    <% }); %>
+                                </ol>
+                            </nav>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="admin-header-right">
+                    <!-- Notifications -->
+                    <div class="dropdown">
+                        <button class="btn notification-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge rounded-pill bg-danger">3</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                            <div class="dropdown-header">
+                                <h6>Notifications</h6>
+                            </div>
+                            <div class="dropdown-divider m-0"></div>
+                            <div class="notification-list" style="max-height: 300px; overflow-y: auto;">
+                                <a href="#" class="dropdown-item py-2">
+                                    <div class="notification-item">
+                                        <div class="icon bg-primary">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="content">
+                                            <p class="mb-1">New user registered</p>
+                                            <small class="text-muted">5 minutes ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="#" class="dropdown-item py-2">
+                                    <div class="notification-item">
+                                        <div class="icon bg-success">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="content">
+                                            <p class="mb-1">Payment received</p>
+                                            <small class="text-muted">2 hours ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="#" class="dropdown-item py-2">
+                                    <div class="notification-item">
+                                        <div class="icon bg-warning">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="content">
+                                            <p class="mb-1">System alert</p>
+                                            <small class="text-muted">Yesterday</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dropdown-divider m-0"></div>
+                            <a href="/admin/notifications" class="dropdown-item text-center py-2">
+                                View All Notifications
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="dropdown">
+                        <button class="btn profile-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-none d-md-inline me-1">Admin</span>
+                            <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" loading="lazy">
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" style="min-width: 200px; border-radius: 10px; border: none; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);">
+                            <div class="px-3 py-2 text-center mb-2">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle mb-2" width="60" height="60" loading="lazy">
+                                <h6 class="mb-0">Admin User</h6>
+                                <small class="text-muted">Administrator</small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin/profile" class="dropdown-item py-2">
+                                <i class="fas fa-user me-2 text-primary"></i>Profile
+                            </a>
+                            <a href="/admin/settings" class="dropdown-item py-2">
+                                <i class="fas fa-cog me-2 text-primary"></i>Settings
+                            </a>
+                            <a href="/admin/activity" class="dropdown-item py-2">
+                                <i class="fas fa-history me-2 text-primary"></i>Activity Log
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/logout" class="dropdown-item py-2 text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="admin-page-content p-4">
+                <!-- Flash messages -->
+                <% if (locals.success && locals.success.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <%= locals.success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                
+                <% if (locals.error && locals.error.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <%= locals.error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                
+                <!-- Main content from each page -->
+                <%- body %>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="admin-footer p-4 mt-auto">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div class="text-center text-md-start mb-2 mb-md-0">
+                        &copy; <%= new Date().getFullYear() %> KnockNFix. All rights reserved.
+                    </div>
+                    <div class="text-center text-md-end">
+                        <span>Version 1.0.0</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Admin Panel JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sidebar toggle functionality
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const adminContainer = document.querySelector('.admin-container');
+            
+            // Check for saved state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                adminContainer.classList.add('sidebar-collapsed');
+                updateToggleIcon();
+            }
+            
+            function toggleSidebar() {
+                adminContainer.classList.toggle('sidebar-collapsed');
+                // Save state in localStorage
+                localStorage.setItem('sidebarCollapsed', adminContainer.classList.contains('sidebar-collapsed'));
+                updateToggleIcon();
+            }
+            
+            function updateToggleIcon() {
+                const isCollapsed = adminContainer.classList.contains('sidebar-collapsed');
+                const icon = sidebarToggle.querySelector('i');
+                
+                if (isCollapsed) {
+                    icon.classList.remove('fa-angles-left');
+                    icon.classList.add('fa-angles-right');
+                } else {
+                    icon.classList.remove('fa-angles-right');
+                    icon.classList.add('fa-angles-left');
+                }
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            // Mobile sidebar backdrop click handler
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                
+                if (window.innerWidth < 768 && 
+                    adminContainer.classList.contains('sidebar-collapsed') && 
+                    !sidebar.contains(event.target) && 
+                    !mobileSidebarToggle.contains(event.target)) {
+                    adminContainer.classList.remove('sidebar-collapsed');
+                    localStorage.setItem('sidebarCollapsed', 'false');
+                    updateToggleIcon();
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+                
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(e.target) && 
+                        !Array.from(dropdownToggles).some(toggle => toggle.contains(e.target))) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Auto hide alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+
+    <!-- Additional scripts -->
+    <% if (locals.extraScripts && Array.isArray(locals.extraScripts)) { %>
+        <% locals.extraScripts.forEach(function(script) { %>
+            <script src="<%= script %>"></script>
+        <% }); %>
+    <% } %>
+
+    <!-- Page specific script -->
+    <% if (locals.pageScript) { %>
+        <script><%- locals.pageScript %></script>
+    <% } %>
+</body>
+</html>

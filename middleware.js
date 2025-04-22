@@ -16,3 +16,10 @@ module.exports.isServiceProvider = async (req, res, next) => {
     error: 'Only service providers can perform this action'
   });
 }
+module.exports.isAdmin = async (req, res, next) => {
+  if (req.isAuthenticated() && req.user.role === 'admin') {
+    return next();
+  }
+  req.flash('error', 'Access denied. Admin privileges required.');
+  return res.redirect('/login');
+};

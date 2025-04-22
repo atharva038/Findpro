@@ -10,6 +10,50 @@ body {
   flex: 1;
 }
 
+/* Add this to your existing CSS file */
+/* Add to g:\Coding\KnockNFix\public\css\style.css */
+#langSwitcher {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.25rem 1rem 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: #212529;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#langSwitcher:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#langSwitcher:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+/* Hide Google Translate toolbar */
+.goog-te-banner-frame {
+  display: none !important;
+}
+.goog-te-menu-value:hover {
+  text-decoration: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+/* Hide Google top bar */
+.skiptranslate {
+  display: none !important;
+}
+@media (max-width: 576px) {
+  #langSwitcher {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
 /* navbar styling */
 .fade-box {
   transition: opacity 0.5s ease;
@@ -307,8 +351,7 @@ h1 {
 .login-heading {
   font-weight: 800;
 }
-.form-control{
-
+.form-control {
 }
 /* signup */
 
@@ -378,9 +421,9 @@ h1 {
   margin-bottom: 2rem;
   color: #333;
 }
-.custom-width{
+.custom-width {
   width: 80%;
 }
-.form-group{
+.form-group {
   width: 80%;
 }

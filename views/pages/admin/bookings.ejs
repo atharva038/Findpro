@@ -1,0 +1,961 @@
+<% layout('/layouts/admin-layout') %>
+<% 
+  // Set page variables 
+  locals.title = "Bookings"; 
+  locals.currentPath = "/admin/bookings"; 
+  locals.breadcrumbs = [{ 
+    text: "Bookings", 
+    url: "/admin/bookings", 
+    active: true 
+  }]; 
+%>    <div class="admin-section-header">
+            <h2><i class="fas fa-calendar-check me-2"></i>Booking Management</h2>
+            <div class="d-flex gap-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search bookings..." id="bookingSearch">
+                    <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <h6 class="dropdown-header">Status</h6>
+                        </li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="all">All Bookings</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="pending">Pending</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="confirmed">Confirmed</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="completed">Completed</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="cancelled">Cancelled</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <h6 class="dropdown-header">Date Range</h6>
+                        </li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="today">Today</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="week">This Week</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="month">This Month</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="custom">Custom Range...</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+                    <i class="fas fa-download me-1"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-card mb-4">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-bookings-tab" data-bs-toggle="tab"
+                            data-bs-target="#all-bookings" type="button" role="tab" aria-selected="true">
+                            All Bookings <span class="badge rounded-pill bg-secondary ms-1">
+                                <%= bookings ? bookings.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab"
+                            data-bs-target="#pending-bookings" type="button" role="tab">
+                            Pending <span class="badge rounded-pill bg-warning text-dark ms-1">
+                                <%= pendingBookings ? pendingBookings.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="confirmed-tab" data-bs-toggle="tab"
+                            data-bs-target="#confirmed-bookings" type="button" role="tab">
+                            Confirmed <span class="badge rounded-pill bg-primary ms-1">
+                                <%= confirmedBookings ? confirmedBookings.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="completed-tab" data-bs-toggle="tab"
+                            data-bs-target="#completed-bookings" type="button" role="tab">
+                            Completed <span class="badge rounded-pill bg-success ms-1">
+                                <%= completedBookings ? completedBookings.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab"
+                            data-bs-target="#cancelled-bookings" type="button" role="tab">
+                            Cancelled <span class="badge rounded-pill bg-danger ms-1">
+                                <%= cancelledBookings ? cancelledBookings.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" id="calendar-view-btn">
+                        <i class="fas fa-calendar-alt me-1"></i> Calendar View
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-card-body">
+                <div class="tab-content">
+                    <!-- All Bookings Tab -->
+                    <div class="tab-pane fade show active" id="all-bookings" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover admin-table" id="bookingsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px">#</th>
+                                        <th>Booking ID</th>
+                                        <th>Customer</th>
+                                        <th>Service</th>
+                                        <th>Provider</th>
+                                        <th>Date & Time</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th style="width: 100px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (bookings && bookings.length> 0) { %>
+                                        <% bookings.forEach((booking, index)=> { %>
+                                            <tr class="booking-row" data-status="<%= booking.status %>">
+                                                <td>
+                                                    <%= index + 1 %>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-500">
+                                                        <%= booking.bookingId %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= new Date(booking.createdAt).toLocaleDateString() %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="user-avatar me-2">
+                                                            <img src="<%= booking.user.profileImage ? booking.user.profileImage.url : `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.user.name)}&background=random&color=fff&size=32` %>"
+                                                                alt="<%= booking.user.name %>">
+                                                        </div>
+                                                        <div>
+                                                            <%= booking.user.name %>
+                                                                <div class="small text-muted">
+                                                                    <%= booking.user.phone %>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-500">
+                                                        <%= booking.service.name %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= booking.service.category.name %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="user-avatar me-2">
+                                                            <img src="<%= booking.provider.profileImage ? booking.provider.profileImage.url : `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.provider.name)}&background=random&color=fff&size=32` %>"
+                                                                alt="<%= booking.provider.name %>">
+                                                        </div>
+                                                        <div>
+                                                            <%= booking.provider.name %>
+                                                                <div class="small text-muted">
+                                                                    <%= booking.provider.businessName
+                                                                        || 'Individual Provider' %>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <%= new Date(booking.scheduledDate).toLocaleDateString() %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= booking.timeSlot %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-500">₹<%= booking.totalAmount.toFixed(2) %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= booking.paymentStatus %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-<%= 
+                        booking.status === 'confirmed' ? 'primary' : 
+                        (booking.status === 'completed' ? 'success' : 
+                        (booking.status === 'cancelled' ? 'danger' : 'warning')) 
+                      %>">
+                                                        <%= booking.status.charAt(0).toUpperCase() +
+                                                            booking.status.slice(1) %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        <a href="/admin/bookings/<%= booking._id %>"
+                                                            class="btn btn-sm btn-outline-info" title="View">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <div class="dropdown">
+                                                            <button
+                                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                                type="button" data-bs-toggle="dropdown">
+                                                                <i class="fas fa-ellipsis-v"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li><a class="dropdown-item"
+                                                                        href="/admin/bookings/edit/<%= booking._id %>">Edit
+                                                                        Booking</a></li>
+                                                                <li><a class="dropdown-item status-update" href="#"
+                                                                        data-booking-id="<%= booking._id %>"
+                                                                        data-status="confirmed">Mark as Confirmed</a>
+                                                                </li>
+                                                                <li><a class="dropdown-item status-update" href="#"
+                                                                        data-booking-id="<%= booking._id %>"
+                                                                        data-status="completed">Mark as Completed</a>
+                                                                </li>
+                                                                <li><a class="dropdown-item status-update" href="#"
+                                                                        data-booking-id="<%= booking._id %>"
+                                                                        data-status="cancelled">Cancel Booking</a></li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li><a class="dropdown-item text-danger delete-booking"
+                                                                        href="#" data-booking-id="<%= booking._id %>"
+                                                                        data-booking-ref="<%= booking.bookingId %>">Delete
+                                                                        Booking</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="9" class="text-center py-4">
+                                                            <div class="empty-state">
+                                                                <i class="fas fa-calendar-check fa-3x mb-3"></i>
+                                                                <h5>No bookings found</h5>
+                                                                <p class="text-muted">No booking records match your
+                                                                    search criteria</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Other tabs will be populated via JavaScript -->
+                    <div class="tab-pane fade" id="pending-bookings" role="tabpanel"></div>
+                    <div class="tab-pane fade" id="confirmed-bookings" role="tabpanel"></div>
+                    <div class="tab-pane fade" id="completed-bookings" role="tabpanel"></div>
+                    <div class="tab-pane fade" id="cancelled-bookings" role="tabpanel"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="admin-card mb-4 d-none" id="calendar-view">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Bookings Calendar</h5>
+                <button class="btn btn-sm btn-outline-primary" id="list-view-btn">
+                    <i class="fas fa-list me-1"></i> List View
+                </button>
+            </div>
+            <div class="admin-card-body">
+                <div id="bookingsCalendar"></div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exportModalLabel">Export Bookings</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="exportForm">
+                            <div class="mb-3">
+                                <label class="form-label">Export Format</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatCSV"
+                                            value="csv" checked>
+                                        <label class="form-check-label" for="formatCSV">CSV</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat"
+                                            id="formatExcel" value="excel">
+                                        <label class="form-check-label" for="formatExcel">Excel</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatPDF"
+                                            value="pdf">
+                                        <label class="form-check-label" for="formatPDF">PDF</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Booking Status</label>
+                                <select class="form-select" name="bookingStatus">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending Only</option>
+                                    <option value="confirmed">Confirmed Only</option>
+                                    <option value="completed">Completed Only</option>
+                                    <option value="cancelled">Cancelled Only</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Date Range</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="date" class="form-control" name="startDate">
+                                    </div>
+                                    <div class="col-auto">to</div>
+                                    <div class="col">
+                                        <input type="date" class="form-control" name="endDate">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Update Modal -->
+        <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="statusModalLabel">Update Booking Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to update the status of booking <strong id="bookingRef"></strong> to
+                            <strong id="newStatus"></strong>?
+                        </p>
+
+                        <div class="mb-3" id="cancellationReasonContainer" style="display: none;">
+                            <label for="cancellationReason" class="form-label">Cancellation Reason</label>
+                            <textarea class="form-control" id="cancellationReason" rows="3"
+                                placeholder="Enter reason for cancellation..."></textarea>
+                        </div>
+
+                        <div class="mb-3" id="notificationContainer">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sendNotification" checked>
+                                <label class="form-check-label" for="sendNotification">
+                                    Notify customer via email/SMS
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmStatusUpdate">Update Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the booking <strong id="deleteBookingRef"></strong>?</p>
+                        <p class="text-danger fw-bold mb-0">This action cannot be undone. All booking data will be
+                            permanently deleted.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form id="deleteForm" method="POST">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Delete Booking</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% locals.extraScripts=['/js/fullcalendar.min.js']; %>
+
+            <!-- Replace the locals.pageScript section with this corrected version -->
+
+            <% locals.pageScript=` // Tab functionality for filtering bookings by status
+                document.getElementById('pending-tab').addEventListener('click', function() {
+                populateFilteredTab('pending-bookings', 'pending' ); });
+                document.getElementById('confirmed-tab').addEventListener('click', function() {
+                populateFilteredTab('confirmed-bookings', 'confirmed' ); });
+                document.getElementById('completed-tab').addEventListener('click', function() {
+                populateFilteredTab('completed-bookings', 'completed' ); });
+                document.getElementById('cancelled-tab').addEventListener('click', function() {
+                populateFilteredTab('cancelled-bookings', 'cancelled' ); }); function populateFilteredTab(tabId, status)
+                { const targetTab=document.getElementById(tabId); // If the tab has already been populated, don't do it
+                again if (targetTab.querySelector('table')) return; // Clone the bookings table structure const
+                originalTable=document.getElementById('bookingsTable'); const clonedTable=originalTable.cloneNode(true);
+                // Clear existing rows const tbody=clonedTable.querySelector('tbody'); tbody.innerHTML='' ; // Filter
+                and add rows for the selected status const bookingRows=document.querySelectorAll('#all-bookings
+                .booking-row'); let rowCount=0; bookingRows.forEach(row=> {
+                if (row.getAttribute('data-status') === status) {
+                const clonedRow = row.cloneNode(true);
+                tbody.appendChild(clonedRow);
+                rowCount++;
+                }
+                });
+
+                // Add empty state if no rows match
+                if (rowCount === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = '<td colspan="9" class="text-center py-4">' +
+                    '<div class="empty-state">' +
+                        '<i class="fas fa-calendar-check fa-3x mb-3"></i>' +
+                        '<h5>No ' + status + ' bookings found</h5>' +
+                        '<p class="text-muted">There are currently no bookings with ' + status + ' status.</p>' +
+                        '</div>' +
+                    '</td>';
+                tbody.appendChild(emptyRow);
+                }
+
+                // Update the tab content
+                targetTab.innerHTML = '';
+                const tableResponsive = document.createElement('div');
+                tableResponsive.className = 'table-responsive';
+                tableResponsive.appendChild(clonedTable);
+                targetTab.appendChild(tableResponsive);
+
+                // Reattach event listeners
+                attachEventListeners();
+                }
+
+                // Search functionality
+                const searchInput = document.getElementById('bookingSearch');
+                const searchBtn = document.getElementById('searchBtn');
+
+                function searchBookings() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const bookingRows = document.querySelectorAll('.booking-row');
+
+                bookingRows.forEach(row => {
+                const bookingId = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const customerName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const serviceName = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const providerName = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+
+                if (bookingId.includes(searchTerm) ||
+                customerName.includes(searchTerm) ||
+                serviceName.includes(searchTerm) ||
+                providerName.includes(searchTerm)) {
+                row.style.display = '';
+                } else {
+                row.style.display = 'none';
+                }
+
+                // Handle empty state
+                updateEmptyState();
+                });
+                }
+
+                searchInput.addEventListener('input', searchBookings);
+                searchBtn.addEventListener('click', searchBookings);
+
+                function updateEmptyState() {
+                const activeTabPanel = document.querySelector('.tab-pane.active');
+                const visibleRows = activeTabPanel.querySelectorAll('.booking-row[style="display: ;"],
+                .booking-row:not([style])');
+                const existingEmptyState = activeTabPanel.querySelector('.empty-search-results');
+
+                if (visibleRows.length === 0 && !existingEmptyState) {
+                const tbody = activeTabPanel.querySelector('tbody');
+                const emptyRow = document.createElement('tr');
+                emptyRow.className = 'empty-search-results';
+                emptyRow.innerHTML = '<td colspan="9" class="text-center py-4">' +
+                    '<div class="empty-state">' +
+                        '<i class="fas fa-search fa-3x mb-3"></i>' +
+                        '<h5>No bookings found</h5>' +
+                        '<p class="text-muted">No bookings match your search criteria</p>' +
+                        '<button class="btn btn-outline-secondary mt-2 clear-search">' +
+                            '<i class="fas fa-times me-1"></i> Clear Search' +
+                            '</button>' +
+                        '</div>' +
+                    '</td>';
+                tbody.appendChild(emptyRow);
+                } else if (visibleRows.length > 0 && existingEmptyState) {
+                existingEmptyState.remove();
+                }
+                }
+
+                // Clear search
+                document.addEventListener('click', function(e) {
+                if (e.target.closest('.clear-search')) {
+                searchInput.value = '';
+                searchBookings();
+                }
+                });
+
+                // Filter by dropdown selections
+                const filterItems = document.querySelectorAll('.filter-item');
+                filterItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const filter = this.getAttribute('data-filter');
+
+                if (filter === 'all') {
+                document.querySelectorAll('.booking-row').forEach(row => {
+                row.style.display = '';
+                });
+                } else if (['pending', 'confirmed', 'completed', 'cancelled'].includes(filter)) {
+                // Filter by status
+                document.querySelectorAll('.booking-row').forEach(row => {
+                if (row.getAttribute('data-status') === filter) {
+                row.style.display = '';
+                } else {
+                row.style.display = 'none';
+                }
+                });
+                } else if (filter === 'today') {
+                filterByDate(0, 0); // Today
+                } else if (filter === 'week') {
+                filterByDate(0, 7); // This week
+                } else if (filter === 'month') {
+                filterByDate(0, 30); // This month
+                } else if (filter === 'custom') {
+                // Open export modal with date range inputs focused
+                const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+                exportModal.show();
+                setTimeout(() => {
+                document.querySelector('input[name="startDate"]').focus();
+                }, 500);
+                }
+
+                // Update empty state
+                updateEmptyState();
+                });
+                });
+
+                function filterByDate(startDaysAgo, endDaysAhead) {
+                const now = new Date();
+                const startDate = new Date(now);
+                startDate.setDate(now.getDate() - startDaysAgo);
+                startDate.setHours(0, 0, 0, 0);
+
+                const endDate = new Date(now);
+                endDate.setDate(now.getDate() + endDaysAhead);
+                endDate.setHours(23, 59, 59, 999);
+
+                const bookingRows = document.querySelectorAll('.booking-row');
+
+                bookingRows.forEach(row => {
+                const bookingDateStr = row.querySelector('td:nth-child(6) div').textContent;
+                const bookingDate = new Date(bookingDateStr);
+
+                if (bookingDate >= startDate && bookingDate <= endDate) { row.style.display='' ; } else {
+                    row.style.display='none' ; } }); } // Calendar View const
+                    calendarViewBtn=document.getElementById('calendar-view-btn'); const
+                    listViewBtn=document.getElementById('list-view-btn'); const
+                    calendarView=document.getElementById('calendar-view'); const
+                    tableView=document.querySelector('.admin-card.mb-4:not(#calendar-view)');
+                    calendarViewBtn.addEventListener('click', function() { tableView.classList.add('d-none');
+                    calendarView.classList.remove('d-none'); initializeCalendar(); });
+                    listViewBtn.addEventListener('click', function() { calendarView.classList.add('d-none');
+                    tableView.classList.remove('d-none'); }); let calendar; function initializeCalendar() { if
+                    (calendar) return; // Already initialized const
+                    calendarEl=document.getElementById('bookingsCalendar'); calendar=new
+                    FullCalendar.Calendar(calendarEl, { initialView: 'dayGridMonth' , headerToolbar: {
+                    left: 'prev,next today' , center: 'title' , right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                    }, events: getCalendarEvents(), eventClick: function(info) { // Redirect to booking detail page
+                    window.location.href='/admin/bookings/' + info.event.id; }, eventTimeFormat: { hour: '2-digit' ,
+                    minute: '2-digit' , hour12: true } }); calendar.render(); } function getCalendarEvents() { const
+                    events=[]; const bookingRows=document.querySelectorAll('#all-bookings .booking-row');
+                    bookingRows.forEach(row=> {
+                    const bookingId = row.querySelector('td:nth-child(2) .fw-500').textContent;
+                    const customerId = row.querySelector('td:nth-child(3) .d-flex').textContent.trim();
+                    const serviceName = row.querySelector('td:nth-child(4) .fw-500').textContent;
+                    const dateStr = row.querySelector('td:nth-child(6) div').textContent;
+                    const timeSlot = row.querySelector('td:nth-child(6) small').textContent;
+                    const status = row.getAttribute('data-status');
+                    const id = row.querySelector('td:nth-child(9) a').href.split('/').pop();
+
+                    // Parse the time slot (assuming format like "10:00 AM - 11:30 AM")
+                    let startTime = '09:00';
+                    let endTime = '10:00';
+
+                    if (timeSlot.includes('-')) {
+                    const times = timeSlot.split('-');
+                    startTime = times[0].trim();
+                    endTime = times[1].trim();
+                    }
+
+                    // Create date objects
+                    const date = new Date(dateStr);
+                    const startDate = new Date(date);
+                    const endDate = new Date(date);
+
+                    // Parse times (assuming 12-hour format with AM/PM)
+                    if (startTime.includes('AM') || startTime.includes('PM')) {
+                    const [time, period] = startTime.split(' ');
+                    const [hours, minutes] = time.split(':');
+                    let hour = parseInt(hours);
+
+                    if (period === 'PM' && hour !== 12) hour += 12;
+                    if (period === 'AM' && hour === 12) hour = 0;
+
+                    startDate.setHours(hour, parseInt(minutes || 0), 0);
+                    }
+
+                    if (endTime.includes('AM') || endTime.includes('PM')) {
+                    const [time, period] = endTime.split(' ');
+                    const [hours, minutes] = time.split(':');
+                    let hour = parseInt(hours);
+
+                    if (period === 'PM' && hour !== 12) hour += 12;
+                    if (period === 'AM' && hour === 12) hour = 0;
+
+                    endDate.setHours(hour, parseInt(minutes || 0), 0);
+                    }
+
+                    // Determine color based on status
+                    let backgroundColor;
+                    switch(status) {
+                    case 'pending':
+                    backgroundColor = '#f6c23e'; // warning
+                    break;
+                    case 'confirmed':
+                    backgroundColor = '#4e73df'; // primary
+                    break;
+                    case 'completed':
+                    backgroundColor = '#1cc88a'; // success
+                    break;
+                    case 'cancelled':
+                    backgroundColor = '#e74a3b'; // danger
+                    break;
+                    default:
+                    backgroundColor = '#858796'; // secondary
+                    }
+
+                    events.push({
+                    id: id,
+                    title: serviceName + ' - ' + customerId,
+                    start: startDate,
+                    end: endDate,
+                    backgroundColor: backgroundColor,
+                    borderColor: backgroundColor,
+                    textColor: status === 'pending' ? '#212529' : '#fff',
+                    extendedProps: {
+                    bookingId: bookingId,
+                    status: status
+                    }
+                    });
+                    });
+
+                    return events;
+                    }
+
+                    // Status update functionality
+                    function attachEventListeners() {
+                    // Status update buttons
+                    document.querySelectorAll('.status-update').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const bookingId = this.getAttribute('data-booking-id');
+                    const newStatus = this.getAttribute('data-status');
+                    const bookingRef = this.closest('tr').querySelector('td:nth-child(2) .fw-500').textContent;
+
+                    // Set modal content
+                    document.getElementById('bookingRef').textContent = bookingRef;
+                    document.getElementById('newStatus').textContent = newStatus.charAt(0).toUpperCase() +
+                    newStatus.slice(1);
+
+                    // Show/hide cancellation reason field
+                    const cancellationReasonContainer = document.getElementById('cancellationReasonContainer');
+                    if (newStatus === 'cancelled') {
+                    cancellationReasonContainer.style.display = 'block';
+                    } else {
+                    cancellationReasonContainer.style.display = 'none';
+                    }
+
+                    // Set up the confirm button
+                    const confirmBtn = document.getElementById('confirmStatusUpdate');
+                    confirmBtn.onclick = function() {
+                    updateBookingStatus(bookingId, newStatus, bookingRef);
+                    };
+
+                    // Show the modal
+                    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+                    statusModal.show();
+                    });
+                    });
+
+                    // Delete booking buttons
+                    document.querySelectorAll('.delete-booking').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const bookingId = this.getAttribute('data-booking-id');
+                    const bookingRef = this.getAttribute('data-booking-ref');
+
+                    // Set modal content
+                    document.getElementById('deleteBookingRef').textContent = bookingRef;
+                    document.getElementById('deleteForm').action = '/admin/bookings/' + bookingId + '?_method=DELETE';
+
+                    // Show the modal
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                    deleteModal.show();
+                    });
+                    });
+                    }
+
+                    // Initialize event listeners
+                    attachEventListeners();
+
+                    function updateBookingStatus(bookingId, status, bookingRef) {
+                    const sendNotification = document.getElementById('sendNotification').checked;
+                    const cancellationReason = status === 'cancelled' ?
+                    document.getElementById('cancellationReason').value : '';
+
+                    // In a real application, this would be an API call
+                    fetch('/admin/bookings/' + bookingId + '/status', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                    status,
+                    sendNotification,
+                    cancellationReason
+                    })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                    if (data.success) {
+                    // Close modal
+                    const statusModal = bootstrap.Modal.getInstance(document.getElementById('statusModal'));
+                    statusModal.hide();
+
+                    // Update the UI
+                    updateBookingRowStatus(bookingId, status);
+
+                    // Show toast notification
+                    showToast('Booking #' + bookingRef + ' has been marked as ' + status);
+                    }
+                    })
+                    .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating booking status');
+                    });
+                    }
+
+                    function updateBookingRowStatus(bookingId, newStatus) {
+                    // Find all instances of this booking row (in different tabs)
+                    const bookingLinks = document.querySelectorAll('a[href="/admin/bookings/' + bookingId + '"]');
+
+                    bookingLinks.forEach(link => {
+                    const row = link.closest('tr');
+
+                    // Update status badge
+                    const statusBadge = row.querySelector('td:nth-child(8) .badge');
+                    statusBadge.className = 'badge bg-' +
+                    (newStatus === 'confirmed' ? 'primary' :
+                    (newStatus === 'completed' ? 'success' :
+                    (newStatus === 'cancelled' ? 'danger' : 'warning')));
+                    statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+
+                    // Update row data attribute
+                    row.setAttribute('data-status', newStatus);
+
+                    // Update dropdown options visibility based on new status
+                    const dropdownItems = row.querySelectorAll('.status-update');
+                    dropdownItems.forEach(item => {
+                    const itemStatus = item.getAttribute('data-status');
+                    if (itemStatus === newStatus) {
+                    item.closest('li').style.display = 'none';
+                    } else {
+                    item.closest('li').style.display = '';
+                    }
+                    });
+                    });
+
+                    // Update tab counters
+                    updateTabCounters();
+                    }
+
+                    function updateTabCounters() {
+                    const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+
+                    statuses.forEach(status => {
+                    const count = document.querySelectorAll('.booking-row[data-status="' + status + '"]').length;
+                    const badge = document.querySelector('#' + status + '-tab .badge');
+                    if (badge) badge.textContent = count;
+                    });
+
+                    // Update "All" counter
+                    const allCount = document.querySelectorAll('.booking-row').length;
+                    const allBadge = document.querySelector('#all-bookings-tab .badge');
+                    if (allBadge) allBadge.textContent = allCount;
+                    }
+
+                    // Export functionality
+                    document.getElementById('exportBtn').addEventListener('click', function() {
+                    const form = document.getElementById('exportForm');
+                    const format = form.querySelector('input[name="exportFormat"]:checked').value;
+                    const status = form.querySelector('select[name="bookingStatus"]').value;
+                    const startDate = form.querySelector('input[name="startDate"]').value;
+                    const endDate = form.querySelector('input[name="endDate"]').value;
+
+                    // In a real implementation, this would submit to a server endpoint
+                    const exportData = {
+                    format,
+                    status,
+                    startDate,
+                    endDate
+                    };
+
+                    console.log('Export request:', exportData);
+
+                    // Close the modal
+                    const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+                    exportModal.hide();
+
+                    // Show toast notification
+                    showToast('Exporting bookings as ' + format.toUpperCase());
+
+                    // In a real app, this would be an API call
+                    setTimeout(() => {
+                    // Simulate download completion
+                    showToast('Bookings exported successfully as ' + format.toUpperCase(), 'success');
+                    }, 2000);
+                    });
+
+                    // Toast notification helper
+                    function showToast(message, type = 'primary') {
+                    const toastContainer = document.querySelector('.toast-container');
+
+                    if (!toastContainer) {
+                    // Create a toast container if it doesn't exist
+                    const container = document.createElement('div');
+                    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                    container.style.zIndex = '5';
+                    document.body.appendChild(container);
+                    }
+
+                    // Create toast element
+                    const toast = document.createElement('div');
+                    toast.className = 'toast align-items-center text-white bg-' + type + ' border-0';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+
+                    toast.innerHTML =
+                    '<div class="d-flex">' +
+                        '<div class="toast-body">' +
+                            message +
+                            '</div>' +
+                        '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>' +
+                        '</div>';
+
+                    const toastContainerEl = document.querySelector('.toast-container');
+                    toastContainerEl.appendChild(toast);
+
+                    const bsToast = new bootstrap.Toast(toast, {
+                    autohide: true,
+                    delay: 5000
+                    });
+
+                    bsToast.show();
+
+                    // Remove toast element after it's hidden
+                    toast.addEventListener('hidden.bs.toast', function() {
+                    this.remove();
+                    });
+                    }
+                    `; %>
+
+                    <style>
+                        .user-avatar {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            overflow: hidden;
+                        }
+
+                        .user-avatar img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+
+                        .empty-state {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 2rem;
+                            color: #6c757d;
+                        }
+
+                        .fw-500 {
+                            font-weight: 500;
+                        }
+
+                        #bookingsCalendar {
+                            height: 700px;
+                        }
+
+                        /* FullCalendar Customizations */
+                        .fc .fc-toolbar-title {
+                            font-size: 1.5rem;
+                            font-weight: 500;
+                        }
+
+                        .fc .fc-button-primary {
+                            background-color: #4e73df;
+                            border-color: #4e73df;
+                        }
+
+                        .fc .fc-button-primary:not(:disabled):active,
+                        .fc .fc-button-primary:not(:disabled).fc-button-active {
+                            background-color: #3a56b7;
+                            border-color: #3a56b7;
+                        }
+
+                        .fc .fc-daygrid-day.fc-day-today {
+                            background-color: rgba(78, 115, 223, 0.1);
+                        }
+
+                        .fc-event {
+                            cursor: pointer;
+                        }
+
+                        /* Toast container */
+                        .toast-container {
+                            z-index: 1090;
+                        }
+                    </style>
+
+                    <!-- Toast container for notifications -->
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>

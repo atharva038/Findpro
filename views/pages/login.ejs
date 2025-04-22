@@ -10,52 +10,92 @@
 
       <!-- Login Form -->
       <div class="auth-body">
-        <form action="/login" method="post" class="needs-validation" novalidate>
-          <!-- Email/Phone Field -->
-          <div class="form-group mb-3">
-            <label for="username" class="form-label">Email or Phone</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="fas fa-user"></i>
-              </span>
-              <input type="text" id="username" name="username" class="form-control"
-                placeholder="Enter your email or phone number" required />
-            </div>
+        <!-- Alert for server-side messages -->
+        <% if(error && error.length> 0) { %>
+          <div class="alert alert-danger mb-3">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <%= error %>
           </div>
+          <% } %>
+            <% if(success && success.length> 0) { %>
+              <div class="alert alert-success mb-3">
+                <i class="fas fa-check-circle me-2"></i>
+                <%= success %>
+              </div>
+              <% } %>
 
-          <!-- Password Field -->
-          <div class="form-group mb-3">
-            <label for="password" class="form-label">Password</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="fas fa-lock"></i>
-              </span>
-              <input type="password" id="password" name="password" class="form-control"
-                placeholder="Enter your password" required />
-              <button type="button" class="btn btn-outline-secondary toggle-password" tabindex="-1">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </div>
+                <!-- Client-side validation message area -->
+                <div id="validationFeedback" class="alert alert-warning d-none mb-3">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <span id="validationMessage"></span>
+                </div>
 
-          <!-- Remember Me & Forgot Password -->
-          <div class="d-flex justify-content-between mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
-              <label class="form-check-label" for="rememberMe">
-                Remember me
-              </label>
-            </div>
-            <a href="#" class="forgot-password">Forgot password?</a>
-          </div>
+                <form action="/login" method="post" class="needs-validation" id="loginForm" novalidate>
+                  <!-- Email/Phone Field -->
+                  <div class="form-group mb-3">
+                    <label for="username" class="form-label">Email or Phone</label>
+                    <div class="input-group has-validation">
+                      <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                      </span>
+                      <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter your email or phone number" required
+                        pattern="(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)|(^[0-9]{10}$)"
+                        title="Enter a valid email address or 10-digit phone number" />
+                      <div class="invalid-feedback">
+                        Please enter a valid email address or 10-digit phone number.
+                      </div>
+                    </div>
+                    <div class="form-text mt-1" id="usernameHint">Use the email or phone you registered with</div>
+                  </div>
 
-          <!-- Submit Button -->
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">
-              Sign In
-            </button>
-          </div>
-        </form>
+                  <!-- Password Field -->
+                  <div class="form-group mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group has-validation">
+                      <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                      </span>
+                      <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required minlength="8"
+                        title="Password must be at least 8 characters" />
+                      <button type="button" class="btn btn-outline-secondary toggle-password" tabindex="-1"
+                        aria-label="Toggle password visibility">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <div class="invalid-feedback">
+                        Password must be at least 8 characters.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Remember Me & Forgot Password -->
+                  <div class="d-flex justify-content-between mb-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                      <label class="form-check-label" for="rememberMe">
+                        Remember me
+                      </label>
+                    </div>
+                    <a href="/forgot-password" class="forgot-password">Forgot password?</a>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-primary" id="loginButton">
+                      <span class="button-text">Sign In</span>
+                      <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" id="loginSpinner"></span>
+                    </button>
+                  </div>
+
+                  <!-- Security Notice -->
+                  <div class="security-notice mt-3">
+                    <small class="text-muted">
+                      <i class="fas fa-shield-alt me-1"></i>
+                      Secure login protected by encryption
+                    </small>
+                  </div>
+                </form>
       </div>
 
       <!-- Card Footer -->
@@ -194,6 +234,44 @@
       text-decoration: underline;
     }
 
+    .security-notice {
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .form-text {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+    .alert {
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    /* Form validation styles */
+    .was-validated .form-control:valid {
+      border-color: #28a745;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .was-validated .form-control:invalid {
+      border-color: #dc3545;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    /* Fix input group validation */
+    .was-validated .input-group .form-control:valid,
+    .was-validated .input-group .form-control:invalid {
+      z-index: 3;
+    }
+
     @media (max-width: 576px) {
       .auth-card {
         border-radius: 15px;
@@ -206,6 +284,32 @@
       .auth-body {
         padding: 1.5rem;
       }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .btn-pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Accessibility improvements */
+    .form-control:focus,
+    .form-check-input:focus,
+    .toggle-password:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.25);
     }
   </style>
 
@@ -227,17 +331,153 @@
         });
       }
 
+      // Username field validation (email or phone)
+      const usernameInput = document.getElementById('username');
+      if (usernameInput) {
+        usernameInput.addEventListener('input', function () {
+          validateUsername(this);
+        });
+
+        usernameInput.addEventListener('blur', function () {
+          validateUsername(this, true);
+        });
+      }
+
+      // Password field validation
+      if (passwordInput) {
+        passwordInput.addEventListener('input', function () {
+          validatePassword(this);
+        });
+
+        passwordInput.addEventListener('blur', function () {
+          validatePassword(this, true);
+        });
+      }
+
       // Form validation
-      const form = document.querySelector('form');
+      const form = document.querySelector('#loginForm');
+      const validationFeedback = document.getElementById('validationFeedback');
+      const validationMessage = document.getElementById('validationMessage');
+      const loginButton = document.getElementById('loginButton');
+      const loginSpinner = document.getElementById('loginSpinner');
 
       if (form) {
         form.addEventListener('submit', function (event) {
+          // Clear previous validation messages
+          hideValidationMessage();
+
+          // Check if form is valid
           if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
+
+            // Find the first invalid field
+            const invalidField = form.querySelector(':invalid');
+            if (invalidField) {
+              invalidField.focus();
+
+              // Show validation message
+              showValidationMessage("Please correct the highlighted fields");
+            }
+
+            form.classList.add('was-validated');
+          } else {
+            // Form is valid, show loading state
+            loginButton.disabled = true;
+            loginButton.querySelector('.button-text').textContent = 'Signing In...';
+            loginSpinner.classList.remove('d-none');
+
+            // Add a small delay to allow the user to see the change
+            setTimeout(() => {
+              form.submit();
+            }, 300);
           }
-          form.classList.add('was-validated');
         });
       }
+
+      // Validation functions
+      function validateUsername(field, showError = false) {
+        // Check if email or phone format
+        const value = field.value.trim();
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const phonePattern = /^[0-9]{10}$/;
+
+        const isValid = emailPattern.test(value) || phonePattern.test(value);
+
+        if (value === '') {
+          // Empty field, don't show validation yet unless showError is true
+          if (showError) {
+            field.classList.add('is-invalid');
+            field.setCustomValidity('Please enter your email or phone number');
+          } else {
+            field.classList.remove('is-invalid', 'is-valid');
+            field.setCustomValidity('');
+          }
+        } else if (isValid) {
+          field.classList.add('is-valid');
+          field.classList.remove('is-invalid');
+          field.setCustomValidity('');
+        } else {
+          field.classList.add('is-invalid');
+          field.classList.remove('is-valid');
+          field.setCustomValidity('Please enter a valid email address or 10-digit phone number');
+        }
+      }
+
+      function validatePassword(field, showError = false) {
+        const value = field.value.trim();
+
+        if (value === '') {
+          // Empty field, don't show validation yet unless showError is true
+          if (showError) {
+            field.classList.add('is-invalid');
+            field.setCustomValidity('Please enter your password');
+          } else {
+            field.classList.remove('is-invalid', 'is-valid');
+            field.setCustomValidity('');
+          }
+        } else if (value.length < 8) {
+          field.classList.add('is-invalid');
+          field.classList.remove('is-valid');
+          field.setCustomValidity('Password must be at least 8 characters');
+        } else {
+          field.classList.add('is-valid');
+          field.classList.remove('is-invalid');
+          field.setCustomValidity('');
+        }
+      }
+
+      // Show validation message
+      function showValidationMessage(message) {
+        if (validationFeedback && validationMessage) {
+          validationMessage.textContent = message;
+          validationFeedback.classList.remove('d-none');
+        }
+      }
+
+      // Hide validation message
+      function hideValidationMessage() {
+        if (validationFeedback) {
+          validationFeedback.classList.add('d-none');
+        }
+      }
+
+      // Focus on username field on page load for better UX
+      if (usernameInput && !usernameInput.value) {
+        setTimeout(() => {
+          usernameInput.focus();
+        }, 500);
+      }
+
+      // Add pulse animation to login button after 3 seconds if form is not submitted
+      setTimeout(() => {
+        if (loginButton && !form.classList.contains('was-validated')) {
+          loginButton.classList.add('btn-pulse');
+
+          loginButton.addEventListener('mouseenter', () => {
+            loginButton.classList.remove('btn-pulse');
+          });
+        }
+      }, 3000);
     });
   </script>

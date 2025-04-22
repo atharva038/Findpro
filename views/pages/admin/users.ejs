@@ -1,0 +1,642 @@
+<% layout('/layouts/admin-layout') %>
+    <% 
+     locals.title="Users Management" ;
+      locals.currentPath="/admin/users" ; locals.breadcrumbs=[{
+        text: "Users" , url: "/admin/users" , active: true }]; %>
+
+        <div class="admin-section-header">
+            <h2><i class="fas fa-users me-2"></i>Users Management</h2>
+            <div class="d-flex gap-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search users..." id="userSearch">
+                    <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <h6 class="dropdown-header">User Type</h6>
+                        </li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="all">All Users</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="customer">Customers</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="provider">Service Providers</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <h6 class="dropdown-header">Status</h6>
+                        </li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="active">Active</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="inactive">Inactive</a></li>
+                        <li><a class="dropdown-item filter-item" href="#" data-filter="unverified">Unverified</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+                    <i class="fas fa-download me-1"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-card mb-4">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-users-tab" data-bs-toggle="tab"
+                            data-bs-target="#all-users" type="button" role="tab" aria-selected="true">
+                            All Users <span class="badge rounded-pill bg-secondary ms-1">
+                                <%= users ? users.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers"
+                            type="button" role="tab" aria-selected="false">
+                            Customers <span class="badge rounded-pill bg-secondary ms-1">
+                                <%= customers ? customers.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="providers-tab" data-bs-toggle="tab" data-bs-target="#providers"
+                            type="button" role="tab" aria-selected="false">
+                            Service Providers <span class="badge rounded-pill bg-secondary ms-1">
+                                <%= providers ? providers.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="admin-card-body">
+                <div class="tab-content">
+                    <!-- All Users Tab -->
+                    <div class="tab-pane fade show active" id="all-users" role="tabpanel"
+                        aria-labelledby="all-users-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover admin-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px">#</th>
+                                        <th style="width: 60px"></th>
+                                        <th>Name</th>
+                                        <th>Email/Phone</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                        <th style="width: 100px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (users && users.length> 0) { %>
+                                        <% users.forEach((user, index)=> { %>
+                                            <tr class="user-row" data-role="<%= user.role %>"
+                                                data-status="<%= user.status %>">
+                                                <td>
+                                                    <%= index + 1 %>
+                                                </td>
+                                                <td>
+                                                    <div class="user-avatar">
+                                                        <% if (user.profileImage && user.profileImage.url) { %>
+                                                            <img src="<%= user.profileImage.url %>"
+                                                                alt="<%= user.name %>">
+                                                            <% } else { %>
+                                                                <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.name) %>&background=random&color=fff&size=32"
+                                                                    alt="<%= user.name %>">
+                                                                <% } %>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-500">
+                                                        <%= user.name %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= user.role==='provider' ? (user.businessName
+                                                            || 'Individual Provider' ) : '' %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <%= user.email %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= user.phone %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge bg-<%= user.role === 'admin' ? 'dark' : (user.role === 'provider' ? 'primary' : 'secondary') %>">
+                                                        <%= user.role==='admin' ? 'Admin' : (user.role==='provider'
+                                                            ? 'Provider' : 'Customer' ) %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <%= new Date(user.createdAt).toLocaleDateString() %>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <%= new Date(user.createdAt).toLocaleTimeString() %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <!-- Replace lines 148-152 with this safer version -->
+                                                <td>
+                                                    <span
+                                                        class="badge bg-<%= user.status === 'active' ? 'success' : (user.status === 'inactive' ? 'danger' : 'warning') %>">
+                                                        <%= user.status ? (user.status.charAt(0).toUpperCase() +
+                                                            user.status.slice(1)) : 'Unknown' %>
+                                                    </span>
+                                                </td>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        <a href="/admin/users/<%= user._id %>"
+                                                            class="btn btn-sm btn-outline-info" title="View">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <div class="dropdown">
+                                                            <button
+                                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                                type="button" data-bs-toggle="dropdown">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li><a class="dropdown-item"
+                                                                        href="/admin/users/edit/<%= user._id %>">Edit
+                                                                        User</a></li>
+                                                                <li>
+                                                                    <button
+                                                                        class="dropdown-item text-<%= user.status === 'active' ? 'warning' : 'success' %> status-toggle"
+                                                                        data-user-id="<%= user._id %>"
+                                                                        data-current-status="<%= user.status %>">
+                                                                        <i
+                                                                            class="fas fa-<%= user.status === 'active' ? 'lock' : 'unlock' %> me-1"></i>
+                                                                        <%= user.status==='active' ? 'Deactivate'
+                                                                            : 'Activate' %> Account
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li>
+                                                                    <button
+                                                                        class="dropdown-item text-danger delete-user"
+                                                                        data-user-id="<%= user._id %>"
+                                                                        data-user-name="<%= user.name %>">
+                                                                        <i class="fas fa-trash-alt me-1"></i> Delete
+                                                                        Account
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="8" class="text-center py-4">
+                                                            <div class="empty-state">
+                                                                <i class="fas fa-users fa-3x mb-3"></i>
+                                                                <h5>No users found</h5>
+                                                                <p class="text-muted">No users match your search
+                                                                    criteria</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Customers Tab -->
+                    <div class="tab-pane fade" id="customers" role="tabpanel" aria-labelledby="customers-tab">
+                        <!-- Will be populated via JavaScript -->
+                    </div>
+
+                    <!-- Service Providers Tab -->
+                    <div class="tab-pane fade" id="providers" role="tabpanel" aria-labelledby="providers-tab">
+                        <!-- Will be populated via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exportModalLabel">Export Users</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="exportForm">
+                            <div class="mb-3">
+                                <label class="form-label">Export Format</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatCSV"
+                                            value="csv" checked>
+                                        <label class="form-check-label" for="formatCSV">CSV</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat"
+                                            id="formatExcel" value="excel">
+                                        <label class="form-check-label" for="formatExcel">Excel</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatPDF"
+                                            value="pdf">
+                                        <label class="form-check-label" for="formatPDF">PDF</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">User Type</label>
+                                <select class="form-select" name="userType">
+                                    <option value="all">All Users</option>
+                                    <option value="customer">Customers Only</option>
+                                    <option value="provider">Service Providers Only</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Fields to Export</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="name"
+                                                id="fieldName" checked>
+                                            <label class="form-check-label" for="fieldName">Name</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="email"
+                                                id="fieldEmail" checked>
+                                            <label class="form-check-label" for="fieldEmail">Email</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="phone"
+                                                id="fieldPhone" checked>
+                                            <label class="form-check-label" for="fieldPhone">Phone</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="role"
+                                                id="fieldRole" checked>
+                                            <label class="form-check-label" for="fieldRole">Role</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="status"
+                                                id="fieldStatus" checked>
+                                            <label class="form-check-label" for="fieldStatus">Status</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="fields" value="joined"
+                                                id="fieldJoined" checked>
+                                            <label class="form-check-label" for="fieldJoined">Join Date</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the user account for <strong id="deleteUserName"></strong>?
+                        </p>
+                        <p class="text-danger fw-bold mb-0">This action cannot be undone. All user data will be
+                            permanently deleted.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form id="deleteForm" method="POST">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Delete Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <!-- Replace the problematic pageScript section around line 348 with this corrected version -->
+<% locals.pageScript = `
+// Filter users based on tab selection
+document.getElementById('customers-tab').addEventListener('click', function() {
+    filterUsersByRole('customer');
+});
+
+document.getElementById('providers-tab').addEventListener('click', function() {
+    filterUsersByRole('provider');
+});
+
+// Filter users by search term
+const searchInput = document.getElementById('userSearch');
+const searchBtn = document.getElementById('searchBtn');
+
+function searchUsers() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const userRows = document.querySelectorAll('.user-row');
+    
+    userRows.forEach(row => {
+        const name = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const email = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+        
+        if (name.includes(searchTerm) || email.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+        
+        // Update empty state based on visible rows
+        const visibleRows = Array.from(userRows).filter(r => r.style.display !== 'none');
+        const emptyStateRow = row.closest('tbody').querySelector('tr td[colspan="8"]')?.closest('tr');
+        
+        if (visibleRows.length === 0 && !emptyStateRow) {
+            // No rows visible and no empty state exists, so create one
+            const tbody = row.closest('tbody');
+            const tr = document.createElement('tr');
+            tr.className = 'empty-search-results';
+            tr.innerHTML = \`
+            <td colspan="8" class="text-center py-4">
+                <div class="empty-state">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>No users found</h5>
+                    <p class="text-muted">No users match your search criteria</p>
+                    <button class="btn btn-outline-secondary mt-2 clear-search">
+                        <i class="fas fa-times me-1"></i> Clear Search
+                    </button>
+                </div>
+            </td>
+            \`;
+            tbody.appendChild(tr);
+        } else if (visibleRows.length > 0 && emptyStateRow) {
+            // Rows visible but empty state exists, so remove it
+            emptyStateRow.remove();
+        }
+    });
+}
+
+searchInput.addEventListener('input', searchUsers);
+searchBtn.addEventListener('click', searchUsers);
+
+// Clear search
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.clear-search')) {
+        searchInput.value = '';
+        searchUsers();
+    }
+});
+
+// Filter by dropdown selections
+const filterItems = document.querySelectorAll('.filter-item');
+filterItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const filter = this.getAttribute('data-filter');
+        
+        if (filter === 'all') {
+            document.querySelectorAll('.user-row').forEach(row => {
+                row.style.display = '';
+            });
+        } else if (filter === 'customer' || filter === 'provider') {
+            filterUsersByRole(filter);
+        } else {
+            // Filter by status
+            document.querySelectorAll('.user-row').forEach(row => {
+                if (row.getAttribute('data-status') === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    });
+});
+
+function filterUsersByRole(roleType) {
+    const targetTab = document.getElementById(roleType === 'customer' ? 'customers' : 'providers');
+    
+    // Clone the users table structure
+    const originalTable = document.getElementById('usersTable');
+    const clonedTable = originalTable.cloneNode(true);
+    
+    // Clear existing rows
+    const tbody = clonedTable.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    // Filter and add rows for the selected role
+    const userRows = document.querySelectorAll('#all-users .user-row');
+    let rowCount = 0;
+    
+    userRows.forEach(row => {
+        if (row.getAttribute('data-role') === roleType) {
+            const clonedRow = row.cloneNode(true);
+            tbody.appendChild(clonedRow);
+            rowCount++;
+        }
+    });
+    
+    // Add empty state if no rows match
+    if (rowCount === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = \`
+        <td colspan="8" class="text-center py-4">
+            <div class="empty-state">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h5>No \${roleType === 'customer' ? 'customers' : 'service providers'} found</h5>
+                <p class="text-muted">No \${roleType === 'customer' ? 'customers' : 'service providers'} accounts exist in the system.</p>
+            </div>
+        </td>
+        \`;
+        tbody.appendChild(emptyRow);
+    }
+    
+    // Update the tab content
+    targetTab.innerHTML = '';
+    const tableResponsive = document.createElement('div');
+    tableResponsive.className = 'table-responsive';
+    tableResponsive.appendChild(clonedTable);
+    targetTab.appendChild(tableResponsive);
+}
+
+// Export users
+document.getElementById('exportBtn').addEventListener('click', function() {
+    const form = document.getElementById('exportForm');
+    const format = form.querySelector('input[name="exportFormat"]:checked').value;
+    const userType = form.querySelector('select[name="userType"]').value;
+    const fields = Array.from(form.querySelectorAll('input[name="fields"]:checked')).map(field => field.value);
+    
+    // In a real implementation, this would submit to a server endpoint
+    const exportData = {
+        format,
+        userType,
+        fields
+    };
+    
+    console.log('Export request:', exportData);
+    
+    // Display a toast notification
+    const toast = new bootstrap.Toast(document.getElementById('exportToast'));
+    document.getElementById('exportToastMessage').textContent = \`Exporting users as \${format.toUpperCase()}\`;
+    toast.show();
+    
+    // Close the modal
+    const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+    exportModal.hide();
+    
+    // In a real app, this would be an API call
+    setTimeout(() => {
+        alert(\`Users exported as \${format.toUpperCase()}\`);
+    }, 1000);
+});
+
+// Delete user functionality
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+const deleteUserBtns = document.querySelectorAll('.delete-user');
+
+deleteUserBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        const userName = this.getAttribute('data-user-name');
+        
+        // Set the user name in the modal
+        document.getElementById('deleteUserName').textContent = userName;
+        
+        // Set the form action
+        document.getElementById('deleteForm').action = \`/admin/users/\${userId}?_method=DELETE\`;
+        
+        // Show the modal
+        deleteModal.show();
+    });
+});
+
+// Status toggle functionality
+const statusToggles = document.querySelectorAll('.status-toggle');
+
+statusToggles.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        const currentStatus = this.getAttribute('data-current-status');
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        
+        // In a real application, this would be an API call
+        fetch(\`/admin/users/\${userId}/status\`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the UI
+                const row = this.closest('tr');
+                const statusBadge = row.querySelector('td:nth-child(7) .badge');
+                
+                statusBadge.classList.remove('bg-success', 'bg-danger');
+                statusBadge.classList.add(newStatus === 'active' ? 'bg-success' : 'bg-danger');
+                statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                
+                // Update the button
+                this.setAttribute('data-current-status', newStatus);
+                this.innerHTML = \`
+                <i class="fas fa-\${newStatus === 'active' ? 'lock' : 'unlock'} me-1"></i>
+                \${newStatus === 'active' ? 'Deactivate' : 'Activate'} Account
+                \`;
+                this.classList.remove('text-warning', 'text-success');
+                this.classList.add(newStatus === 'active' ? 'text-warning' : 'text-success');
+                
+                // Show toast notification
+                const toast = new bootstrap.Toast(document.getElementById('statusToast'));
+                document.getElementById('statusToastMessage').textContent = \`User account \${newStatus === 'active' ? 'activated' : 'deactivated'} successfully\`;
+                toast.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating user status');
+        });
+    });
+});
+`; %>
+
+            <style>
+                .user-avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                }
+
+                .user-avatar img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .empty-state {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    color: #6c757d;
+                }
+
+                .fw-500 {
+                    font-weight: 500;
+                }
+            </style>
+
+            <!-- Toast notifications -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+                <div id="exportToast" class="toast align-items-center text-white bg-primary border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="exportToastMessage">
+                            Exporting users...
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div id="statusToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="statusToastMessage">
+                            User status updated successfully
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>

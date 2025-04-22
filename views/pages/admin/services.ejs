@@ -1,0 +1,592 @@
+<% layout('/layouts/admin-layout') %>
+<% 
+  
+  locals.title = "Services"; 
+  locals.currentPath = "/admin/services"; 
+  locals.breadcrumbs = [{ 
+    text: "Services", 
+    url: "/admin/services", 
+    active: true 
+  }]; 
+%>
+
+<div class="admin-section-header">
+    <h2><i class="fas fa-tools me-2"></i>Services</h2>
+    <div>
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search services..." id="serviceSearch">
+            <a href="/admin/addService" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Add Service
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="servicesTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all"
+                            type="button" role="tab" aria-controls="all" aria-selected="true">
+                            All
+                            <span class="badge rounded-pill bg-secondary ms-1">
+                                <%= services ? services.length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active"
+                            type="button" role="tab" aria-controls="active" aria-selected="false">
+                            Active
+                            <span class="badge rounded-pill bg-success ms-1">
+                                <%= services ? services.filter(s => s.isActive).length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="inactive-tab" data-bs-toggle="tab"
+                            data-bs-target="#inactive" type="button" role="tab" aria-controls="inactive"
+                            aria-selected="false">
+                            Inactive
+                            <span class="badge rounded-pill bg-danger ms-1">
+                                <%= services ? services.filter(s => !s.isActive).length : 0 %>
+                            </span>
+                        </button>
+                    </li>
+                    <li class="nav-item ms-auto" role="presentation">
+                        <button class="nav-link" id="category-tab" data-bs-toggle="tab"
+                            data-bs-target="#by-category" type="button" role="tab" aria-controls="by-category"
+                            aria-selected="false">
+                            <i class="fas fa-th-large me-1"></i> By Category
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="admin-card-body">
+                <div class="tab-content" id="servicesTabContent">
+                    <!-- All Services Tab -->
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        <div class="table-responsive">
+                            <!-- Same table as before -->
+                            <table class="table table-hover admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Service</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (services && services.length > 0) { %>
+                                        <% services.forEach((service, index) => { %>
+                                            <tr class="service-row">
+                                                <td><%= index + 1 %></td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="service-thumbnail me-2">
+                                                            <img src="<%= service.img || '/img/placeholder-service.png' %>"
+                                                                alt="<%= service.name %>">
+                                                        </div>
+                                                        <div>
+                                                            <strong><%= service.name %></strong>
+                                                            <div class="small text-muted">
+                                                                <%= service.shortDescription || 'No description' %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <% if (service.category) { %>
+                                                        <span class="badge bg-info text-dark">
+                                                            <%= service.category.name %>
+                                                        </span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">Uncategorized</span>
+                                                    <% } %>
+                                                </td>
+                                                <td>₹<%= service.price ? service.price.toFixed(2) : '0.00' %></td>
+                                                <td><%= service.durationMinutes || 'N/A' %> <%= service.durationMinutes ? 'mins' : '' %></td>
+                                                <td>
+                                                    <span class="badge <%= service.isActive ? 'bg-success' : 'bg-danger' %>">
+                                                        <%= service.isActive ? 'Active' : 'Inactive' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="/admin/editService/<%= service._id %>"
+                                                            class="btn btn-sm btn-outline-primary" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <form action="/admin/services/<%= service._id %>?_method=DELETE"
+                                                            method="POST" class="d-inline delete-form">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                title="Delete"
+                                                                onclick="return confirm('Are you sure you want to delete this service?')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                        <button type="button"
+                                                            class="btn btn-sm <%= service.isActive ? 'btn-outline-warning' : 'btn-outline-success' %>"
+                                                            onclick="toggleStatus('/admin/services/<%= service._id %>/toggle', this)"
+                                                            data-status="<%= service.isActive ? 'active' : 'inactive' %>">
+                                                            <i class="fas <%= service.isActive ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <div class="empty-state">
+                                                    <i class="fas fa-tools fa-3x mb-3"></i>
+                                                    <h5>No services found</h5>
+                                                    <p class="text-muted">You haven't added any services yet.</p>
+                                                    <a href="/admin/addService" class="btn btn-primary mt-3">
+                                                        <i class="fas fa-plus me-1"></i> Add First Service
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Active Tab -->
+                    <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                        <!-- Content for active services will be dynamically inserted -->
+                    </div>
+
+                    <!-- Inactive Tab -->
+                    <div class="tab-pane fade" id="inactive" role="tabpanel" aria-labelledby="inactive-tab">
+                        <!-- Content for inactive services will be dynamically inserted -->
+                    </div>
+
+                    <!-- By Category Tab - NEW -->
+                    <div class="tab-pane fade" id="by-category" role="tabpanel" aria-labelledby="category-tab">
+                        <% 
+                        // Group services by category
+                        const categoryGroups = {};
+                        const uncategorized = [];
+                        
+                        if (services && services.length > 0) {
+                            services.forEach(service => {
+                                if (service.category) {
+                                    const categoryId = service.category._id.toString();
+                                    if (!categoryGroups[categoryId]) {
+                                        categoryGroups[categoryId] = {
+                                            name: service.category.name,
+                                            services: []
+                                        };
+                                    }
+                                    categoryGroups[categoryId].services.push(service);
+                                } else {
+                                    uncategorized.push(service);
+                                }
+                            });
+                        }
+                        %>
+                        
+                        <% if (Object.keys(categoryGroups).length > 0 || uncategorized.length > 0) { %>
+                            <!-- Category accordion -->
+                            <div class="accordion" id="categoryAccordion">
+                                <% Object.entries(categoryGroups).forEach(([categoryId, category], index) => { %>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading<%= categoryId %>">
+                                            <button class="accordion-button <%= index === 0 ? '' : 'collapsed' %>" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapse<%= categoryId %>" 
+                                                aria-expanded="<%= index === 0 ? 'true' : 'false' %>" aria-controls="collapse<%= categoryId %>">
+                                                <div class="d-flex justify-content-between w-100 align-items-center">
+                                                    <div>
+                                                        <i class="fas fa-th-large me-2"></i>
+                                                        <%= category.name %>
+                                                    </div>
+                                                    <div class="badge bg-primary rounded-pill ms-2">
+                                                        <%= category.services.length %> services
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="collapse<%= categoryId %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>" 
+                                            aria-labelledby="heading<%= categoryId %>" data-bs-parent="#categoryAccordion">
+                                            <div class="accordion-body p-0">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover admin-table mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Service</th>
+                                                                <th>Price</th>
+                                                                <th>Duration</th>
+                                                                <th>Status</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% category.services.forEach((service, sIndex) => { %>
+                                                                <tr class="service-row">
+                                                                    <td><%= sIndex + 1 %></td>
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="service-thumbnail me-2">
+                                                                                <img src="<%= service.img || '/img/placeholder-service.png' %>"
+                                                                                    alt="<%= service.name %>">
+                                                                            </div>
+                                                                            <div>
+                                                                                <strong><%= service.name %></strong>
+                                                                                <div class="small text-muted">
+                                                                                    <%= service.shortDescription || 'No description' %>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>₹<%= service.price ? service.price.toFixed(2) : '0.00' %></td>
+                                                                    <td><%= service.durationMinutes || 'N/A' %> <%= service.durationMinutes ? 'mins' : '' %></td>
+                                                                    <td>
+                                                                        <span class="badge <%= service.isActive ? 'bg-success' : 'bg-danger' %>">
+                                                                            <%= service.isActive ? 'Active' : 'Inactive' %>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="d-flex gap-2">
+                                                                            <a href="/admin/editService/<%= service._id %>"
+                                                                                class="btn btn-sm btn-outline-primary" title="Edit">
+                                                                                <i class="fas fa-edit"></i>
+                                                                            </a>
+                                                                            <form action="/admin/services/<%= service._id %>?_method=DELETE"
+                                                                                method="POST" class="d-inline delete-form">
+                                                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                                    title="Delete"
+                                                                                    onclick="return confirm('Are you sure you want to delete this service?')">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </button>
+                                                                            </form>
+                                                                            <button type="button"
+                                                                                class="btn btn-sm <%= service.isActive ? 'btn-outline-warning' : 'btn-outline-success' %>"
+                                                                                onclick="toggleStatus('/admin/services/<%= service._id %>/toggle', this)"
+                                                                                data-status="<%= service.isActive ? 'active' : 'inactive' %>">
+                                                                                <i class="fas <%= service.isActive ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                                
+                                <% if (uncategorized.length > 0) { %>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingUncategorized">
+                                            <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapseUncategorized" 
+                                                aria-expanded="false" aria-controls="collapseUncategorized">
+                                                <div class="d-flex justify-content-between w-100 align-items-center">
+                                                    <div>
+                                                        <i class="fas fa-question-circle me-2"></i>
+                                                        Uncategorized
+                                                    </div>
+                                                    <div class="badge bg-secondary rounded-pill ms-2">
+                                                        <%= uncategorized.length %> services
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseUncategorized" class="accordion-collapse collapse" 
+                                            aria-labelledby="headingUncategorized" data-bs-parent="#categoryAccordion">
+                                            <div class="accordion-body p-0">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover admin-table mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Service</th>
+                                                                <th>Price</th>
+                                                                <th>Duration</th>
+                                                                <th>Status</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% uncategorized.forEach((service, sIndex) => { %>
+                                                                <tr class="service-row">
+                                                                    <td><%= sIndex + 1 %></td>
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="service-thumbnail me-2">
+                                                                                <img src="<%= service.img || '/img/placeholder-service.png' %>"
+                                                                                    alt="<%= service.name %>">
+                                                                            </div>
+                                                                            <div>
+                                                                                <strong><%= service.name %></strong>
+                                                                                <div class="small text-muted">
+                                                                                    <%= service.shortDescription || 'No description' %>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>₹<%= service.price ? service.price.toFixed(2) : '0.00' %></td>
+                                                                    <td><%= service.durationMinutes || 'N/A' %> <%= service.durationMinutes ? 'mins' : '' %></td>
+                                                                    <td>
+                                                                        <span class="badge <%= service.isActive ? 'bg-success' : 'bg-danger' %>">
+                                                                            <%= service.isActive ? 'Active' : 'Inactive' %>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="d-flex gap-2">
+                                                                            <a href="/admin/editService/<%= service._id %>"
+                                                                                class="btn btn-sm btn-outline-primary" title="Edit">
+                                                                                <i class="fas fa-edit"></i>
+                                                                            </a>
+                                                                            <form action="/admin/services/<%= service._id %>?_method=DELETE"
+                                                                                method="POST" class="d-inline delete-form">
+                                                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                                    title="Delete"
+                                                                                    onclick="return confirm('Are you sure you want to delete this service?')">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </button>
+                                                                            </form>
+                                                                            <button type="button"
+                                                                                class="btn btn-sm <%= service.isActive ? 'btn-outline-warning' : 'btn-outline-success' %>"
+                                                                                onclick="toggleStatus('/admin/services/<%= service._id %>/toggle', this)"
+                                                                                data-status="<%= service.isActive ? 'active' : 'inactive' %>">
+                                                                                <i class="fas <%= service.isActive ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="fas fa-tools fa-3x mb-3"></i>
+                                <h5>No services found</h5>
+                                <p class="text-muted">You haven't added any services yet.</p>
+                                <a href="/admin/addService" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus me-1"></i> Add First Service
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keep the rest of your code (locals.pageScript, style, toast notification) unchanged -->
+
+        <% locals.pageScript = `
+    // Handle search functionality
+    const serviceSearch = document.getElementById('serviceSearch');
+    const serviceRows = document.querySelectorAll('.service-row');
+    
+    serviceSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        serviceRows.forEach(row => {
+            const serviceName = row.querySelector('strong').textContent.toLowerCase();
+            const serviceDescription = row.querySelector('.small').textContent.toLowerCase();
+            const categoryName = row.querySelector('.badge').textContent.toLowerCase();
+
+            if (serviceName.includes(searchTerm) ||
+                serviceDescription.includes(searchTerm) ||
+                categoryName.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Handle tab filtering
+    document.getElementById('active-tab').addEventListener('click', function() {
+        populateFilteredTab('active', true);
+    });
+
+    document.getElementById('inactive-tab').addEventListener('click', function() {
+        populateFilteredTab('inactive', false);
+    });
+
+    function populateFilteredTab(tabId, isActiveStatus) {
+        const tabContent = document.getElementById(tabId);
+        const allServices = document.querySelector('#all table').cloneNode(true);
+        const filteredRows = Array.from(allServices.querySelectorAll('tbody tr.service-row'));
+
+        // Keep only rows matching the active/inactive status
+        filteredRows.forEach(row => {
+            const statusBadge = row.querySelector('.badge:not(.bg-info):not(.bg-secondary)');
+            const rowIsActive = statusBadge.classList.contains('bg-success');
+
+            if (rowIsActive !== isActiveStatus) {
+                row.remove();
+            }
+        });
+
+        // Check if there are any rows left
+        if (allServices.querySelectorAll('tbody tr.service-row').length === 0) {
+            const tbody = allServices.querySelector('tbody');
+            const emptyMessage = document.createElement('tr');
+            emptyMessage.innerHTML = 
+                '<td colspan="7" class="text-center py-4">' +
+                    '<div class="empty-state">' +
+                        '<i class="fas fa-tools fa-3x mb-3"></i>' +
+                        '<h5>No ' + (isActiveStatus ? 'active' : 'inactive') + ' services found</h5>' +
+                        '<p class="text-muted">No services are currently ' + (isActiveStatus ? 'active' : 'inactive') + '.</p>' +
+                    '</div>' +
+                '</td>';
+            tbody.appendChild(emptyMessage);
+        }
+
+        // Set the filtered content
+        tabContent.innerHTML = '';
+        tabContent.innerHTML = '<div class="table-responsive"></div>';
+        tabContent.querySelector('.table-responsive').appendChild(allServices);
+    }
+
+    // Toggle service status
+   // Add this to your pageScript in services.ejs
+function toggleStatus(url, button) {
+    const currentStatus = button.getAttribute('data-status');
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button
+            button.setAttribute('data-status', newStatus);
+            button.classList.toggle('btn-outline-warning');
+            button.classList.toggle('btn-outline-success');
+
+            // Update icon
+            const icon = button.querySelector('i');
+            icon.classList.toggle('fa-eye-slash');
+            icon.classList.toggle('fa-eye');
+
+            // Update status badge in the row
+            const row = button.closest('tr');
+            const statusBadge = row.querySelector('.badge:not(.bg-info):not(.bg-secondary)');
+            if (statusBadge) {
+                statusBadge.classList.toggle('bg-success');
+                statusBadge.classList.toggle('bg-danger');
+                statusBadge.innerText = newStatus === 'active' ? 'Active' : 'Inactive';
+            }
+
+            // Show toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-success border-0';
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = 
+                '<div class="d-flex">' +
+                    '<div class="toast-body">' +
+                        'Service ' + (newStatus === 'active' ? 'activated' : 'deactivated') + ' successfully' +
+                    '</div>' +
+                    '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                '</div>';
+
+            document.querySelector('.toast-container').appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 5000
+            });
+            
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', function() {
+                this.remove();
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating status');
+    });
+}
+`; %>
+
+            <style>
+                .service-thumbnail {
+                    width: 40px;
+                    height: 40px;
+                    overflow: hidden;
+                    border-radius: 4px;
+                }
+
+                .service-thumbnail img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .empty-state {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    color: #6c757d;
+                }
+
+                .admin-card-header {
+                    background-color: #f8f9fc;
+                    border-bottom: 1px solid #e3e6f0;
+                }
+
+                .nav-tabs .nav-link {
+                    border: none;
+                    color: #5a5c69;
+                    font-weight: 500;
+                    padding: 0.75rem 1rem;
+                }
+
+                .nav-tabs .nav-link.active {
+                    background-color: transparent;
+                    border-bottom: 2px solid #4e73df;
+                    color: #4e73df;
+                }
+            </style>
+
+            <!-- Toast notification for status changes -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+                <div id="statusToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="statusToastMessage">
+                            Service status updated successfully
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            <!-- Add this at the end of your services.ejs file if not already there -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
