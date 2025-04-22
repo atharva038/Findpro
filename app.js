@@ -4,7 +4,6 @@ const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
