@@ -1,0 +1,668 @@
+<% layout('/layouts/admin-layout') %>
+<% 
+ 
+  locals.title = "Dashboard";
+  locals.currentPath = "/admin/dashboard";
+%>
+
+<!-- Dashboard Header with Refresh Button -->
+<div class="admin-section-header mb-4">
+    <div>
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard Overview</h2>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your business today.</p>
+    </div>
+    <button id="refreshStats" class="btn btn-primary">
+        <i class="fas fa-sync-alt me-1"></i> Refresh
+    </button>
+</div>
+
+<!-- Dashboard Content -->
+<div class="dashboard-overview">
+    <!-- Stats Cards with Improved Layout -->
+    <div class="row g-4 mb-4">
+        <!-- Users Stats Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card bg-gradient-primary">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h5 class="stats-card-title">Total Users</h5>
+                        <h3 class="stats-card-value"><%= statistics.usersCount || 0 %></h3>
+                    </div>
+                </div>
+                <div class="stats-card-footer">
+                    <span class="stats-card-growth positive">
+                        <i class="fas fa-arrow-up"></i> 5.3%
+                    </span>
+                    <span class="stats-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Stats Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card bg-gradient-success">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon pulse">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="stats-card-title">Bookings</h5>
+                        <h3 class="stats-card-value"><%= statistics.bookingsCount || 0 %></h3>
+                    </div>
+                </div>
+                <div class="stats-card-footer">
+                    <span class="stats-card-growth positive">
+                        <i class="fas fa-arrow-up"></i> 12.7%
+                    </span>
+                    <span class="stats-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Stats Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card bg-gradient-info">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div>
+                        <h5 class="stats-card-title">Services</h5>
+                        <h3 class="stats-card-value"><%= statistics.servicesCount || 0 %></h3>
+                    </div>
+                </div>
+                <div class="stats-card-footer">
+                    <span class="stats-card-growth neutral">
+                        <i class="fas fa-equals"></i> 0%
+                    </span>
+                    <span class="stats-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Stats Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card bg-gradient-warning">
+                <div class="stats-card-body">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <h5 class="stats-card-title">Avg. Rating</h5>
+                        <h3 class="stats-card-value">4.7</h3>
+                    </div>
+                </div>
+                <div class="stats-card-footer">
+                    <span class="stats-card-growth positive">
+                        <i class="fas fa-arrow-up"></i> 0.2
+                    </span>
+                    <span class="stats-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Bookings with Improved Table -->
+        <div class="col-lg-8">
+            <div class="admin-card h-100">
+                <div class="admin-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Recent Bookings</h5>
+                    <a href="/admin/bookings" class="btn btn-sm btn-outline-primary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="admin-card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (recentBookings && recentBookings.length > 0) { %>
+                                    <% recentBookings.forEach(booking => { %>
+                                        <tr class="booking-row">
+                                            <td>
+                                                <a href="/admin/booking/<%= booking._id %>" class="fw-medium">
+                                                    #<%= booking._id.toString().substring(0, 6) %>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-2">
+                                                        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(booking.customerName) %>&background=random&color=fff" 
+                                                             class="rounded-circle" alt="<%= booking.customerName %>">
+                                                    </div>
+                                                    <%= booking.customerName %>
+                                                </div>
+                                            </td>
+                                            <td><span class="service-name"><%= booking.serviceName %></span></td>
+                                            <td><%= new Date(booking.date).toLocaleDateString() %></td>
+                                            <td>
+                                                <% if (booking.status === 'completed') { %>
+                                                    <span class="badge rounded-pill bg-success">Completed</span>
+                                                <% } else if (booking.status === 'pending') { %>
+                                                    <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                                                <% } else if (booking.status === 'cancelled') { %>
+                                                    <span class="badge rounded-pill bg-danger">Cancelled</span>
+                                                <% } else { %>
+                                                    <span class="badge rounded-pill bg-secondary"><%= booking.status %></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-end action-dropdown">
+                                                        <a class="dropdown-item" href="/admin/booking/<%= booking._id %>">
+                                                            <i class="fas fa-eye me-2"></i>View Details
+                                                        </a>
+                                                        <a class="dropdown-item" href="/admin/booking/edit/<%= booking._id %>">
+                                                            <i class="fas fa-edit me-2"></i>Edit Booking
+                                                        </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger" href="#" 
+                                                           onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                                            <i class="fas fa-times-circle me-2"></i>Cancel Booking
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                                <h5>No recent bookings</h5>
+                                                <p class="text-muted">New bookings will appear here</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Activity with Better Chart -->
+        <div class="col-lg-4">
+            <div class="admin-card h-100">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> User Activity</h5>
+                    <div class="header-actions">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active">Week</button>
+                            <button type="button" class="btn btn-outline-secondary">Month</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-card-body">
+                    <div class="activity-chart mb-4" style="height: 220px;">
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+                    <div class="activity-stats">
+                        <div class="row g-0">
+                            <div class="col-4 text-center p-3 border-end">
+                                <div class="stat-highlight pulse-subtle">
+                                    <h6 class="small text-muted mb-2">Daily</h6>
+                                    <h4 class="mb-0 fw-bold">+23</h4>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center p-3 border-end">
+                                <div class="stat-highlight">
+                                    <h6 class="small text-muted mb-2">Weekly</h6>
+                                    <h4 class="mb-0 fw-bold">+142</h4>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center p-3">
+                                <div class="stat-highlight">
+                                    <h6 class="small text-muted mb-2">Monthly</h6>
+                                    <h4 class="mb-0 fw-bold">+582</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% locals.extraScripts=['/js/chart.min.js']; %>
+
+<% locals.pageScript = `
+    // Enhanced User Activity Chart
+    const ctx = document.getElementById('userActivityChart').getContext('2d');
+    
+    const gradientFill = ctx.createLinearGradient(0, 0, 0, 220);
+    gradientFill.addColorStop(0, 'rgba(114, 124, 245, 0.3)');
+    gradientFill.addColorStop(1, 'rgba(114, 124, 245, 0.0)');
+    
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Active Users',
+                data: [65, 59, 80, 81, 56, 55, 72],
+                backgroundColor: gradientFill,
+                borderColor: 'rgba(114, 124, 245, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: 'rgba(114, 124, 245, 1)',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    displayColors: false,
+                    padding: 10,
+                    titleFont: {
+                        size: 12,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return tooltipItems[0].label + ' (Users)';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        },
+                        padding: 8,
+                        color: '#888'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10
+                        },
+                        color: '#888'
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.4
+                }
+            }
+        }
+    });
+
+    // Add refresh functionality with enhanced animation
+    document.getElementById('refreshStats').addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Refreshing...';
+        
+        // Add subtle animation to stat cards
+        document.querySelectorAll('.stats-card').forEach(card => {
+            card.classList.add('stats-card-refresh');
+            setTimeout(() => {
+                card.classList.remove('stats-card-refresh');
+            }, 1000);
+        });
+
+        // Simulate API call to refresh stats
+        setTimeout(() => {
+            // Update the chart with new data (random for demo)
+            const newData = Array.from({length: 7}, () => Math.floor(Math.random() * 100));
+            chart.data.datasets[0].data = newData;
+            chart.update();
+
+            // Update stat cards with random data
+            document.querySelectorAll('.stats-card-value').forEach(value => {
+                const currentVal = parseInt(value.textContent);
+                const newVal = currentVal + Math.floor(Math.random() * 10) - 5;
+                value.textContent = newVal > 0 ? newVal : currentVal;
+            });
+
+            // Reset button
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Refresh';
+
+            // Show toast notification
+            const toast = new bootstrap.Toast(document.getElementById('refreshToast'));
+            toast.show();
+        }, 1500);
+    });
+`; %>
+
+<!-- Enhanced toast notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div id="refreshToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> Dashboard data refreshed successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Add custom CSS for enhanced styling -->
+<style>
+    /* Dashboard Header */
+    .admin-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stats Cards Animation */
+    .stats-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        height: 100%;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-card-refresh {
+        animation: pulse-animation 1s ease;
+    }
+    
+    .stats-card-body {
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .stats-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background-color: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover .stats-card-icon {
+        transform: scale(1.1);
+    }
+    
+    .pulse {
+        animation: pulse-animation 2s infinite;
+    }
+    
+    .stats-card-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .stats-card-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #fff;
+    }
+    
+    .stats-card-footer {
+        padding: 0.75rem 1.25rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .stats-card-growth {
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .stats-card-growth.positive {
+        color: #4cffbe;
+    }
+    
+    .stats-card-growth.negative {
+        color: #ff7c8a;
+    }
+    
+    .stats-period {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Gradient backgrounds */
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #727cf5, #9497f3);
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(45deg, #0acf97, #22e7bb);
+    }
+    
+    .bg-gradient-info {
+        background: linear-gradient(45deg, #39afd1, #70c6e3);
+    }
+    
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #ffbc00, #ffd451);
+    }
+    
+    /* Admin cards */
+    .admin-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+        height: 100%;
+    }
+    
+    .admin-card-header {
+        padding: 1.25rem;
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .admin-card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Table styling */
+    .admin-table {
+        margin-bottom: 0;
+    }
+    
+    .admin-table thead th {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom-width: 1px;
+        background-color: #f9fafb;
+        color: #6c757d;
+    }
+    
+    .admin-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .admin-table tbody tr:hover {
+        background-color: rgba(114, 124, 245, 0.05);
+    }
+    
+    .booking-row td {
+        vertical-align: middle;
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Service name styling */
+    .service-name {
+        white-space: nowrap;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    
+    /* User avatar */
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+    
+    /* Action dropdown */
+    .action-dropdown {
+        min-width: 180px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 0;
+    }
+    
+    .action-dropdown .dropdown-item {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .action-dropdown .dropdown-item:hover {
+        background-color: rgba(114, 124, 245, 0.08);
+    }
+    
+    .action-dropdown .dropdown-divider {
+        margin: 0.25rem 0;
+    }
+    
+    /* Button styling */
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #6c757d;
+    }
+    
+    .btn-icon:hover {
+        background-color: #f1f3fa;
+        color: #343a40;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        opacity: 0.6;
+        margin-bottom: 1rem;
+    }
+    
+    /* Stat highlight effects */
+    .stat-highlight {
+        transition: all 0.3s ease;
+    }
+    
+    .stat-highlight:hover {
+        transform: translateY(-3px);
+    }
+    
+    .pulse-subtle {
+        animation: pulse-animation-subtle 2s infinite;
+    }
+    
+    /* Animations */
+    @keyframes pulse-animation {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.03);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes pulse-animation-subtle {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.02);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    /* Card header actions */
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>

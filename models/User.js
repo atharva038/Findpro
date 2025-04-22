@@ -15,7 +15,11 @@ const UserSchema = new mongoose.Schema({
     enum: ["customer", "provider"], // Distinguish between customer and service provider
     default: "customer",
   },
-
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'unverified'],
+    default: 'unverified'
+  },
   addresses: [
     {
       type: Array,

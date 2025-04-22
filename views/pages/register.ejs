@@ -30,20 +30,28 @@
               <!-- Name Input -->
               <div class="form-group mb-3">
                 <label for="name" class="form-label">Full Name</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fas fa-user" aria-hidden="true"></i></span>
                   <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name"
+                    pattern="[A-Za-z\s]{2,50}" title="Name should contain only letters and spaces (2-50 characters)"
                     required />
+                </div>
+                <div class="invalid-feedback">
+                  Please enter a valid name (only letters and spaces).
                 </div>
               </div>
 
               <!-- Email Input -->
               <div class="form-group mb-3">
                 <label for="username" class="form-label">Email Address</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fas fa-envelope" aria-hidden="true"></i></span>
                   <input type="email" name="username" id="username" class="form-control" placeholder="Enter your email"
+                    pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}" title="Please enter a valid email address"
                     required />
+                </div>
+                <div class="invalid-feedback">
+                  Please enter a valid email address.
                 </div>
                 <small class="form-text">We'll send a verification code to this email</small>
               </div>
@@ -129,7 +137,13 @@
               </label>
             </div>
           </div>
-
+          <!-- Add this before the submit button -->
+          <div class="form-status mt-3 mb-2 d-none" id="formStatus">
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+              <span id="formStatusMessage">Please complete all required fields correctly.</span>
+            </div>
+          </div>
           <!-- Submit Button -->
           <div class="d-grid gap-2">
             <button class="btn btn-primary btn-lg" type="submit" id="registerButton" disabled>
@@ -443,6 +457,66 @@
         }
       });
 
+      const nameInput = document.getElementById('name');
+      nameInput.addEventListener('input', function () {
+        const namePattern = /^[A-Za-z\s]{2,50}$/;
+        const isValid = namePattern.test(this.value.trim());
+        validateField(this, isValid, 'Name should contain only letters and spaces (2-50 characters)');
+      });
+
+      // Email validation
+      const emailInput = document.getElementById('username');
+      emailInput.addEventListener('input', function () {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        const isValid = emailPattern.test(this.value.trim());
+        validateField(this, isValid, 'Please enter a valid email address');
+      });
+
+      // Address validation
+      const addressInput = document.getElementById('addresses');
+      addressInput.addEventListener('input', function () {
+        const isValid = this.value.trim().length >= 5;
+        validateField(this, isValid, 'Please enter a complete address (minimum 5 characters)');
+      });
+      // Helper function for field validation
+      function validateField(field, isValid, errorMessage) {
+        // Clear existing validation classes and feedback
+        field.classList.remove('is-valid', 'is-invalid');
+
+        const feedbackElement = field.parentNode.parentNode.querySelector('.invalid-feedback');
+
+        if (field.value.trim() === '') {
+          // Don't show validation for empty fields until form submission
+          if (feedbackElement) feedbackElement.style.display = 'none';
+        } else {
+          // Show validation for non-empty fields
+          if (isValid) {
+            field.classList.add('is-valid');
+            if (feedbackElement) feedbackElement.style.display = 'none';
+          } else {
+            field.classList.add('is-invalid');
+            if (feedbackElement) {
+              feedbackElement.textContent = errorMessage;
+              feedbackElement.style.display = 'block';
+            }
+          }
+        }
+      }
+
+      // Form submission validation
+      const form = document.querySelector('.needs-validation');
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Find and focus the first invalid field
+          const invalidField = form.querySelector(':invalid');
+          if (invalidField) invalidField.focus();
+        }
+        form.classList.add('was-validated');
+      });
+
       // Password visibility toggle
       const togglePassword = document.querySelector('.toggle-password');
       const passwordInput = document.getElementById('password');
@@ -511,7 +585,38 @@
       // Terms checkbox validation
       const agreeTerms = document.getElementById('agreeTerms');
       const registerButton = document.getElementById('registerButton');
+      // Add this to your script
+      function updateFormStatus() {
+        const formFields = form.querySelectorAll('input[required]');
+        const formStatus = document.getElementById('formStatus');
+        const formStatusMessage = document.getElementById('formStatusMessage');
 
+        const incompleteFields = Array.from(formFields)
+          .filter(field => !field.value.trim() || field.classList.contains('is-invalid'))
+          .map(field => field.labels[0]?.textContent || 'Unknown field');
+
+        if (incompleteFields.length > 0) {
+          formStatus.classList.remove('d-none');
+          formStatus.querySelector('.alert').className = 'alert alert-warning';
+          formStatusMessage.textContent = `Please complete these fields: ${incompleteFields.join(', ')}`;
+          return false;
+        } else if (!agreeTerms.checked) {
+          formStatus.classList.remove('d-none');
+          formStatus.querySelector('.alert').className = 'alert alert-info';
+          formStatusMessage.textContent = 'Please agree to the Terms of Service and Privacy Policy';
+          return false;
+        } else {
+          formStatus.classList.add('d-none');
+          return true;
+        }
+      }
+
+      // Call this when any form field changes
+      const formFields = form.querySelectorAll('input');
+      formFields.forEach(field => {
+        field.addEventListener('change', updateFormStatus);
+        field.addEventListener('input', updateFormStatus);
+      });
       agreeTerms.addEventListener('change', function () {
         registerButton.disabled = !this.checked;
       });

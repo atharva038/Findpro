@@ -1,33 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
+<% layout('/layouts/admin-layout') %>
+<% 
+// Set page variables 
+locals.title = "Add Category"; 
+locals.currentPath = "/admin/categories"; 
+locals.breadcrumbs = [
+  { text: "Categories", url: "/admin/categories" }, 
+  { text: "Add Category", active: true }
+]; 
+%>
+<div class="admin-section-header">
+    <h2><i class="fas fa-plus-circle me-2"></i>Add New Category</h2>
+    <div>
+        <a href="/admin/categories" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Categories
+        </a>
+    </div>
+</div>
 
-<head>
-    <title>Add Category</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
+<div class="admin-card">
+    <div class="admin-card-body">
+        <form action="/admin/categories" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Category Name -->
+                    <div class="mb-4">
+                        <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="invalid-feedback">
+                            Please provide a category name.
+                        </div>
+                    </div>
 
-<body class="bg-light">
-    <div class="container mt-5">
-        <h2>Add New Category</h2>
-        <form action="/admin/category/add" method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="categoryName" class="form-label">Category Name</label>
-                <input type="text" class="form-control" id="categoryName" name="name" required>
+                    <!-- Category Description -->
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        <div class="invalid-feedback">
+                            Please provide a category description.
+                        </div>
+                        <div class="form-text">Provide a clear and concise description of services in this category.</div>
+                    </div>
+
+                    <!-- Category Status -->
+                    <div class="mb-4">
+                        <label class="form-label d-block">Status</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="isActive" id="statusActive" value="true" checked>
+                            <label class="form-check-label" for="statusActive">Active</label>
+                        </div>
+                        <div class="form-text">Inactive categories won't be displayed to users</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Category Image - Updated for better UX -->
+                    <div class="mb-4">
+                        <label class="form-label">Category Image <span class="text-danger">*</span></label>
+                        <div class="image-upload-container">
+                            <div class="image-preview" id="imagePreview">
+                                <img id="preview" src="/img/placeholder-image.png" alt="Image Preview">
+                                <div class="upload-overlay">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Upload Image</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="file" class="form-control mt-2" id="image" name="image" accept="image/*" required>
+                        <div class="invalid-feedback">
+                            Please select an image for this category.
+                        </div>
+                        <div class="form-text mt-2">Recommended size: 400x300 pixels (Max. 2MB)</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="categoryDescription" class="form-label">Description</label>
-                <textarea class="form-control" id="categoryDescription" name="description" rows="3" required></textarea>
+            <!-- Submit Buttons -->
+            <div class="border-top pt-4 mt-4 d-flex justify-content-end">
+                <a href="/admin/categories" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-save me-1"></i> Save Category
+                </button>
             </div>
-
-            <div class="mb-3">
-                <label for="image" class="form-label">Upload Category Image</label>
-                <input type="file" class="form-control" id="image" name="image">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Add Category</button>
         </form>
     </div>
-</body>
+</div>
 
-</html>
+<% locals.pageScript = `
+    // Image preview functionality
+    const imageInput = document.getElementById('image');
+    const previewImg = document.getElementById('preview');
+    
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            // File size validation
+            if (this.files[0].size > 2 * 1024 * 1024) {
+                alert('File size too large! Maximum size is 2MB.');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    // Make the image preview clickable to trigger file input
+    document.getElementById('imagePreview').addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    // Form validation
+    (function() {
+        'use strict'
+        
+        // Fetch all forms we want to apply validation styles to
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+`; %>
+
+<style>
+    .image-upload-container {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .image-preview {
+        width: 100%;
+        aspect-ratio: 4/3;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        border: 2px dashed #ced4da;
+        background-color: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+    
+    .image-preview:hover {
+        border-color: #4e73df;
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+
+    .upload-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image-preview:hover .upload-overlay {
+        opacity: 1;
+    }
+
+    .upload-overlay i {
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+    }
+    
+    .form-check-input:checked {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+</style>

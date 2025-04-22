@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
+const methodOverride = require('method-override');
+
 const LocalStrategy = require("passport-local");
 require("dotenv").config();
 const User = require("./models/User.js");
@@ -16,7 +18,7 @@ const providerRoutes = require("./routes/provider.js");
 const servicesRoutes = require("./routes/services.js");
 const aboutRoutes = require("./routes/about.js");
 const dashboardRoutes = require("./routes/dashboard.js");
-const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin.js');
 const locationRoutes = require('./routes/location');
 const paymentRoutes = require('./routes/payment');
 const profileRoutes = require('./routes/profile');
@@ -75,7 +77,7 @@ app.use((req, res, next) => {
 });
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(methodOverride('_method'));
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
