@@ -1,104 +1,446 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<!-- Service Header -->
-<div class="container">
-  <h4 class="text-center mt-4 service-title">Home Services at Your Doorstep</h4>
-  <p class="text-center service-subtitle">What are you looking for?</p>
-
-  <!-- Service Cards Grid -->
-  <div class="row g-4 justify-content-center py-4">
-    <% categories.forEach(category => { %>
-    <div class="col-12 col-sm-6 col-lg-4">
-      <div class="card h-100 service-card shadow-sm border-0">
-        <div class="card-body p-4 text-center">
-          <img
-            src="<%= category.img %>"
-            class="card-img service-img mb-3"
-            alt="<%= category.name %>"
-          />
-          <h5 class="card-title"><%= category.name %></h5>
-          <a href="/services/<%= category._id %>" class="btn btn-dark mt-3">
-            View Services
-          </a>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 text-center text-lg-start">
+          <h1 class="hero-title mb-3">Professional <span class="text-gradient">Home Services</span> at Your Doorstep
+          </h1>
+          <p class="hero-subtitle mb-4">Find reliable professionals for all your home service needs with just a few
+            clicks</p>
+          <div class="d-flex justify-content-center justify-content-lg-start">
+            <a href="#service-categories" class="btn btn-primary btn-lg">
+              <i class="fas fa-tools me-2"></i>Explore Services
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="hero-image-container">
+            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80"
+              alt="Home Services" class="hero-image">
+          </div>
         </div>
       </div>
     </div>
-    <% }) %>
   </div>
-</div>
 
-<style>
-  .service-title {
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    font-weight: 600;
-    color: #2c3e50;
-  }
+  <!-- Service Categories Section -->
+  <div id="service-categories" class="service-categories-section">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <span class="section-badge">Services</span>
+        <h2 class="section-title">What are you looking for?</h2>
+        <p class="section-subtitle">Browse our popular service categories</p>
+      </div>
 
-  .service-subtitle {
-    font-size: clamp(1rem, 3vw, 1.25rem);
-    color: #666;
-    margin-top: 1rem;
-  }
+      <div class="row g-4 justify-content-center">
+        <% categories.forEach(category=> { %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <a href="/services/<%= category._id %>" class="text-decoration-none">
+              <div class="service-card">
+                <div class="service-card-inner">
+                  <div class="service-icon-container">
+                    <img src="<%= category.img %>" class="service-icon" alt="<%= category.name %>">
+                  </div>
+                  <h3 class="service-name">
+                    <%= category.name %>
+                  </h3>
+                  <div class="service-action">
+                    <span>View Services</span>
+                    <i class="fas fa-arrow-right"></i>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <% }) %>
+      </div>
+    </div>
+  </div>
 
-  .service-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 1rem;
-    overflow: hidden;
-  }
+  <!-- Why Choose Us Section -->
+  <div class="why-choose-section">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <span class="section-badge">Why Choose Us</span>
+        <h2 class="section-title">The KnockNFix Advantage</h2>
+        <p class="section-subtitle">We're committed to providing the best service experience</p>
+      </div>
 
-  .service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-  }
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-certificate"></i>
+            </div>
+            <h4>Verified Professionals</h4>
+            <p>All our service providers are background-checked and skill-verified for your safety and service quality.
+            </p>
+          </div>
+        </div>
 
-  .service-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin: 0 auto;
-    transition: transform 0.3s ease;
-  }
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h4>Service Guarantee</h4>
+            <p>We stand behind our work with satisfaction guarantees and warranty on services performed.</p>
+          </div>
+        </div>
 
-  .service-card:hover .service-img {
-    transform: scale(1.05);
-  }
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <h4>Transparent Pricing</h4>
+            <p>No hidden costs or surprises. Get upfront quotes before booking any service.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  .card-title {
-    font-size: clamp(1.1rem, 3vw, 1.25rem);
-    font-weight: 600;
-    color: #2c3e50;
-  }
-
-  .btn-dark {
-    padding: 0.5rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-
-  .btn-dark:hover {
-    background-color: #2c3e50;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-
-  @media (max-width: 576px) {
-    .container {
-      padding: 0 1rem;
+  <style>
+    /* Main Styling */
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --text-dark: #2d3748;
+      --text-medium: #4a5568;
+      --text-light: #718096;
+      --gray-light: #f7fafc;
+      --white: #ffffff;
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --radius-sm: 0.5rem;
+      --radius-md: 1rem;
+      --radius-lg: 2rem;
     }
 
-    .service-card {
-      margin: 0 0.5rem;
+    /* Hero Section */
+    .hero-section {
+      padding: 5rem 0 4rem;
+      background-color: var(--gray-light);
+      position: relative;
+      overflow: hidden;
     }
 
-    .service-img {
-      width: 100px;
-      height: 100px;
-    }
-
-    .btn-dark {
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+      z-index: 0;
     }
-  }
-</style>
+
+    .hero-section .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-medium);
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+
+    .hero-image-container {
+      position: relative;
+      height: 400px;
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Service Categories Section */
+    .service-categories-section {
+      padding: 5rem 0;
+      background-color: var(--white);
+    }
+
+    .section-header {
+      margin-bottom: 3rem;
+    }
+
+    .section-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Service Cards */
+    .service-card {
+      background-color: var(--white);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      height: 100%;
+      position: relative;
+    }
+
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .service-card-inner {
+      padding: 2rem 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .service-icon-container {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      background-color: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .service-icon {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .service-card:hover .service-icon {
+      transform: scale(1.1);
+    }
+
+    .service-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+    }
+
+    .service-action {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .service-card:hover .service-action {
+      color: var(--secondary-color);
+    }
+
+    .service-action i {
+      font-size: 0.8rem;
+      transition: transform 0.3s ease;
+    }
+
+    .service-card:hover .service-action i {
+      transform: translateX(4px);
+    }
+
+    /* Why Choose Us Section */
+    .why-choose-section {
+      padding: 5rem 0;
+      background-color: var(--gray-light);
+    }
+
+    .feature-card {
+      background-color: var(--white);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      height: 100%;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 0;
+      background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+      transition: height 0.3s ease;
+      z-index: -1;
+    }
+
+    .feature-card:hover::before {
+      height: 100%;
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .feature-card h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+    }
+
+    .feature-card p {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Button Styling */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      padding: 0.75rem 1.75rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, var(--primary-color) 10%, var(--secondary-color) 90%);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+      .hero-section {
+        padding: 4rem 0 3rem;
+      }
+
+      .hero-title {
+        text-align: center;
+      }
+
+      .hero-subtitle {
+        text-align: center;
+        margin: 0 auto 2rem;
+      }
+
+      .service-categories-section,
+      .why-choose-section {
+        padding: 4rem 0;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .hero-section {
+        padding: 3rem 0;
+      }
+
+      .service-categories-section,
+      .why-choose-section {
+        padding: 3rem 0;
+      }
+
+      .feature-card {
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero-section {
+        padding: 2.5rem 0;
+      }
+
+      .hero-title {
+        font-size: 1.8rem;
+      }
+
+      .service-icon-container {
+        width: 90px;
+        height: 90px;
+      }
+
+      .service-name {
+        font-size: 1.1rem;
+      }
+
+      .service-card-inner {
+        padding: 1.5rem 1rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+    }
+  </style>

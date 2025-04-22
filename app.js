@@ -21,6 +21,7 @@ const locationRoutes = require('./routes/location');
 const paymentRoutes = require('./routes/payment');
 const profileRoutes = require('./routes/profile');
 const bookingApiRoutes = require('./routes/api/bookings');
+const addRoutes = require("./routes/admin/add.js");
 // Database connection
 
 // Update the database connection section
@@ -149,6 +150,7 @@ app.use('/booking', bookingRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/profile', profileRoutes);
 app.use('/api/bookings', bookingApiRoutes);
+app.use('/', addRoutes);
 // Listen on port
 app.listen(3000, () => {
   console.log("Server started on port 3000");

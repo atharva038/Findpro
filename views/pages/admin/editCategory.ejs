@@ -1,0 +1,21 @@
+<div class="container mt-5">
+    <h2>Edit Category</h2>
+
+    <form action="/admin/category/edit/<%= category._id %>" method="POST">
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" value="<%= category.name %>" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" required><%= category.description %></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload Category Image</label>
+            <input type="file" class="form-control" id="image" name="image">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Category</button>
+    </form>
+</div>
