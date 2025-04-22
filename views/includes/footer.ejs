@@ -1,27 +1,30 @@
 <footer class="footer-section">
-  <div class="footer-content">
-    <!-- Wave Separator
-    <div class="wave-separator">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
-        <path
-          fill="#f8f9fa"
-          d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"
-        ></path>
-      </svg>
-    </div> -->
+  <!-- Wave Separator - Uncommented and improved -->
+  <div class="wave-separator">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200" preserveAspectRatio="none">
+      <path fill="#ffffff" fill-opacity="1"
+        d="M0,128L60,112C120,96,240,64,360,64C480,64,600,96,720,96C840,96,960,64,1080,74.7C1200,85,1320,139,1380,165.3L1440,192L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z">
+      </path>
+    </svg>
+  </div>
 
-    <div class="footer-grid">
+  <div class="footer-content container">
+    <div class="footer-main">
       <!-- Company Info -->
       <div class="footer-brand">
-        <h3>KnockNFix</h3>
+        <div class="footer-logo">
+          <img src="/img/icon.png" alt="KnockNFix Logo" />
+          <h3>KnockNFix</h3>
+        </div>
         <p class="brand-desc">
-          Your trusted partner for professional home services
+          Your trusted partner for professional home services. We connect qualified professionals with customers to
+          deliver exceptional service experiences.
         </p>
         <div class="footer-socials">
-          <a href="#"><i class="fa-brands fa-facebook"></i></a>
-          <a href="#"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#"><i class="fa-brands fa-linkedin"></i></a>
-          <a href="#"><i class="fa-brands fa-twitter"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
         </div>
       </div>
 
@@ -36,94 +39,214 @@
           <li><a href="/privacy">Privacy Policy</a></li>
         </ul>
       </div>
+
+      <!-- Services -->
+      <div class="footer-links">
+        <h4>Our Services</h4>
+        <ul>
+          <li><a href="/services/plumbing">Plumbing</a></li>
+          <li><a href="/services/electrical">Electrical</a></li>
+          <li><a href="/services/cleaning">Cleaning</a></li>
+          <li><a href="/services/painting">Painting</a></li>
+          <li><a href="/services">View All Services</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="footer-contact">
+        <h4>Contact Us</h4>
+        <ul>
+          <li>
+            <i class="fas fa-map-marker-alt"></i>
+            <span>123 Service Road, Bangalore, India 560001</span>
+          </li>
+          <li>
+            <i class="fas fa-phone-alt"></i>
+            <a href="tel:+919876543210">+91 98765 43210</a>
+          </li>
+          <li>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:support@knocknfix.com">support@knocknfix.com</a>
+          </li>
+        </ul>
+        <div class="newsletter">
+          <h5>Subscribe to Newsletter</h5>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Your email address" required />
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Copyright -->
+    <!-- Bottom Bar with Copyright and Additional Links -->
     <div class="footer-bottom">
-      <p>&copy; 2024 KnockNFix Private Limited. All rights reserved.</p>
+      <div class="copyright">
+        <p>&copy; <span id="currentYear">2024</span> KnockNFix Private Limited. All rights reserved.</p>
+      </div>
+      <div class="footer-bottom-links">
+        <a href="/faq">FAQ</a>
+        <a href="/sitemap">Sitemap</a>
+        <a href="/careers">Careers</a>
+      </div>
     </div>
   </div>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
 </footer>
 
 <style>
+  /* Modern Footer Styling */
   .footer-section {
-    background: #f8f9fa;
-    color: #333;
-    padding: 3rem 0 1rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #4a5568;
+    padding: 5rem 0 1rem 0;
     margin-top: 4rem;
     position: relative;
-    border-top: 1px solid #e9ecef;
+    border-top: none;
   }
 
+  /* Wave Separator */
   .wave-separator {
     position: absolute;
-    top: -120px;
+    top: -100px;
     left: 0;
     width: 100%;
-    height: 120px;
+    height: 100px;
     overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
   }
 
-  .footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+  .wave-separator svg {
+    width: 100%;
+    height: 100%;
+    transform-origin: top center;
   }
-  
-  .footer-grid {
+
+  /* Main Footer Content */
+  .footer-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-main {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 4rem;
-    margin-bottom: 2rem;
+    grid-template-columns: 2fr 1fr 1fr 2fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* Company Info */
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .footer-logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 0.75rem;
   }
 
   .footer-brand h3 {
-    color: #0d6efd;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
     font-size: 1.8rem;
-    margin-bottom: 1rem;
     font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
   }
 
   .brand-desc {
-    color: #6c757d;
+    color: #718096;
     margin-bottom: 1.5rem;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 0.95rem;
   }
 
+  /* Social Media */
   .footer-socials {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .footer-socials a {
-    color: #6c757d;
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
+    color: #718096;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    font-size: 1rem;
   }
 
   .footer-socials a:hover {
-    color: #0d6efd;
+    color: white;
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
 
-  .footer-links h4 {
-    color: #0d6efd;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+  .footer-socials a:nth-child(1):hover {
+    background: #1877f2;
+    /* Facebook */
   }
 
-  .footer-links ul {
+  .footer-socials a:nth-child(2):hover {
+    background: #e4405f;
+    /* Instagram */
+  }
+
+  .footer-socials a:nth-child(3):hover {
+    background: #0A66C2;
+    /* LinkedIn */
+  }
+
+  .footer-socials a:nth-child(4):hover {
+    background: #1DA1F2;
+    /* Twitter */
+  }
+
+  /* Footer Links */
+  .footer-links h4,
+  .footer-contact h4 {
+    position: relative;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+    display: inline-block;
+  }
+
+  .footer-links h4::after,
+  .footer-contact h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+  }
+
+  .footer-links ul,
+  .footer-contact ul {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
 
   .footer-links ul li {
@@ -131,49 +254,233 @@
   }
 
   .footer-links ul li a {
-    color: #6c757d;
+    color: #718096;
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
-    padding-left: 15px;
+    padding-left: 0;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
   }
 
-  .footer-links ul li a:before {
-    content: "→";
+  .footer-links ul li a::before {
+    content: "";
+    width: 0;
+    height: 1px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     position: absolute;
+    bottom: -2px;
     left: 0;
-    opacity: 0;
     transition: all 0.3s ease;
   }
 
   .footer-links ul li a:hover {
-    color: #0d6efd;
-    padding-left: 20px;
+    color: #667eea;
+    padding-left: 0;
+    transform: translateX(5px);
   }
 
-  .footer-links ul li a:hover:before {
-    opacity: 1;
+  .footer-links ul li a:hover::before {
+    width: 100%;
   }
 
+  /* Contact Information */
+  .footer-contact ul li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .footer-contact ul li i {
+    color: #667eea;
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .footer-contact ul li a {
+    color: #718096;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .footer-contact ul li a:hover {
+    color: #667eea;
+  }
+
+  /* Newsletter */
+  .newsletter {
+    margin-top: 1.5rem;
+  }
+
+  .newsletter h5 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #2d3748;
+    font-weight: 600;
+  }
+
+  .newsletter-form {
+    display: flex;
+    position: relative;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    outline: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-form input:focus {
+    border-color: #cbd5e0;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  }
+
+  .newsletter-form button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    bottom: 5px;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50px;
+    padding: 0 1.25rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-form button:hover {
+    background: linear-gradient(135deg, #5a6eea 0%, #6a3a9c 100%);
+  }
+
+  /* Copyright */
   .footer-bottom {
-    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding-top: 1.5rem;
-    text-align: center;
-    color: #6c757d;
+    padding-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
-  @media (max-width: 768px) {
-    .footer-grid {
-      grid-template-columns: 1fr;
+  .copyright {
+    color: #718096;
+    font-size: 0.9rem;
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-bottom-links a {
+    color: #718096;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .footer-bottom-links a:hover {
+    color: #667eea;
+  }
+
+  /* Back to top button */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    z-index: 99;
+  }
+
+  .back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .back-to-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .footer-main {
+      grid-template-columns: 1fr 1fr;
       gap: 2rem;
     }
 
-    .footer-content {
-      padding: 0 1rem;
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .footer-section {
+      padding: 4rem 0 1rem;
     }
 
     .wave-separator {
-      display: none;
+      top: -70px;
+      height: 70px;
+    }
+
+    .footer-main {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
     }
   }
 </style>
+
+<script>
+  // Set current year for copyright
+  document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+  // Back to top button functionality
+  document.addEventListener('DOMContentLoaded', function () {
+    const backToTopBtn = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', function () {
+      if (window.pageYOffset > 300) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    });
+
+    backToTopBtn.addEventListener('click', function () {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  });
+</script>

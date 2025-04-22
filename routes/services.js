@@ -72,13 +72,19 @@ router.get("/:id/providers", async (req, res) => {
     })
       .populate({
         path: 'user',
-        select: 'name profileImage addresses phone' // Include profileImage in selection
+        select: 'name profileImage addresses phone'
       })
       .lean();
 
-    // Add fallback image if profileImage is not available
+    // Add fallback image if user or profileImage is not available
     providers.forEach(provider => {
-      if (!provider.user.profileImage) {
+      // Check if provider.user exists before trying to access its properties
+      if (!provider.user || !provider.user.profileImage) {
+        // If user is null, create an empty user object
+        if (!provider.user) {
+          provider.user = {};
+        }
+        // Set default profile image
         provider.user.profileImage = 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png';
       }
     });
@@ -96,7 +102,6 @@ router.get("/:id/providers", async (req, res) => {
     res.redirect("/services");
   }
 });
-
 // router.get("/:id/:provider/book", async (req, res) => {
 //   try {
 //     // Check if the user is authenticated

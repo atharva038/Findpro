@@ -1,68 +1,125 @@
 <% layout("/layouts/boilerplate.ejs") %>
-  <link rel="stylesheet" href="/css/booking.css" />
 
-  <div class="booking-page">
-    <div class="container py-4">
-      <div class="card shadow-lg border-0 booking-card">
+  <div class="booking-confirm-page">
+    <div class="container py-5">
+      <!-- Progress Tracker -->
+      <div class="booking-progress mb-4">
+        <div class="progress-step completed">
+          <div class="step-icon">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="step-text">Select Service</div>
+        </div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step completed">
+          <div class="step-icon">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="step-text">Book Service</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step active">
+          <div class="step-icon">3</div>
+          <div class="step-text">Confirm & Pay</div>
+        </div>
+      </div>
+
+      <div class="booking-card">
         <!-- Header -->
-        <div class="card-header bg-primary text-white py-4">
-          <h2 class="text-center mb-0">
-            <i class="fas fa-clipboard-check me-2"></i>Confirm Your Booking
-          </h2>
+        <div class="card-header">
+          <h2><i class="fas fa-clipboard-check me-2"></i>Confirm Your Booking</h2>
         </div>
 
         <!-- Body -->
-        <div class="card-body p-4">
+        <div class="card-body">
           <!-- Service Overview -->
-          <div class="service-overview mb-4">
-            <div class="row align-items-center">
-              <div class="col-md-2 text-center mb-3 mb-md-0">
-                <img src="<%= service.img %>" alt="<%= service.name %>" class="service-img" />
+          <div class="service-overview">
+            <div class="service-badge">
+              <%= service.category.name %>
+            </div>
+            <div class="service-details-container">
+              <div class="service-image">
+                <img src="<%= service.img %>" alt="<%= service.name %>" />
               </div>
-              <div class="col-md-7 mb-3 mb-md-0">
+              <div class="service-info">
                 <h3 class="service-name">
                   <%= service.name %>
                 </h3>
-                <p class="provider-name mb-2">
-                  <i class="fas fa-user me-2"></i>
-                  <%= provider.user.name %>
-                </p>
-                <div class="service-details">
-                  <span class="price">₹<%= serviceDetails.customCost %></span>
-                  <span class="duration">
-                    <i class="far fa-clock me-1"></i>
-                    <%= service.duration %> mins
-                  </span>
+                <div class="provider-details">
+                  <img class="provider-avatar"
+                    src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+                    alt="Provider">
+                  <div>
+                    <p class="provider-name">
+                      <%= provider.user.name %>
+                    </p>
+                    <div class="provider-rating">
+                      <i class="fas fa-star"></i>
+                      <span>4.8</span>
+                      <small>(120+ bookings)</small>
+                    </div>
+                  </div>
                 </div>
+              </div>
+              <div class="service-price">
+                <span class="price-label">Price</span>
+                <span class="price-value">₹<%= serviceDetails.customCost %></span>
+                <span class="price-duration">
+                  <%= service.duration %> min
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Booking Details -->
-          <div class="booking-details mb-4">
-            <h4 class="mb-3">Booking Details</h4>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="detail-item">
-                  <label class="text-muted">Date & Time</label>
-                  <p class="mb-0">
-                    <%= new Date(bookingData.date).toLocaleString() %>
+          <div class="details-section">
+            <h4><i class="far fa-calendar-check me-2"></i>Booking Details</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <i class="far fa-calendar-alt"></i>
+                </div>
+                <div class="detail-content">
+                  <label>Date</label>
+                  <p>
+                    <%= new Date(bookingData.date).toLocaleDateString('en-US', {weekday: 'long' , year: 'numeric' ,
+                      month: 'long' , day: 'numeric' }) %>
                   </p>
                 </div>
               </div>
-              <div class="col-12">
-                <div class="detail-item">
-                  <label class="text-muted">Service Location</label>
-                  <p class="mb-0">
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <i class="far fa-clock"></i>
+                </div>
+                <div class="detail-content">
+                  <label>Time</label>
+                  <p>
+                    <%= new Date(bookingData.date).toLocaleTimeString('en-US', {hour: '2-digit' , minute:'2-digit'}) %>
+                  </p>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="detail-content">
+                  <label>Service Location</label>
+                  <p>
                     <%= bookingData.detailedAddress %>
                   </p>
                 </div>
               </div>
+
               <% if (bookingData.notes) { %>
-                <div class="col-12">
-                  <div class="detail-item">
-                    <label class="text-muted">Special Instructions</label>
-                    <p class="mb-0">
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-comment-alt"></i>
+                  </div>
+                  <div class="detail-content">
+                    <label>Special Instructions</label>
+                    <p>
                       <%= bookingData.notes %>
                     </p>
                   </div>
@@ -72,41 +129,58 @@
           </div>
 
           <!-- Payment Details -->
-          <div class="payment-details mb-4">
-            <h4 class="mb-3">Payment Details</h4>
-            <div class="card bg-light">
-              <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Service Cost</span>
-                  <span>₹<%= serviceDetails.customCost %></span>
-                </div>
-                <hr />
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Advance Payment (10%)</span>
-                  <span>₹<%= Math.round(serviceDetails.customCost * 0.1) %></span>
-                </div>
-                <div class="d-flex justify-content-between text-muted">
-                  <span>Remaining Payment</span>
-                  <span>₹<%= Math.round(serviceDetails.customCost * 0.9) %></span>
-                </div>
-                <hr />
-                <div class="d-flex justify-content-between fw-bold">
-                  <span>Total Amount</span>
-                  <span>₹<%= serviceDetails.customCost %></span>
-                </div>
+          <div class="details-section payment-section">
+            <h4><i class="fas fa-credit-card me-2"></i>Payment Summary</h4>
+
+            <div class="payment-breakdown">
+              <div class="payment-row">
+                <span>Service Cost</span>
+                <span>₹<%= serviceDetails.customCost %></span>
+              </div>
+
+              <div class="payment-row highlight">
+                <span>Booking Amount (10%)</span>
+                <span>₹<%= Math.round(serviceDetails.customCost * 0.1) %></span>
+              </div>
+
+              <div class="payment-row muted">
+                <span>Remaining Payment (on service completion)</span>
+                <span>₹<%= Math.round(serviceDetails.customCost * 0.9) %></span>
+              </div>
+
+              <div class="payment-row total">
+                <span>Total Service Cost</span>
+                <span>₹<%= serviceDetails.customCost %></span>
+              </div>
+            </div>
+
+            <div class="payment-methods">
+              <div class="payment-method-title">Supported Payment Methods</div>
+              <div class="payment-icons">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-google-pay"></i>
+                <i class="fas fa-university"></i>
+                <i class="fas fa-wallet"></i>
               </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="d-grid gap-2">
-            <button type="button" id="rzp-button" class="btn btn-primary btn-lg w-100" disabled>
+          <div class="action-buttons">
+            <button type="button" id="rzp-button" class="btn-pay">
               <span class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
-              <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+              Pay ₹<%= Math.round(serviceDetails.customCost * 0.1) %> Now
             </button>
-            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <br>
+            <a href="javascript:history.back()" class="btn-back">
               <i class="fas fa-arrow-left me-2"></i>Go Back
             </a>
+          </div>
+
+          <div class="secure-payment">
+            <i class="fas fa-lock me-2"></i> Secure payment processed by Razorpay
           </div>
         </div>
       </div>
@@ -114,25 +188,504 @@
   </div>
 
   <input type="hidden" id="booking-data" value='<%= JSON.stringify({
-        date: bookingData.date,
-        detailedAddress: bookingData.detailedAddress,
-        notes: bookingData.notes || ""
-    }) %>' />
+      date: bookingData.date,
+      detailedAddress: bookingData.detailedAddress,
+      notes: bookingData.notes || ""
+  }) %>' />
 
   <input type="hidden" id="user-data" value='<%= JSON.stringify({
-        name: user.name,
-        email: user.username,
-        phone: user.phone || "",
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID
-    }) %>' />
+      name: user.name,
+      email: user.username,
+      phone: user.phone || "",
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID
+  }) %>' />
 
-  <input type="hidden" id="service-data" value="<%= JSON.stringify({
-        serviceId: service._id,
-        providerId: provider._id,
-        customCost: serviceDetails.customCost
-    }) %>" />
+  <input type="hidden" id="service-data" value='<%= JSON.stringify({
+      serviceId: service._id,
+      providerId: provider._id,
+      customCost: serviceDetails.customCost
+  }) %>' />
 
   <!-- Add these script tags at the bottom of the file -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="/js/payment.js"></script>
+
+  <style>
+    .booking-confirm-page {
+      background-color: #f5f7fa;
+      min-height: calc(100vh - 76px);
+      padding-bottom: 3rem;
+    }
+
+    /* Progress Tracker Styles */
+    .booking-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #6c757d;
+      border: 2px solid #e9ecef;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .step-text {
+      font-size: 0.85rem;
+      color: #6c757d;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .progress-line {
+      height: 3px;
+      flex: 1;
+      background-color: #e9ecef;
+      margin: 0 10px;
+      margin-bottom: 28px;
+    }
+
+    .progress-step.active .step-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+    }
+
+    .progress-step.completed .step-icon {
+      background-color: #28a745;
+      border-color: #28a745;
+      color: white;
+    }
+
+    .progress-line.completed {
+      background-color: #28a745;
+    }
+
+    /* Booking Card Styles */
+    .booking-card {
+      background-color: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1.75rem;
+      color: white;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    /* Service Overview Styles */
+    .service-overview {
+      position: relative;
+      border-radius: 12px;
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .service-badge {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .service-details-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .service-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .service-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .service-info {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .service-name {
+      margin: 0 0 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #343a40;
+    }
+
+    .provider-details {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .provider-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .provider-name {
+      margin: 0;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #495057;
+    }
+
+    .provider-rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #ffa41c;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .provider-rating small {
+      color: #6c757d;
+      font-weight: normal;
+    }
+
+    .service-price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .price-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #343a40;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-duration {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+    /* Details Section Styles */
+    .details-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background-color: #fff;
+      border: 1px solid #e9ecef;
+    }
+
+    .details-section h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #343a40;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .detail-item {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .detail-icon {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(102, 126, 234, 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #667eea;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .detail-content {
+      flex: 1;
+    }
+
+    .detail-content label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #6c757d;
+      margin-bottom: 0.35rem;
+    }
+
+    .detail-content p {
+      margin: 0;
+      color: #343a40;
+      font-weight: 500;
+    }
+
+    /* Payment Section Styles */
+    .payment-section {
+      background-color: #f8fafd;
+    }
+
+    .payment-breakdown {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #e9ecef;
+    }
+
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      font-size: 1rem;
+    }
+
+    .payment-row:not(:last-child) {
+      border-bottom: 1px dashed #e9ecef;
+    }
+
+    .payment-row.highlight {
+      color: #0066cc;
+      font-weight: 600;
+    }
+
+    .payment-row.muted {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .payment-row.total {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #343a40;
+      border-top: 2px solid #e9ecef;
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      border-bottom: none;
+    }
+
+    .payment-methods {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid #e9ecef;
+      text-align: center;
+    }
+
+    .payment-method-title {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-bottom: 0.75rem;
+    }
+
+    .payment-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .payment-icons i {
+      font-size: 1.75rem;
+      color: #6c757d;
+    }
+
+    /* Button Styles */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-pay {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 1.5rem;
+      margin-left: 10px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+    }
+
+    .btn-pay:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 14px rgba(118, 75, 162, 0.4);
+    }
+
+    .btn-pay:disabled {
+      background: linear-gradient(135deg, #a5b1e9 0%, #b597cb 100%);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-back {
+      background-color: transparent;
+      color: #6c757d;
+      border: 1px solid #ced4da;
+      padding: 1rem 1.5rem;
+      margin-left: 10px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background-color: #f8f9fa;
+      color: #495057;
+    }
+
+    .secure-payment {
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.85rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .service-details-container {
+        gap: 1rem;
+      }
+
+      .service-price {
+        width: 100%;
+        align-items: flex-start;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-step .step-text {
+        font-size: 0.75rem;
+      }
+
+      .step-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .card-header h2 {
+        font-size: 1.4rem;
+      }
+
+      .service-name {
+        font-size: 1.25rem;
+      }
+
+      .price-value {
+        font-size: 1.5rem;
+      }
+
+      .payment-row {
+        font-size: 0.9rem;
+      }
+
+      .payment-row.total {
+        font-size: 1rem;
+      }
+
+      .service-image {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+
+  <script>
+    // Enable the payment button after the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      const rzpButton = document.getElementById('rzp-button');
+      setTimeout(() => {
+        rzpButton.removeAttribute('disabled');
+      }, 1000);
+    });
+  </script>
