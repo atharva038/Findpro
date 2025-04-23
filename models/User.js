@@ -49,6 +49,12 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // Add these fields for password reset functionality
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  // Add these fields to your User schema
+  rememberToken: String,
+  rememberTokenExpires: Date
 });
 
 UserSchema.plugin(passportLocalMongoose);
@@ -57,15 +63,8 @@ UserSchema.plugin(passportLocalMongoose);
   {
     type: String,
   },
-]; // Hash password before saving the user
-// UserSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) {
-//     return next();
-//   }
-//   const salt = await bcrypt.genSalt(10);
-//   this.password = await bcrypt.hash(this.password, salt);
-//   next();
-// });
+];
+
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

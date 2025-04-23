@@ -312,7 +312,54 @@
       box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.25);
     }
   </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get stored credentials from cookies
+      const username = getCookie("username");
+      const password = getCookie("password");
+      const rememberMe = getCookie("rememberMe");
 
+      const usernameField = document.getElementById("username");
+      const passwordField = document.getElementById("password");
+      const rememberMeCheckbox = document.getElementById("rememberMe");
+      const loginForm = document.getElementById("loginForm");
+
+      // Populate form fields if cookies exist
+      if (username) {
+        usernameField.value = decodeURIComponent(username);
+        usernameField.classList.add('is-valid');
+      }
+
+      if (password) {
+        passwordField.value = decodeURIComponent(password);
+        passwordField.classList.add('is-valid');
+      }
+
+      if (rememberMe === "true") {
+        rememberMeCheckbox.checked = true;
+      }
+
+      // If we have both credentials and remember me is true, auto-submit the form
+      if (username && password && rememberMe === "true") {
+        // Set a flag in sessionStorage to prevent infinite redirect loops
+        if (!sessionStorage.getItem('autoLoginAttempted')) {
+          sessionStorage.setItem('autoLoginAttempted', 'true');
+          // Submit the form automatically
+          if (loginForm) {
+            loginForm.submit();
+          }
+        }
+      }
+    });
+
+    // Helper function to get a cookie value
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Password visibility toggle

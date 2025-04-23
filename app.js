@@ -9,7 +9,9 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const methodOverride = require('method-override');
 
+const cookieParser = require('cookie-parser');
 const LocalStrategy = require("passport-local");
+
 require("dotenv").config();
 const User = require("./models/User.js");
 const authorisationRoutes = require("./routes/auth.js");
@@ -43,6 +45,7 @@ async function main() {
 }
 
 main();
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.engine("ejs", ejsMate);
@@ -84,6 +87,60 @@ app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user;
   next();
+});
+
+// Add this middleware after your session setup
+
+// Auto-login middleware using remember me cookies
+app.use(async (req, res, next) => {
+  // Only proceed if user is not already logged in and cookies exist
+  if (!req.isAuthenticated() && req.cookies) {
+    const username = req.cookies.username;
+    const rememberToken = req.cookies.rememberToken;
+    const rememberMe = req.cookies.rememberMe;
+
+    // Check if we have stored credentials
+    if (username && rememberToken && rememberMe === 'true') {
+      try {
+        // Find the user with valid remember token
+        const user = await User.findOne({
+          username: decodeURIComponent(username),
+          rememberToken: rememberToken,
+          rememberTokenExpires: { $gt: Date.now() }
+        });
+
+        if (user) {
+          // Manually authenticate the user
+          req.login(user, async (err) => {
+            if (err) {
+              console.error('Auto-login error:', err);
+              return next();
+            }
+
+            // Set user ID in session
+            req.session.userId = user._id;
+
+            // Continue to the next middleware/route handler
+            return next();
+          });
+        } else {
+          // Invalid token or expired, clear cookies
+          res.clearCookie('username');
+          res.clearCookie('rememberToken');
+          res.clearCookie('rememberMe');
+          return next();
+        }
+      } catch (err) {
+        console.error('Auto-login error:', err);
+        return next();
+      }
+    } else {
+      return next();
+    }
+  } else {
+    // User is already authenticated
+    return next();
+  }
 });
 
 // Middleware to check if the current user is a provider
@@ -164,7 +221,7 @@ app.use('/payment', paymentRoutes);
 app.use('/profile', profileRoutes);
 app.use('/feedback', feedbackRoutes);
 app.use('/api/bookings', bookingApiRoutes);
-app.use('/', chatRoutes); 
+app.use('/', chatRoutes);
 app.use('/', addRoutes);
 // Listen on port
 app.listen(3000, () => {

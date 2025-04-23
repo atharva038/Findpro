@@ -27,7 +27,7 @@
         <tbody>
           <% bookings.forEach(booking=> { %>
             <tr>
-              <td>
+              <td data-label="Service">
                 <div class="service-info">
                   <i class="fas fa-tools service-icon"></i>
                   <div>
@@ -39,16 +39,23 @@
                   </div>
                 </div>
               </td>
-              <td>
+              <td data-label="Provider">
                 <div class="provider-info">
-                  <img src="<%= booking.provider.user.profileImage || '/img/default-avatar.png' %>" alt="Provider"
-                    class="provider-img" />
-                  <div class="provider-name">
-                    <%= booking.provider.user.name %>
-                  </div>
+                  <% if (booking.provider && booking.provider.user) { %>
+                    <img src="<%= booking.provider.user.profileImage || '/img/default-avatar.png' %>" alt="Provider"
+                      class="provider-img" />
+                    <div class="provider-name">
+                      <%= booking.provider.user.name %>
+                    </div>
+                    <% } else { %>
+                      <img src="/img/default-avatar.png" alt="Provider" class="provider-img" />
+                      <div class="provider-name">
+                        <span class="text-muted">Provider not available</span>
+                      </div>
+                      <% } %>
                 </div>
               </td>
-              <td>
+              <td data-label="Date & Time">
                 <div class="booking-time">
                   <div class="booking-date">
                     <% try { const bookingDate=new Date(booking.bookingDate); if (!isNaN(bookingDate.getTime())) { %>
@@ -65,12 +72,12 @@
                   </div>
                 </div>
               </td>
-              <td>
+              <td data-label="Status">
                 <span class="status-badge status-<%= booking.status.toLowerCase() %>">
                   <%= booking.status %>
                 </span>
               </td>
-              <td>
+              <td data-label="Actions">
                 <div class="booking-actions">
                   <button class="btn btn-sm btn-outline-primary view-booking-btn" title="View Details"
                     data-id="<%= booking._id %>" data-bs-toggle="modal" data-bs-target="#viewBookingModal">
@@ -165,6 +172,7 @@
   </div>
 </section>
 <style>
+  /* Existing styles remain unchanged */
   .booking-table th {
     font-weight: 600;
     color: #4a5568;
@@ -235,6 +243,108 @@
     font-size: 0.875rem;
   }
 
+  /* Responsive Table Styling */
+  @media (max-width: 991.98px) {
+    .table-responsive {
+      border: none;
+      overflow-x: auto;
+    }
+
+    .booking-table {
+      min-width: 800px;
+      /* Ensure table has minimum width on small screens */
+    }
+  }
+
+  /* Mobile View - Card Layout */
+  @media (max-width: 767.98px) {
+    .table-responsive {
+      border: none;
+      overflow-x: visible;
+    }
+
+    .booking-table {
+      min-width: auto;
+    }
+
+    .booking-table thead {
+      display: none;
+      /* Hide table headers on mobile */
+    }
+
+    .booking-table tbody tr {
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      background-color: white;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .booking-table tbody td {
+      display: flex;
+      padding: 0.75rem 0;
+      border-top: none;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .booking-table tbody td:last-child {
+      border-bottom: none;
+    }
+
+    /* Add labels for each cell on mobile */
+    .booking-table tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      width: 120px;
+      min-width: 120px;
+      color: #4a5568;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-right: 1rem;
+    }
+
+    /* Adjust specific elements for mobile */
+    .status-badge {
+      margin-left: auto;
+      align-self: center;
+    }
+
+    .booking-actions {
+      justify-content: flex-end;
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+  }
+
+  /* Modal Responsive Styling */
+  @media (max-width: 767.98px) {
+    .modal-dialog {
+      margin: 0.5rem;
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .booking-header {
+      flex-direction: column;
+    }
+
+    .booking-header .col-md-4 {
+      text-align: left;
+      margin-top: 0.5rem;
+    }
+
+    #modal-booking-cost {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* Existing modal styles remain unchanged */
   .detail-group {
     margin-bottom: 1.5rem;
   }
@@ -268,5 +378,22 @@
 
   .payment-action-btn {
     margin-top: 1rem;
+  }
+
+  /* Status filter responsiveness */
+  @media (max-width: 575.98px) {
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .section-actions {
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .status-filter {
+      width: 100%;
+    }
   }
 </style>
