@@ -25,6 +25,7 @@ const profileRoutes = require('./routes/profile');
 const bookingApiRoutes = require('./routes/api/bookings');
 const addRoutes = require("./routes/admin/add.js");
 const feedbackRoutes = require('./routes/feedback.js');
+const chatRoutes = require('./routes/chat.js');
 // Database connection
 
 // Update the database connection section
@@ -141,7 +142,16 @@ passport.deserializeUser(User.deserializeUser());
 app.get("/", (req, res) => {
   res.render("pages/home");
 });
-
+app.get('/chatbot', (req, res) => {
+  if (!req.isAuthenticated()) {
+    req.flash('error', 'Please login first');
+    return res.redirect('/login');
+  }
+  res.render('pages/chatbot', {
+    title: 'Chat Assistant',
+    currUser: req.user
+  });
+});
 app.use("/", authorisationRoutes);
 app.use("/services", servicesRoutes);
 app.use("/", aboutRoutes);
@@ -154,6 +164,7 @@ app.use('/payment', paymentRoutes);
 app.use('/profile', profileRoutes);
 app.use('/feedback', feedbackRoutes);
 app.use('/api/bookings', bookingApiRoutes);
+app.use('/', chatRoutes); 
 app.use('/', addRoutes);
 // Listen on port
 app.listen(3000, () => {

@@ -1,22 +1,21 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<link rel="stylesheet" href="/css/customerDashboard.css" />
+  <link rel="stylesheet" href="/css/customerDashboard.css" />
 
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <%- include('../components/customerDashboard/customerSidebar', { user:
-  currUser }) %>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <%- include('../components/customerDashboard/customerSidebar', { user: currUser }) %>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <% try { %> <%- include('../components/customerDashboard/bookings', {
-    bookings }) %> <% } catch (e) { %>
-    <div class="alert alert-danger">
-      Error loading bookings component: <%= e.message %>
-    </div>
-    <% } %> <%- include('../components/customerDashboard/profile', { user:
-    currUser }) %> <%- include('../components/customerDashboard/settings') %>
+      <!-- Main Content -->
+      <div class="main-content">
+        <% try { %> <%- include('../components/customerDashboard/bookings', { bookings }) %>
+            <% } catch (e) { %>
+              <div class="alert alert-danger">
+                Error loading bookings component: <%= e.message %>
+              </div>
+              <% } %> <%- include('../components/customerDashboard/profile', { user: currUser }) %> <%-
+                    include('../components/customerDashboard/settings') %>
+      </div>
   </div>
-</div>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="/js/customerDashboard.js"></script>
-<script src="/js/sidebarToggle.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="/js/customerDashboard.js"></script>
+  <script src="/js/sidebarToggle.js"></script>

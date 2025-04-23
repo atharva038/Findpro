@@ -41,15 +41,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Handle booking status filter
-    const statusFilter = document.querySelector(".status-filter");
-    if (statusFilter) {
-        statusFilter.addEventListener("change", function () {
-            const rows = document.querySelectorAll(".booking-table tbody tr");
-            const selectedStatus = this.value.toLowerCase();
+    // Handle booking status filter
+    const statusFilter = document.querySelector('.status-filter');
+    const bookingTable = document.querySelector('.booking-table tbody');
 
-            rows.forEach((row) => {
-                const status = row.querySelector(".status-badge").textContent.toLowerCase();
-                row.style.display = selectedStatus === "all" || status === selectedStatus ? "" : "none";
+    if (statusFilter && bookingTable) {
+        statusFilter.addEventListener('change', function () {
+            const selectedStatus = this.value;
+            const rows = bookingTable.getElementsByTagName('tr');
+
+            Array.from(rows).forEach(row => {
+                const statusCell = row.querySelector('.status-badge');
+                if (statusCell) {
+                    const rowStatus = statusCell.textContent.trim().toLowerCase();
+                    if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
             });
         });
     }
