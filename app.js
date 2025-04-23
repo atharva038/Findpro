@@ -28,6 +28,7 @@ const bookingApiRoutes = require('./routes/api/bookings');
 const addRoutes = require("./routes/admin/add.js");
 const feedbackRoutes = require('./routes/feedback.js');
 const chatRoutes = require('./routes/chat.js');
+const complaintsRoutes = require('./routes/complaints.js');
 // Database connection
 
 // Update the database connection section
@@ -221,6 +222,7 @@ app.use('/payment', paymentRoutes);
 app.use('/profile', profileRoutes);
 app.use('/feedback', feedbackRoutes);
 app.use('/api/bookings', bookingApiRoutes);
+app.use('/complaints', complaintsRoutes);
 app.use('/', chatRoutes);
 app.use('/', addRoutes);
 // Listen on port

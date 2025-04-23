@@ -1,0 +1,371 @@
+<% layout("/layouts/boilerplate.ejs") %>
+    <section id="complaints" class="container my-5">
+        <div class="complaints-header d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title fw-bold">
+                <i class="fas fa-exclamation-circle me-2 text-danger"></i>Complaints
+            </h2>
+            <button class="btn btn-primary btn-rounded shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#newComplaintModal">
+                <i class="fas fa-plus-circle me-2"></i>New Complaint
+            </button>
+        </div>
+
+        <div class="card complaint-card shadow-sm border-0 rounded-lg overflow-hidden">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table custom-table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% complaints.forEach(complaint=> { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="complaint-icon me-3">
+                                                <i class="fas fa-file-alt text-primary"></i>
+                                            </div>
+                                            <div class="complaint-subject">
+                                                <%= complaint.subject %>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="complaint-date">
+                                            <i class="far fa-calendar-alt me-2 text-muted"></i>
+                                            <%= new Date(complaint.createdAt).toLocaleDateString('en-US', {
+                                                year: 'numeric' , month: 'short' , day: 'numeric' }) %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge status-badge status-<%= complaint.status %> text-uppercase px-3 py-1">
+                                            <%= complaint.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm action-btn view-complaint"
+                                            data-id="<%= complaint._id %>">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% if (complaints.length===0) { %>
+                                        <tr>
+                                            <td colspan="4" class="text-center py-5">
+                                                <div class="empty-state">
+                                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                    <h5>No complaints yet</h5>
+                                                    <p class="text-muted">You haven't submitted any complaints</p>
+                                                    <button class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal"
+                                                        data-bs-target="#newComplaintModal">
+                                                        <i class="fas fa-plus-circle me-1"></i> Submit a complaint
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="newComplaintModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0 rounded-lg">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-semibold">
+                            <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                            Submit New Complaint
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form action="/complaints/add" method="POST" enctype="multipart/form-data"
+                            class="complaint-form">
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Subject</label>
+                                <input type="text" class="form-control" name="subject"
+                                    placeholder="Brief summary of your complaint" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Description</label>
+                                <textarea class="form-control" name="description" rows="4"
+                                    placeholder="Please provide details about your complaint..." required></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">
+                                    <i class="fas fa-paperclip me-1 text-muted"></i>
+                                    Attachments
+                                </label>
+                                <input type="file" class="form-control file-input" name="attachments" multiple>
+                                <small class="form-text text-muted">Add images or documents to support your complaint
+                                    (optional)</small>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Complaints Page Styling */
+        .section-title {
+            color: #2d3748;
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* Card Styling */
+        .complaint-card {
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        /* Table Styling */
+        .custom-table {
+            margin-bottom: 0;
+        }
+
+        .custom-table thead {
+            background-color: #f8fafc;
+        }
+
+        .custom-table thead th {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .custom-table tbody tr {
+            border-bottom: 1px solid #edf2f7;
+            transition: background-color 0.2s;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .custom-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        /* Status Badge Styling */
+        .status-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-pending {
+            background-color: #fff8e1;
+            color: #b45309;
+        }
+
+        .status-in-progress {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-resolved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        /* Action Button Styling */
+        .action-btn {
+            background: linear-gradient(to right, #6366f1, #7c3aed);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(to right, #4f46e5, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+
+        /* Modal Styling */
+        .modal-header {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+        }
+
+        .modal-content {
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* Form Styling */
+        .complaint-form .form-label {
+            color: #4b5563;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .complaint-form .form-control {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .complaint-form .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            background-color: #fff;
+        }
+
+        .file-input {
+            padding: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        /* Button Styling */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+            border: none;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-rounded {
+            border-radius: 50px;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .empty-state i {
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .complaints-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .complaints-header .btn {
+                align-self: flex-start;
+            }
+
+            .custom-table {
+                min-width: 650px;
+            }
+
+            .complaint-card {
+                border-radius: 8px;
+            }
+        }
+
+        /* Complaint Icon */
+        .complaint-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .complaint-date {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .complaint-subject {
+            font-weight: 500;
+            color: #1e293b;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle view complaint button clicks
+            document.querySelectorAll('.view-complaint').forEach(button => {
+                button.addEventListener('click', function () {
+                    const complaintId = this.getAttribute('data-id');
+                    // Navigate to complaint detail or show detail modal
+                    window.location.href = `/complaints/${complaintId}`;
+                });
+            });
+
+            // File input enhancement
+            const fileInput = document.querySelector('.file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    let fileCount = this.files.length;
+                    let infoText = fileCount > 0
+                        ? `${fileCount} file${fileCount !== 1 ? 's' : ''} selected`
+                        : 'Add images or documents to support your complaint (optional)';
+
+                    this.nextElementSibling.textContent = infoText;
+                });
+            }
+        });
+    </script>

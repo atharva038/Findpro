@@ -44,11 +44,18 @@
       <div class="footer-links">
         <h4>Our Services</h4>
         <ul>
-          <li><a href="/services/plumbing">Plumbing</a></li>
-          <li><a href="/services/electrical">Electrical</a></li>
-          <li><a href="/services/cleaning">Cleaning</a></li>
-          <li><a href="/services/painting">Painting</a></li>
-          <li><a href="/services">View All Services</a></li>
+          <% if (typeof footerServices !=='undefined' && footerServices.length> 0) { %>
+            <% footerServices.forEach(service=> { %>
+              <li>
+                <a href="/services/<%= service._id %>">
+                  <%= service.name %>
+                </a>
+              </li>
+              <% }); %>
+                <% } else { %>
+                  <li><a href="/services">Our Services</a></li>
+                  <% } %>
+                    <li><a href="/services">View All Services</a></li>
         </ul>
       </div>
 
