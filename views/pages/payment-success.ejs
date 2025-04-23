@@ -1,120 +1,458 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<div class="payment-success-page">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-6">
-        <div class="card shadow-lg border-0">
-          <div class="card-body text-center p-5">
-            <!-- Success Icon -->
-            <div class="success-icon mb-4">
-              <i class="fas fa-check-circle"></i>
-            </div>
+  <div class="payment-success-page">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="success-card">
+            <div class="card-body text-center p-5">
+              <!-- Success Animation -->
+              <div class="success-animation">
+                <div class="checkmark-circle">
+                  <div class="checkmark draw"></div>
+                </div>
+              </div>
 
-            <!-- Success Message -->
-            <h2 class="mb-4">Payment Successful!</h2>
-            <p class="text-muted mb-4">
-              Your booking has been confirmed. Thank you for choosing KnockNFix!
-            </p>
+              <!-- Success Message -->
+              <h2 class="success-title">Payment Successful!</h2>
+              <p class="success-message">
+                Your booking has been confirmed. Thank you for choosing KnockNFix!
+              </p>
 
-            <!-- Booking Details -->
-            <div class="booking-details text-start p-4 mb-4">
-              <h5 class="mb-3">Booking Details</h5>
-              <div class="detail-row">
-                <span class="label">Booking ID:</span>
-                <span class="value">#<%= booking._id %></span>
+              <!-- Booking Details -->
+              <div class="booking-details">
+                <div class="details-header">
+                  <h5>Booking Details</h5>
+                  <div class="booking-badge">Confirmed</div>
+                </div>
+
+                <div class="detail-row">
+                  <span class="label">Booking ID:</span>
+                  <span class="value">#<%= booking._id %></span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Service:</span>
+                  <span class="value">
+                    <%= service.name %>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Provider:</span>
+                  <span class="value">
+                    <%= provider.user.name %>
+                  </span>
+                </div>
+                <div class="detail-row highlight-row">
+                  <span class="label">Amount Paid:</span>
+                  <span class="value">₹<%= payment.amount %></span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Date:</span>
+                  <span class="value">
+                    <% const bookingDate=new Date(booking.scheduledTime); if (!isNaN(bookingDate.getTime())) { %>
+                      <%= bookingDate.toLocaleDateString('en-IN', { weekday: 'long' , year: 'numeric' , month: 'long' ,
+                        day: 'numeric' }) %>
+                        <% } else { %> Date not available <% } %>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Time:</span>
+                  <span class="value">
+                    <% if (!isNaN(bookingDate.getTime())) { %>
+                      <%= bookingDate.toLocaleTimeString('en-IN', { hour: '2-digit' , minute: '2-digit' , hour12: true
+                        }) %>
+                        <% } else { %> Time not
+                          available <% } %>
+                  </span>
+                </div>
               </div>
-              <div class="detail-row">
-                <span class="label">Service:</span>
-                <span class="value"><%= service.name %></span>
+
+              <!-- Additional Information -->
+              <div class="info-box">
+                <div class="info-icon">
+                  <i class="fas fa-info-circle"></i>
+                </div>
+                <p>A confirmation email has been sent to your registered email address with all the details.</p>
               </div>
-              <div class="detail-row">
-                <span class="label">Provider:</span>
-                <span class="value"><%= provider.user.name %></span>
-              </div>
-              <div class="detail-row">
-                <span class="label">Amount Paid:</span>
-                <span class="value">₹<%= payment.amount %></span>
-              </div>
-              <div class="detail-row">
-                <span class="label">Date:</span>
-                <span class="value">
-                  <% const bookingDate = new Date(booking.scheduledTime); if
-                  (!isNaN(bookingDate.getTime())) { %> <%=
-                  bookingDate.toLocaleDateString('en-IN', { weekday: 'long',
-                  year: 'numeric', month: 'long', day: 'numeric' }) %> <% } else
-                  { %> Date not available <% } %>
-                </span>
-              </div>
-              <div class="detail-row">
-                <span class="label">Time:</span>
-                <span class="value">
-                  <% if (!isNaN(bookingDate.getTime())) { %> <%=
-                  bookingDate.toLocaleTimeString('en-IN', { hour: '2-digit',
-                  minute: '2-digit', hour12: true }) %> <% } else { %> Time not
-                  available <% } %>
-                </span>
-              </div>
+
               <!-- Action Buttons -->
-              <div class="d-grid gap-2">
-                <a href="/dashboard" class="btn btn-primary btn-lg">
+              <div class="action-buttons">
+                <a href="/dashboard" class="btn btn-primary">
                   <i class="fas fa-home me-2"></i>Go to Dashboard
                 </a>
-                <button
-                  onclick="window.print()"
-                  class="btn btn-outline-secondary"
-                >
+                <button onclick="window.print()" class="btn btn-outline">
                   <i class="fas fa-print me-2"></i>Print Receipt
                 </button>
               </div>
             </div>
           </div>
+
+          <!-- Support Note -->
+          <div class="support-note">
+            <p>Need help with your booking? <a href="/contact">Contact our support team</a>.</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <style>
-    .payment-success-page {
-      background-color: #f8f9fa;
-      min-height: calc(100vh - 76px);
-    }
-
-    .success-icon {
-      font-size: 5rem;
-      color: #10b981;
-    }
-
-    .booking-details {
-      background-color: #f8fafc;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
-    }
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .detail-row:last-child {
-      border-bottom: none;
-    }
-
-    .detail-row .label {
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .detail-row .value {
-      color: #1e293b;
-      font-weight: 600;
-    }
-
-    @media print {
-      .btn {
-        display: none;
+    <style>
+      /* Variables for consistent styling */
+      :root {
+        --primary-color: #4f46e5;
+        --primary-light: #6366f1;
+        --primary-dark: #4338ca;
+        --success-color: #10b981;
+        --success-bg: #d1fae5;
+        --text-dark: #1e293b;
+        --text-medium: #64748b;
+        --text-light: #94a3b8;
+        --border-color: #e2e8f0;
+        --bg-light: #f8fafc;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        --border-radius: 16px;
       }
-    }
-  </style>
-</div>
+
+      .payment-success-page {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 76px);
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+      }
+
+      /* Success Card */
+      .success-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: none;
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .success-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      /* Success Animation */
+      .success-animation {
+        margin: 0 auto;
+        width: 100px;
+        height: 100px;
+        margin-bottom: 2rem;
+      }
+
+      .checkmark-circle {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        display: inline-block;
+        background: var(--success-bg);
+        border-radius: 50%;
+        animation: circleScale 0.5s ease-in-out;
+      }
+
+      .checkmark {
+        border-radius: 50%;
+        stroke-width: 2;
+        stroke: var(--success-color);
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px var(--success-color);
+        animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+        position: relative;
+        display: block;
+        width: 44px;
+        height: 44px;
+        position: absolute;
+        top: 30px;
+        left: 28px;
+      }
+
+      .checkmark:after {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 14px;
+        top: 20px;
+        width: 13px;
+        height: 25px;
+        border: solid var(--success-color);
+        border-width: 0 4px 4px 0;
+        transform: rotate(45deg);
+        opacity: 0;
+        animation: checkmarkAnimation 0.3s ease-in-out 0.7s forwards;
+      }
+
+      .checkmark.draw:after {
+        animation-delay: 0.7s;
+      }
+
+      @keyframes circleScale {
+        0% {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes checkmarkAnimation {
+        0% {
+          opacity: 0;
+          transform: rotate(45deg) scale(0.8);
+        }
+
+        100% {
+          opacity: 1;
+          transform: rotate(45deg) scale(1);
+        }
+      }
+
+      @keyframes fill {
+        100% {
+          box-shadow: inset 0px 0px 0px 50px var(--success-bg);
+        }
+      }
+
+      /* Typography */
+      .success-title {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 2.25rem;
+      }
+
+      .success-message {
+        color: var(--text-medium);
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+      }
+
+      /* Booking Details */
+      .booking-details {
+        background-color: var(--bg-light);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+      }
+
+      .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
+      }
+
+      .details-header h5 {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0;
+        font-size: 1.1rem;
+      }
+
+      .booking-badge {
+        background-color: var(--success-bg);
+        color: var(--success-color);
+        padding: 0.35rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+
+      .highlight-row {
+        background-color: rgba(99, 102, 241, 0.05);
+        margin: 0 -1.5rem;
+        padding: 0.85rem 1.5rem;
+      }
+
+      .detail-row .label {
+        color: var(--text-medium);
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .detail-row .value {
+        color: var(--text-dark);
+        font-weight: 600;
+        max-width: 60%;
+        text-align: right;
+        word-break: break-word;
+      }
+
+      /* Info Box */
+      .info-box {
+        display: flex;
+        align-items: center;
+        background-color: #ebf5ff;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #3b82f6;
+      }
+
+      .info-icon {
+        color: #3b82f6;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+      }
+
+      .info-box p {
+        margin: 0;
+        color: #1e40af;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      /* Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .btn {
+        font-weight: 600;
+        padding: 0.85rem 1.75rem;
+        border-radius: 8px;
+        transition: all 0.3s;
+        font-size: 1rem;
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--primary-dark);
+        border: 1px solid var(--primary-light);
+      }
+
+      .btn-outline:hover {
+        background-color: rgba(99, 102, 241, 0.05);
+        transform: translateY(-2px);
+      }
+
+      /* Support Note */
+      .support-note {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--text-light);
+      }
+
+      .support-note a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .support-note a:hover {
+        text-decoration: underline;
+      }
+
+      /* Print Styles */
+      @media print {
+        .payment-success-page {
+          background: white;
+          padding: 0;
+        }
+
+        .success-card {
+          box-shadow: none;
+          border: 1px solid #eee;
+        }
+
+        .btn,
+        .support-note,
+        .info-box {
+          display: none;
+        }
+
+        .success-title {
+          font-size: 1.75rem;
+        }
+
+        .checkmark-circle {
+          background: #eee;
+          print-color-adjust: exact;
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .payment-success-page {
+          padding: 1rem;
+        }
+
+        .success-card {
+          border-radius: 12px;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .success-title {
+          font-size: 1.8rem;
+        }
+
+        .detail-row {
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .detail-row .value {
+          max-width: 100%;
+          text-align: left;
+        }
+
+        .card-body {
+          padding: 2rem !important;
+        }
+      }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Add a timestamp for the transaction
+        const timestamp = document.createElement('div');
+        timestamp.className = 'text-muted mt-3 small';
+        timestamp.innerHTML = `Transaction completed on ${new Date().toLocaleString('en-IN')}`;
+        document.querySelector('.action-buttons').after(timestamp);
+
+        // Add a slight delay before showing the success animation
+        setTimeout(() => {
+          document.querySelector('.success-animation').style.visibility = 'visible';
+        }, 300);
+      });
+    </script>
+  </div>

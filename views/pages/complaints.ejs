@@ -572,31 +572,6 @@
         }
     </style>
 
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Handle view complaint button clicks
-            document.querySelectorAll('.view-complaint').forEach(button => {
-                button.addEventListener('click', function () {
-                    const complaintId = this.getAttribute('data-id');
-                    // Navigate to complaint detail or show detail modal
-                    window.location.href = `/complaints/${complaintId}`;
-                });
-            });
-
-            // File input enhancement
-            const fileInput = document.querySelector('.file-input');
-            if (fileInput) {
-                fileInput.addEventListener('change', function () {
-                    let fileCount = this.files.length;
-                    let infoText = fileCount > 0
-                        ? `${fileCount} file${fileCount !== 1 ? 's' : ''} selected`
-                        : 'Add images or documents to support your complaint (optional)';
-
-                    this.nextElementSibling.textContent = infoText;
-                });
-            }
-        });
-    </script> -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Create modal instance
