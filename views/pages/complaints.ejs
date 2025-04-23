@@ -120,6 +120,81 @@
                 </div>
             </div>
         </div>
+        <!-- Complaint Detail Modal -->
+        <div class="modal fade" id="viewComplaintModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content shadow-lg border-0 rounded-lg">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-semibold">
+                            <i class="fas fa-file-alt me-2"></i>
+                            <span id="complaintSubjectTitle">Complaint Details</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="complaint-detail-header">
+                            <div class="complaint-status-wrapper">
+                                Status: <span id="complaintStatusBadge" class="status-badge ms-2">Pending</span>
+                            </div>
+                            <div class="complaint-date-wrapper">
+                                <i class="far fa-calendar-alt me-1"></i>
+                                <span id="complaintDate">Date</span>
+                            </div>
+                        </div>
+
+                        <div class="complaint-detail-content">
+                            <div class="complaint-description">
+                                <h6>Description</h6>
+                                <p id="complaintDescription">Loading description...</p>
+                            </div>
+
+                            <div class="complaint-attachments" id="complaintAttachments">
+                                <h6>Attachments</h6>
+                                <div id="attachmentsList" class="attachment-list">
+                                    <!-- Attachments will be loaded here -->
+                                </div>
+                            </div>
+
+                            <div class="complaint-response" id="complaintResponse">
+                                <h6>Response</h6>
+                                <div id="responseContent">
+                                    <p class="text-muted" id="noResponseText">No response yet from our team.</p>
+                                    <div id="responseTextWrapper" style="display: none;">
+                                        <p id="responseText"></p>
+                                        <div class="response-meta">
+                                            <small class="text-muted">
+                                                Responded by <span id="responseBy">Support Team</span> on <span
+                                                    id="responseDate"></span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <!-- Comment section if issue is still open -->
+                        <div id="commentSection" class="w-100 mb-3">
+                            <form id="commentForm" class="d-flex">
+                                <input type="text" class="form-control me-2" id="commentInput"
+                                    placeholder="Add a comment...">
+                                <button type="submit" class="btn btn-primary">Send</button>
+                            </form>
+                        </div>
+
+                        <!-- Actions for the complaint -->
+                        <div class="d-flex justify-content-between w-100">
+                            <button type="button" class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">Close</button>
+                            <button id="resolveButton" type="button" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Mark as Resolved
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
 
     <style>
@@ -300,6 +375,159 @@
             font-size: 0.9rem;
         }
 
+        /* Complaint Detail Modal Styling */
+        .complaint-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .complaint-status-wrapper {
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .complaint-date-wrapper {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .complaint-detail-content {
+            padding: 1.5rem;
+        }
+
+        .complaint-description,
+        .complaint-attachments,
+        .complaint-response {
+            margin-bottom: 2rem;
+        }
+
+        .complaint-description h6,
+        .complaint-attachments h6,
+        .complaint-response h6 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .complaint-description p {
+            color: #334155;
+            line-height: 1.6;
+            white-space: pre-line;
+            /* Preserves line breaks */
+        }
+
+        .attachment-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .attachment-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .attachment-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .attachment-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .attachment-download {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+
+        .attachment-download:hover {
+            background: white;
+            color: #6366f1;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .attachment-file {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .attachment-file:hover {
+            background-color: #f1f5f9;
+        }
+
+        .attachment-file i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: #6366f1;
+        }
+
+        .attachment-file-name {
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+        }
+
+        .response-meta {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        #commentSection {
+            border-top: 1px solid #edf2f7;
+            padding-top: 15px;
+        }
+
+        /* Status badge colors in detail modal */
+        .status-badge.status-pending {
+            background-color: #fff8e1;
+            color: #b45309;
+        }
+
+        .status-badge.status-in-progress {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-badge.status-resolved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        /* Hide resolve button when already resolved */
+        .modal.complaint-resolved #resolveButton,
+        .modal.complaint-resolved #commentSection {
+            display: none;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .complaints-header {
@@ -344,7 +572,7 @@
         }
     </style>
 
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Handle view complaint button clicks
             document.querySelectorAll('.view-complaint').forEach(button => {
@@ -354,6 +582,194 @@
                     window.location.href = `/complaints/${complaintId}`;
                 });
             });
+
+            // File input enhancement
+            const fileInput = document.querySelector('.file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    let fileCount = this.files.length;
+                    let infoText = fileCount > 0
+                        ? `${fileCount} file${fileCount !== 1 ? 's' : ''} selected`
+                        : 'Add images or documents to support your complaint (optional)';
+
+                    this.nextElementSibling.textContent = infoText;
+                });
+            }
+        });
+    </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Create modal instance
+            const viewComplaintModal = new bootstrap.Modal(document.getElementById('viewComplaintModal'));
+
+            // Handle view complaint button clicks
+            document.querySelectorAll('.view-complaint').forEach(button => {
+                button.addEventListener('click', function () {
+                    const complaintId = this.getAttribute('data-id');
+
+                    // Fetch complaint details (replace with your actual API endpoint)
+                    fetchComplaintDetails(complaintId)
+                        .then(data => {
+                            populateComplaintModal(data);
+                            viewComplaintModal.show();
+                        })
+                        .catch(error => {
+                            console.error('Error fetching complaint details:', error);
+                            alert('Failed to load complaint details. Please try again.');
+                        });
+                });
+            });
+
+            // Function to populate modal with complaint data
+            function populateComplaintModal(complaint) {
+                // Set modal title and basic info
+                document.getElementById('complaintSubjectTitle').textContent = complaint.subject;
+
+                // Format date properly
+                const complaintDate = new Date(complaint.createdAt);
+                document.getElementById('complaintDate').textContent = complaintDate.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                // Set status badge
+                const statusBadge = document.getElementById('complaintStatusBadge');
+                statusBadge.textContent = complaint.status;
+                statusBadge.className = 'status-badge status-' + complaint.status.toLowerCase();
+
+                // Set description
+                document.getElementById('complaintDescription').textContent = complaint.description;
+
+                // Handle complaint state (resolved or not)
+                const modalElement = document.getElementById('viewComplaintModal');
+                if (complaint.status === 'resolved') {
+                    modalElement.classList.add('complaint-resolved');
+                } else {
+                    modalElement.classList.remove('complaint-resolved');
+                }
+
+                // Handle attachments
+                const attachmentsContainer = document.getElementById('attachmentsList');
+                attachmentsContainer.innerHTML = ''; // Clear previous attachments
+
+                if (complaint.attachments && complaint.attachments.length > 0) {
+                    document.getElementById('complaintAttachments').style.display = 'block';
+
+                    complaint.attachments.forEach(attachment => {
+                        // Determine if it's an image or another file type
+                        const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(
+                            attachment.filename.split('.').pop().toLowerCase()
+                        );
+
+                        if (isImage) {
+                            // Create image attachment
+                            attachmentsContainer.innerHTML += `
+              <div class="attachment-item">
+                <img src="${attachment.url}" alt="Attachment">
+                <a href="${attachment.url}" class="attachment-download" download target="_blank">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+            `;
+                        } else {
+                            // Create file attachment
+                            attachmentsContainer.innerHTML += `
+              <div class="attachment-file">
+                <i class="fas fa-file"></i>
+                <div class="attachment-file-name">${attachment.filename}</div>
+                <a href="${attachment.url}" class="ms-auto" download target="_blank">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+            `;
+                        }
+                    });
+                } else {
+                    // No attachments
+                    document.getElementById('complaintAttachments').style.display = 'none';
+                }
+
+                // Handle response section
+                if (complaint.response) {
+                    document.getElementById('noResponseText').style.display = 'none';
+                    document.getElementById('responseTextWrapper').style.display = 'block';
+                    document.getElementById('responseText').textContent = complaint.response.text;
+                    document.getElementById('responseBy').textContent = complaint.response.respondedBy || 'Support Team';
+
+                    const responseDate = new Date(complaint.response.respondedAt);
+                    document.getElementById('responseDate').textContent = responseDate.toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    });
+                } else {
+                    document.getElementById('noResponseText').style.display = 'block';
+                    document.getElementById('responseTextWrapper').style.display = 'none';
+                }
+
+                // Set up resolve button handler
+                document.getElementById('resolveButton').onclick = function () {
+                    resolveComplaint(complaint._id);
+                };
+
+                // Set up comment form handler
+                document.getElementById('commentForm').onsubmit = function (e) {
+                    e.preventDefault();
+                    const commentText = document.getElementById('commentInput').value.trim();
+                    if (commentText) {
+                        addComment(complaint._id, commentText);
+                        document.getElementById('commentInput').value = '';
+                    }
+                };
+            }
+
+            // Mock functions for data fetching (replace with actual API calls)
+            async function fetchComplaintDetails(id) {
+                // In a real app, this would be an API call
+                // For now, let's simulate an API response
+
+                // Find the complaint data from the DOM (as a fallback)
+                const row = document.querySelector(`.view-complaint[data-id="${id}"]`).closest('tr');
+
+                // Basic information that we can get from the table
+                const subject = row.querySelector('.complaint-subject').textContent.trim();
+                const statusElement = row.querySelector('.status-badge');
+                const status = statusElement.textContent.trim();
+
+                // For demo purposes, create a simulated response
+                // In a real app, you'd fetch all this data from the server
+                return {
+                    _id: id,
+                    subject: subject,
+                    description: "This is the detailed description of the complaint. In a real application, this would be fetched from the server based on the complaint ID.",
+                    status: status,
+                    createdAt: new Date(),
+                    attachments: [], // No attachments in the demo
+                    response: status === 'resolved' ? {
+                        text: "Thank you for your complaint. We have looked into the issue and resolved it by taking appropriate action.",
+                        respondedBy: "Customer Support",
+                        respondedAt: new Date()
+                    } : null
+                };
+            }
+
+            async function resolveComplaint(id) {
+                // In a real app, this would be an API call
+                alert(`This would mark complaint ${id} as resolved in a real application.`);
+
+                // For demo purposes, update the status in the table
+                const row = document.querySelector(`.view-complaint[data-id="${id}"]`).closest('tr');
+                const statusBadge = row.querySelector('.status-badge');
+
+                statusBadge.textContent = "RESOLVED";
+                statusBadge.className = "badge status-badge status-resolved text-uppercase px-3 py-1";
+
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('viewComplaintModal'));
+                modal.hide();
+            }
+
+            async function addComment(id, comment) {
+                // In a real app, this would be an API call
+                alert(`This would add your comment "${comment}" to complaint ${id} in a real application.`);
+            }
 
             // File input enhancement
             const fileInput = document.querySelector('.file-input');
