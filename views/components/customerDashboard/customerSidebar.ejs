@@ -8,8 +8,12 @@
       <img src="<%= user.profileImage || '/img/default-avatar.png' %>" alt="Profile" class="sidebar-profile-img" />
       <div class="sidebar-status-indicator"></div>
     </div>
-    <h5 class="sidebar-name"><%= user.name %></h5>
-    <p class="sidebar-email"><%= user.username %></p>
+    <h5 class="sidebar-name">
+      <%= user.name %>
+    </h5>
+    <p class="sidebar-email">
+      <%= user.username %>
+    </p>
   </div>
 
   <nav class="sidebar-nav">
@@ -25,22 +29,23 @@
       <div class="nav-icon"><i class="fas fa-cog"></i></div>
       <span>Settings</span>
     </a>
-    
+
     <div class="sidebar-divider">
       <span>Support</span>
     </div>
-    
+
     <a href="/chatbot" class="nav-link chatbot-link">
       <div class="nav-icon"><i class="fas fa-robot"></i></div>
       <span>Chat Assistant</span>
       <div class="chat-badge pulse">New</div>
     </a>
-    
-    <a href="/help" class="nav-link">
-      <div class="nav-icon"><i class="fas fa-question-circle"></i></div>
-      <span>Help Center</span>
+
+    <!-- Replace the help center link with complaints link -->
+    <a href="/complaints" class="nav-link">
+      <div class="nav-icon"><i class="fas fa-exclamation-circle"></i></div>
+      <span>Raise Issue</span>
     </a>
-    
+
     <a href="/logout" class="nav-link logout-link">
       <div class="nav-icon"><i class="fas fa-sign-out-alt"></i></div>
       <span>Logout</span>
@@ -216,6 +221,21 @@
     transform: rotate(5deg);
   }
 
+  /* Issues link styling */
+  .issues-link .nav-icon {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+  }
+
+  .issues-link:hover .nav-icon {
+    background-color: #f59e0b;
+    color: white;
+  }
+
+  .issues-link:hover {
+    background-color: rgba(245, 158, 11, 0.1);
+  }
+
   /* Chatbot link specific styles */
   .chatbot-link {
     background-color: rgba(79, 70, 229, 0.08);
@@ -258,18 +278,33 @@
     0% {
       box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
     }
+
     70% {
       box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
     }
+
     100% {
       box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
     }
   }
 
   @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-    40% {transform: translateY(-10px);}
-    60% {transform: translateY(-5px);}
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+
+    40% {
+      transform: translateY(-10px);
+    }
+
+    60% {
+      transform: translateY(-5px);
+    }
   }
 
   .sidebar-divider {
@@ -365,7 +400,7 @@
     .sidebar.active {
       transform: translateX(0);
     }
-    
+
     /* Add overlay when sidebar is open */
     body.sidebar-open::before {
       content: "";
@@ -387,6 +422,7 @@
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -398,12 +434,29 @@
     animation-fill-mode: both;
   }
 
-  .nav-link:nth-child(1) { animation-delay: 0.1s; }
-  .nav-link:nth-child(2) { animation-delay: 0.2s; }
-  .nav-link:nth-child(3) { animation-delay: 0.3s; }
-  .nav-link:nth-child(4) { animation-delay: 0.4s; }
-  .nav-link:nth-child(5) { animation-delay: 0.5s; }
-  .nav-link:nth-child(6) { animation-delay: 0.6s; }
+  .nav-link:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .nav-link:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .nav-link:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .nav-link:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  .nav-link:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+
+  .nav-link:nth-child(6) {
+    animation-delay: 0.6s;
+  }
 
   /* Main content adjustments */
   .main-content {
@@ -424,60 +477,60 @@
 
 <!-- Add JavaScript for sidebar toggling -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    
+
     if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', function() {
+      sidebarToggle.addEventListener('click', function () {
         sidebar.classList.toggle('active');
         document.body.classList.toggle('sidebar-open');
       });
-      
+
       // Close sidebar when clicking outside on mobile
-      document.addEventListener('click', function(event) {
+      document.addEventListener('click', function (event) {
         const isClickInside = sidebar.contains(event.target) || sidebarToggle.contains(event.target);
-        
+
         if (!isClickInside && sidebar.classList.contains('active') && window.innerWidth <= 768) {
           sidebar.classList.remove('active');
           document.body.classList.remove('sidebar-open');
         }
       });
     }
-    
+
     // Navigation item click
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link[data-section]');
     navLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function (e) {
         // Prevent default only for dashboard navigation, not for external links
         if (this.getAttribute('data-section')) {
           e.preventDefault();
-          
+
           // Update active class
           navLinks.forEach(navLink => navLink.classList.remove('active'));
           this.classList.add('active');
-          
+
           // Show corresponding section
           const targetSection = this.getAttribute('data-section');
           document.querySelectorAll('.dashboard-section').forEach(section => {
             section.classList.remove('active');
           });
-          
+
           const targetElement = document.getElementById(targetSection);
           if (targetElement) targetElement.classList.add('active');
-          
+
           // Close sidebar on mobile
           if (window.innerWidth <= 768) {
             sidebar.classList.remove('active');
             document.body.classList.remove('sidebar-open');
           }
-          
+
           // Update URL hash
           window.location.hash = targetSection;
         }
       });
     });
-    
+
     // Handle initial hash
     const initialHash = window.location.hash.substring(1);
     if (initialHash) {
