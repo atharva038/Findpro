@@ -1,0 +1,217 @@
+<%  %>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Assistant - KnockNFix</title>
+    <link rel="stylesheet" href="/css/chatbot.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <!-- SEO optimization -->
+    <meta name="description" content="Get instant help with KnockNFix's AI-powered Smart Assistant">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <a href="/" class="back-button" title="Back to KnockNFix Home">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1>Smart Assistant</h1>
+            </div>
+            <div class="header-actions">
+                <button class="action-button" id="minimize-sidebar" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="theme-toggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Help Center <i class="fas fa-question-circle"></i></h3>
+                <button class="close-sidebar" id="close-sidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="categories-wrapper">
+                <div class="category active" data-category="booking">
+                    <div class="category-title">
+                        <div class="category-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div>Service Booking</div>
+                        <div class="arrow"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="category-questions">
+                        <div class="question-item">How do I book a service?</div>
+                        <div class="question-item">What services do you offer?</div>
+                        <div class="question-item">How to reschedule my booking?</div>
+                        <div class="question-item">Can I cancel my booking?</div>
+                    </div>
+                </div>
+
+                <div class="category" data-category="payments">
+                    <div class="category-title">
+                        <div class="category-icon"><i class="fas fa-credit-card"></i></div>
+                        <div>Payments & Pricing</div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="category-questions">
+                        <div class="question-item">What payment methods do you accept?</div>
+                        <div class="question-item">How much do services cost?</div>
+                        <div class="question-item">Do you offer refunds?</div>
+                        <div class="question-item">Is there a booking fee?</div>
+                    </div>
+                </div>
+
+                <div class="category" data-category="providers">
+                    <div class="category-title">
+                        <div class="category-icon"><i class="fas fa-user-tie"></i></div>
+                        <div>Service Providers</div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="category-questions">
+                        <div class="question-item">How are service providers verified?</div>
+                        <div class="question-item">Can I choose my service provider?</div>
+                        <div class="question-item">What if I'm not satisfied?</div>
+                        <div class="question-item">Are your providers insured?</div>
+                    </div>
+                </div>
+
+                <div class="category" data-category="account">
+                    <div class="category-title">
+                        <div class="category-icon"><i class="fas fa-user-circle"></i></div>
+                        <div>Account Help</div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="category-questions">
+                        <div class="question-item">How do I update my profile?</div>
+                        <div class="question-item">Where can I see my booking history?</div>
+                        <div class="question-item">How to change my password?</div>
+                        <div class="question-item">Can I delete my account?</div>
+                    </div>
+                </div>
+
+                <div class="category" data-category="safety">
+                    <div class="category-title">
+                        <div class="category-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div>Safety & Support</div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="category-questions">
+                        <div class="question-item">Is my personal information secure?</div>
+                        <div class="question-item">What safety measures do you have?</div>
+                        <div class="question-item">How do I report an issue?</div>
+                        <div class="question-item">Emergency contact information</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-info">
+                <div class="contact-title">Need more help?</div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>1-800-123-4567</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>support@knocknfix.com</span>
+                </div>
+                <a href="/contact" class="contact-button">
+                    Contact Support
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="bot-name">KnockNFix Assistant</div>
+                        <div class="status">
+                            <div class="status-dot"></div>
+                            <div class="status-text">Online</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="action-circle" title="Toggle voice" id="voice-toggle">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <button class="action-circle" title="Clear chat" id="clear-chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    <div class="message-content">
+                        <div class="message-text">
+                            <p>Hello! 👋 I'm your KnockNFix Assistant.</p>
+                            <p>I can help you with booking services, payment questions, finding providers, and much
+                                more. What can I help you with today?</p>
+                        </div>
+                        <div class="message-time">
+                            <%= new Date().toLocaleTimeString([], {hour: '2-digit' , minute: '2-digit' }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <div class="input-actions">
+                        <button class="action-button" id="attachment-btn" title="Add attachment">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="message-input" id="message-input" placeholder="Type your message here..."
+                        aria-label="Message input" />
+                    <button class="send-btn" id="send-btn" title="Send message">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button class="mic-btn" id="mic-btn" title="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+
+                <div class="suggestions">
+                    <div class="suggestion">How to book a service?</div>
+                    <div class="suggestion">Payment methods accepted</div>
+                    <div class="suggestion">Find service providers</div>
+                    <div class="suggestion">Report an issue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add floating help button -->
+    <div class="floating-help">
+        <button class="help-btn pulse" title="Help">
+            <i class="fas fa-question"></i>
+        </button>
+    </div>
+
+    <script src="/js/chatbot.js"></script>
+</body>
+
+</html>

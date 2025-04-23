@@ -37,6 +37,54 @@
   padding: 1.5rem;
 }
 
+.nav-link .fa-comments {
+    color: #4f46e5;
+}
+
+.nav-link:hover .fa-comments,
+.nav-link.active .fa-comments {
+    color: white;
+}
+
+.nav-link[href="/chatbot"]:hover {
+    background: #4f46e5;
+    color: white;
+}
+
+.status-filter {
+    min-width: 150px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    color: #4a5568;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-filter:hover {
+    border-color: #3182ce;
+}
+
+.status-filter:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* Add these classes for when no bookings are found */
+.no-bookings-message {
+    text-align: center;
+    padding: 2rem;
+    color: #4a5568;
+    font-size: 0.875rem;
+    display: none;
+}
+
+.no-bookings-message.show {
+    display: block;
+}
 
 @media (max-width: 576px) {
   .sidebar {
