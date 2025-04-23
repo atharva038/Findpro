@@ -503,7 +503,7 @@ router.post('/verify-payment', isLoggedIn, async (req, res) => {
         console.log("Found booking:", booking);
         console.log("Payment type:", paymentType);
 
-        // Update booking based on payment type
+    
         if (paymentType === 'advance') {
             booking.advancePayment = {
                 paid: true,
@@ -534,7 +534,6 @@ router.post('/verify-payment', isLoggedIn, async (req, res) => {
             booking: booking._id,
             user: req.user._id,
             paymentId: razorpay_payment_id,
-            // Change these field names to match your model requirements
             razorpayOrderId: razorpay_order_id,  // Instead of orderId
             type: paymentType === 'advance' ? 'advance' : 'final', // <-- THIS IS THE FIX
             amount: paymentType === 'advance' ? booking.totalCost * 0.1 : booking.totalCost * 0.9,
