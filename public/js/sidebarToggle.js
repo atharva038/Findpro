@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    const sidebar = document.querySelector(".sidebar"); // Changed to use class instead of ID
-    const mainContent = document.querySelector(".main-content");
-
+   z
     // Check if elements exist
     if (!sidebarToggle || !sidebar) {
         console.error("Sidebar elements not found:", {

@@ -10,7 +10,8 @@ const ServiceProvider = require("../models/ServiceProvider");
 const { upload } = require('../config/cloudinary');
 const cloudinary = require('cloudinary').v2;
 const { generateOTP, sendEmailOTP, sendSmsOTP } = require('../utils/otp');
-
+const crypto = require('crypto'); // Add this line to import the crypto module
+const { sendResetEmail } = require("./utils/email"); // Make sure this is also imported
 // Render registration form
 router.get("/register", (req, res) => {
   res.render("pages/register");
@@ -327,12 +328,55 @@ router.post("/login", (req, res, next) => {
       return res.redirect("/login");
     }
 
-    req.logIn(user, (err) => {
+    req.logIn(user, async (err) => {
       if (err) {
         return next(err);
       }
 
+      // Set user ID in session
       req.session.userId = user._id;
+
+      // Handle remember me functionality
+      if (req.body.rememberMe) {
+        // Generate a secure remember me token instead of storing raw password
+        const rememberToken = crypto.randomBytes(32).toString('hex');
+
+        // Store token in database (add this field to your User model)
+        user.rememberToken = rememberToken;
+        user.rememberTokenExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        await user.save();
+
+        // Set cookies with encoded values
+        const encodedUsername = encodeURIComponent(req.body.username);
+
+        // Set secure cookies that last for 30 days
+        res.cookie('username', encodedUsername, {
+          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+
+        res.cookie('rememberToken', rememberToken, {
+          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+
+        res.cookie('rememberMe', 'true', {
+          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+      } else {
+        // If remember me is not checked, clear any existing cookies
+        res.clearCookie('username');
+        res.clearCookie('rememberToken');
+        res.clearCookie('rememberMe');
+      }
+
       req.flash("success", "Welcome back to KnockNFix! You are logged in");
       let redirectUrl = res.locals.redirectUrl || "/";
       return res.redirect(redirectUrl);
@@ -341,14 +385,166 @@ router.post("/login", (req, res, next) => {
 });
 
 // Logout route
-router.get("/logout", (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      return next(err);
+// Logout route
+router.get("/logout", async (req, res, next) => {
+  try {
+    // If user has a remember token, clear it from the database
+    if (req.user && req.user._id) {
+      await User.findByIdAndUpdate(req.user._id, {
+        $unset: { rememberToken: "", rememberTokenExpires: "" }
+      });
     }
-    req.flash("success", "User logged out successfully");
-    res.redirect("/login");
-  });
+
+    // Logout the user
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+
+      // Clear all authentication cookies
+      res.clearCookie('username');
+      res.clearCookie('rememberToken');
+      res.clearCookie('rememberMe');
+
+      req.flash("success", "User logged out successfully");
+      res.redirect("/login");
+    });
+  } catch (err) {
+    console.error("Error during logout:", err);
+    return next(err);
+  }
 });
+
+router.get("/forgot-password", (req, res) => {
+  res.render("pages/forgot-password");
+});
+// Forgot Password route - handle submission
+router.post("/forgot-password", [
+  body("email")
+    .trim()
+    .notEmpty().withMessage("Email is required")
+    .isEmail().withMessage("Please enter a valid email address")
+    .normalizeEmail()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map((err) => err.msg);
+      req.flash("error", errorMessages.join(", "));
+      return res.redirect("/forgot-password");
+    }
+
+    const { email } = req.body;
+
+    // Check if user exists with this email
+    const user = await User.findOne({ username: email });
+
+    if (!user) {
+      // Don't reveal that the user doesn't exist for security
+      req.flash("success", "If your email is registered, you will receive password reset instructions shortly");
+      return res.redirect("/forgot-password");
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    // Save token to user
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpiry;
+    await user.save();
+
+    // Generate reset URL
+    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+
+    // Send email with reset link
+    await sendResetEmail(user.username, user.name, resetUrl);
+
+    req.flash("success", "Password reset instructions have been sent to your email");
+    res.redirect("/forgot-password");
+  } catch (err) {
+    console.error("Error in forgot password process:", err);
+    req.flash("error", "An error occurred. Please try again later");
+    res.redirect("/forgot-password");
+  }
+});
+router.get("/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find user with this token and check if it's not expired
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      // Token is invalid or expired
+      return res.render("pages/reset-password", {
+        token,
+        tokenExpired: true
+      });
+    }
+
+    // Token is valid
+    res.render("pages/reset-password", {
+      token,
+      tokenExpired: false
+    });
+  } catch (err) {
+    console.error("Error checking reset token:", err);
+    req.flash("error", "An error occurred. Please try again later");
+    res.redirect("/forgot-password");
+  }
+});
+
+router.post("/reset-password/:token", [
+  body("password")
+    .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long"),
+  body("confirmPassword")
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    })
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map((err) => err.msg);
+      req.flash("error", errorMessages.join(", "));
+      return res.redirect(`/reset-password/${req.params.token}`);
+    }
+
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // Find user with this token and check if it's not expired
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      req.flash("error", "Password reset token is invalid or has expired");
+      return res.redirect("/forgot-password");
+    }
+
+    // Update password and clear reset token
+    await user.setPassword(password);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    req.flash("success", "Your password has been updated. You can now log in with your new password");
+    res.redirect("/login");
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    req.flash("error", "An error occurred while resetting your password");
+    res.redirect(`/reset-password/${req.params.token}`);
+  }
+});
+
 
 module.exports = router;
