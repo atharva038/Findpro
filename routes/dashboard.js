@@ -30,10 +30,26 @@ async function getProviderDashboardData(userId) {
   let serviceProviderData = await ServiceProvider.findOne({ user: userId });
 
   if (!serviceProviderData) {
+    // Create default availability for each day
+    const defaultAvailability = {};
+    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
+      defaultAvailability[day] = {
+        isAvailable: true,
+        slots: [{
+          startTime: "09:00",
+          endTime: "17:00",
+          isActive: true
+        }]
+      };
+    });
+
     serviceProviderData = await ServiceProvider.create({
       user: userId,
       servicesOffered: [],
-      experience: 0
+      experience: 0,
+      isActive: true,
+      availability: defaultAvailability,
+      earnings: 0
     });
   }
 
@@ -101,6 +117,42 @@ async function getProviderDashboardData(userId) {
   };
 
   const ratings = await calculateProviderRatings(serviceProviderData._id);
+
+  // Calculate total earnings from completed bookings
+  const totalEarnings = bookings
+    .filter(b => b.status === "completed" && b.finalPayment && b.finalPayment.paid)
+    .reduce((sum, booking) => sum + (booking.finalPayment.amount || 0), 0);
+
+  // Update provider earnings if there are completed bookings
+  if (totalEarnings > 0 && totalEarnings !== serviceProviderData.earnings) {
+    await ServiceProvider.findByIdAndUpdate(
+      serviceProviderData._id,
+      { earnings: totalEarnings }
+    );
+  }
+
+  // Ensure availability data is properly structured
+  if (!providerWithServices.availability) {
+    const defaultAvailability = {};
+    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
+      defaultAvailability[day] = {
+        isAvailable: true,
+        slots: [{
+          startTime: "09:00",
+          endTime: "17:00",
+          isActive: true
+        }]
+      };
+    });
+
+    await ServiceProvider.findByIdAndUpdate(
+      serviceProviderData._id,
+      { availability: defaultAvailability }
+    );
+
+    // Add availability to the provider object for rendering
+    providerWithServices.availability = defaultAvailability;
+  }
 
   return {
     provider: providerWithServices || serviceProviderData,
@@ -202,8 +254,7 @@ router.get('/registerService', async (req, res) => {
   }
 });
 
-router.post(
-  "/registerService",
+router.post("/registerService",
   [
     body("serviceCategories").notEmpty().withMessage("Service category is required."),
     body("services").notEmpty().withMessage("Service is required."),
@@ -471,6 +522,87 @@ router.post('/:id/advance-payment', isLoggedIn, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to process payment'
+    });
+  }
+});
+
+// Update or add the following route for availability changes
+
+router.post('/provider/update-availability', isLoggedIn, async (req, res) => {
+  try {
+    console.log('Updating provider availability:', JSON.stringify(req.body, null, 2));
+    
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        error: 'Provider profile not found'
+      });
+    }
+
+    // Update overall active status
+    provider.isActive = req.body.isActive;
+    
+    // Update availability for each day
+    if (req.body.availability) {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      
+      // Validate and ensure complete availability data
+      days.forEach(day => {
+        if (!req.body.availability[day]) {
+          req.body.availability[day] = {
+            isAvailable: true,
+            slots: [{
+              startTime: "09:00",
+              endTime: "17:00",
+              isActive: true
+            }]
+          };
+        }
+        
+        // Ensure slots array exists and has at least one entry
+        if (!req.body.availability[day].slots || !Array.isArray(req.body.availability[day].slots)) {
+          req.body.availability[day].slots = [{
+            startTime: "09:00",
+            endTime: "17:00",
+            isActive: true
+          }];
+        }
+        
+        // If day is available but no slots, add default
+        if (req.body.availability[day].isAvailable && req.body.availability[day].slots.length === 0) {
+          req.body.availability[day].slots.push({
+            startTime: "09:00",
+            endTime: "17:00",
+            isActive: true
+          });
+        }
+        
+        // Validate each slot has proper format
+        req.body.availability[day].slots = req.body.availability[day].slots.map(slot => ({
+          startTime: slot.startTime || "09:00",
+          endTime: slot.endTime || "17:00",
+          isActive: typeof slot.isActive === 'boolean' ? slot.isActive : true
+        }));
+      });
+      
+      // Replace provider's availability with validated data
+      provider.availability = req.body.availability;
+    }
+
+    await provider.save();
+    console.log('Provider availability saved successfully');
+
+    res.json({
+      success: true,
+      message: 'Availability settings updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating availability:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update availability settings: ' + error.message
     });
   }
 });

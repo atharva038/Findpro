@@ -43,7 +43,6 @@ router.get('/dashboard', async (req, res) => {
     }
 });
 
-// Users Management
 // Update this route
 router.get('/users', async (req, res) => {
     try {

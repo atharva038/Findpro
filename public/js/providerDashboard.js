@@ -516,4 +516,218 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // AVAILABILITY MANAGEMENT
+    const saveAvailabilityBtn = document.getElementById('saveAvailabilityBtn');
+    const dayToggles = document.querySelectorAll('.day-toggle');
+    const addSlotBtns = document.querySelectorAll('.add-slot-btn');
+
+    if (!saveAvailabilityBtn) {
+        // Add a save button if it doesn't exist
+        const settingsHeader = document.querySelector('#settings .section-header');
+        if (settingsHeader) {
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.id = 'saveAvailabilityBtn';
+            saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            settingsHeader.appendChild(saveBtn);
+        }
+    }
+
+    // Toggle day availability
+    dayToggles.forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            const day = this.getAttribute('data-day');
+            const slotsContainer = document.getElementById(`${day}-slots`);
+
+            if (this.checked) {
+                slotsContainer.style.display = 'block';
+            } else {
+                slotsContainer.style.display = 'none';
+            }
+        });
+    });
+
+    // Add new time slot
+    addSlotBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const day = this.getAttribute('data-day');
+            const slotsContainer = document.getElementById(`${day}-slots`);
+            const slotRows = slotsContainer.querySelectorAll('.slot-row');
+            const newIndex = slotRows.length;
+
+            // Create new slot HTML
+            const slotRow = document.createElement('div');
+            slotRow.className = 'slot-row d-flex align-items-center mb-2';
+            slotRow.setAttribute('data-index', newIndex);
+
+            slotRow.innerHTML = `
+                <div class="time-range flex-grow-1">
+                    <div class="input-group">
+                        <input type="time" class="form-control slot-start" value="09:00" name="${day}-start-${newIndex}" required>
+                        <span class="input-group-text">to</span>
+                        <input type="time" class="form-control slot-end" value="17:00" name="${day}-end-${newIndex}" required>
+                    </div>
+                </div>
+                <div class="form-check form-switch ms-3 me-2">
+                    <input class="form-check-input slot-active" type="checkbox" id="${day}-slot-${newIndex}-active" checked>
+                    <label class="form-check-label" for="${day}-slot-${newIndex}-active">Active</label>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-slot-btn">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+
+            slotsContainer.appendChild(slotRow);
+
+            // Add event listener to new remove button
+            const removeBtn = slotRow.querySelector('.remove-slot-btn');
+            removeBtn.addEventListener('click', removeSlot);
+        });
+    });
+
+    // Remove time slot
+    const removeSlotBtns = document.querySelectorAll('.remove-slot-btn');
+    removeSlotBtns.forEach(btn => {
+        btn.addEventListener('click', removeSlot);
+    });
+
+    function removeSlot() {
+        if (confirm('Are you sure you want to remove this time slot?')) {
+            this.closest('.slot-row').remove();
+        }
+    }
+
+    // Add event listeners to all slot toggles
+    document.querySelectorAll('.slot-active').forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            // Save changes automatically when toggling a slot's active status
+            saveAvailability();
+        });
+    });
+
+    // Save all availability settings
+    const saveAvailBtn = document.getElementById('saveAvailabilityBtn');
+    if (saveAvailBtn) {
+        saveAvailBtn.addEventListener('click', saveAvailability);
+    }
+
+    function saveAvailability() {
+        const saveBtn = document.getElementById('saveAvailabilityBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        saveBtn.classList.add('saving');
+
+        // Prepare availability data
+        const availabilityData = {
+            isActive: document.getElementById('overall-availability').checked,
+            availability: {}
+        };
+
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        days.forEach(day => {
+            const isAvailable = document.getElementById(`${day}-available`).checked;
+            const slots = [];
+
+            if (isAvailable) {
+                const slotRows = document.querySelectorAll(`#${day}-slots .slot-row`);
+
+                slotRows.forEach(row => {
+                    const startTime = row.querySelector('.slot-start').value;
+                    const endTime = row.querySelector('.slot-end').value;
+                    const isActive = row.querySelector('.slot-active').checked;
+
+                    // Validate times before adding
+                    if (startTime && endTime) {
+                        slots.push({
+                            startTime,
+                            endTime,
+                            isActive
+                        });
+                    }
+                });
+            }
+
+            // Always ensure at least one slot per day
+            if (slots.length === 0 && isAvailable) {
+                slots.push({
+                    startTime: "09:00",
+                    endTime: "17:00",
+                    isActive: true
+                });
+            }
+
+            availabilityData.availability[day] = {
+                isAvailable,
+                slots
+            };
+        });
+
+        console.log('Saving availability data:', availabilityData);
+
+        // Send to server
+        fetch('/dashboard/provider/update-availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(availabilityData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const successToast = document.createElement('div');
+                    successToast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+                    successToast.setAttribute('role', 'alert');
+                    successToast.setAttribute('aria-live', 'assertive');
+                    successToast.setAttribute('aria-atomic', 'true');
+                    successToast.style.zIndex = '9999';
+                    successToast.innerHTML = `
+                    <div class="d-flex">
+                      <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i> Availability settings saved successfully!
+                      </div>
+                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+
+                    document.body.appendChild(successToast);
+
+                    // Show the toast
+                    if (typeof bootstrap !== 'undefined') {
+                        const toast = new bootstrap.Toast(successToast, { delay: 5000 });
+                        toast.show();
+                        // Remove after hiding
+                        successToast.addEventListener('hidden.bs.toast', function () {
+                            document.body.removeChild(successToast);
+                        });
+                    } else {
+                        // Fallback
+                        setTimeout(() => {
+                            successToast.classList.add('show');
+                            setTimeout(() => {
+                                successToast.classList.remove('show');
+                                setTimeout(() => {
+                                    document.body.removeChild(successToast);
+                                }, 300);
+                            }, 5000);
+                        }, 100);
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to save availability settings');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving availability:', error);
+                alert('Failed to save availability settings. Please try again.');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                saveBtn.classList.remove('saving');
+            });
+    }
 });
