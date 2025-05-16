@@ -90,17 +90,13 @@ KnockNFix is a comprehensive platform that connects users with skilled service p
 
 3. Set up environment variables (see Environment Variables section)
 
-4. Set up the database:
+4. Start the development server:
    ```
-   npm run seed
-   ```
-
-5. Start the development server:
-   ```
-   npm run dev
+   nodemon app.js
    ```
 
-6. Access the application at `http://localhost:3000`
+5. Access the application at `http://localhost:3000`
+
 
 ## Environment Variables
 
@@ -205,34 +201,3 @@ knocknfix/
 - **POST /complaints** - Submit complaint
 - **GET /complaints** - List user's complaints
 - **GET /complaints/:id** - View complaint details
-
-## Deployment
-
-### Prerequisites
-- Node.js 16+ installed
-- MongoDB instance
-- Cloudinary account
-- Razorpay account (for India) or alternative payment processor
-
-### Production Setup
-1. Set environment variables for production
-2. Install PM2 globally: `npm install pm2 -g`
-3. Build assets if needed: `npm run build`
-4. Start the server with PM2: `pm2 start server.js --name knocknfix`
-5. Configure Nginx as reverse proxy
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add some amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-© 2024 KnockNFix Private Limited. All rights reserved.
