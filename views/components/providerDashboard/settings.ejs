@@ -1,35 +1,82 @@
 <section id="settings" class="dashboard-section">
   <div class="section-header">
     <h2><i class="fas fa-cog me-2"></i>Settings</h2>
+    <button type="button" class="btn btn-primary" id="saveAvailabilityBtn">
+      <i class="fas fa-save me-2"></i>Save Changes
+    </button>
   </div>
 
   <div class="content-card">
     <!-- Availability settings -->
     <div class="setting-section">
       <h4>Availability</h4>
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Set your working hours to determine when you're available for bookings. Only customers booking during these
+        hours will see your profile.
+      </div>
       <form id="availabilityForm">
-        <div class="day-availability">
-          <label class="day-label">Monday</label>
+        <div class="mb-4">
           <div class="form-check form-switch">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="monday-available"
-              checked
-            />
-            <label class="form-check-label" for="monday-available"
-              >Available</label
-            >
-          </div>
-          <div class="time-range">
-            <div class="input-group">
-              <input type="time" class="form-control" value="09:00" />
-              <span class="input-group-text">to</span>
-              <input type="time" class="form-control" value="18:00" />
-            </div>
+            <input class="form-check-input" type="checkbox" id="overall-availability" <%=provider.isActive ? 'checked'
+              : '' %>>
+            <label class="form-check-label fw-bold" for="overall-availability">
+              Active Status (When turned off, you will not be visible to customers)
+            </label>
           </div>
         </div>
-        <!-- Repeat for other days -->
+
+        <% const days=['monday', 'tuesday' , 'wednesday' , 'thursday' , 'friday' , 'saturday' , 'sunday' ];
+          days.forEach(day=> {
+          const dayData = provider.availability && provider.availability[day] ? provider.availability[day] : {
+          isAvailable: true, slots: [] };
+          if (dayData.slots.length === 0) {
+          dayData.slots.push({ startTime: "09:00", endTime: "17:00", isActive: true });
+          }
+          %>
+          <div class="day-container mb-4" data-day="<%= day %>">
+            <div class="day-header d-flex align-items-center mb-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input day-toggle" type="checkbox" id="<%= day %>-available"
+                  data-day="<%= day %>" <%=dayData.isAvailable ? 'checked' : '' %>
+                >
+                <label class="form-check-label fw-bold text-capitalize" for="<%= day %>-available">
+                  <%= day %>
+                </label>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-primary ms-auto add-slot-btn" data-day="<%= day %>">
+                <i class="fas fa-plus me-1"></i> Add Slot
+              </button>
+            </div>
+
+            <div class="slots-container" id="<%= day %>-slots" <%=!dayData.isAvailable ? 'style="display:none"' : '' %>>
+              <% dayData.slots.forEach((slot, index)=> { %>
+                <div class="slot-row d-flex align-items-center mb-2" data-index="<%= index %>">
+                  <div class="time-range flex-grow-1">
+                    <div class="input-group">
+                      <input type="time" class="form-control slot-start" value="<%= slot.startTime %>"
+                        name="<%= day %>-start-<%= index %>" required>
+                      <span class="input-group-text">to</span>
+                      <input type="time" class="form-control slot-end" value="<%= slot.endTime %>"
+                        name="<%= day %>-end-<%= index %>" required>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch ms-3 me-2">
+                    <input class="form-check-input slot-active" type="checkbox" id="<%= day %>-slot-<%= index %>-active"
+                      <%=slot.isActive ? 'checked' : '' %>
+                    >
+                    <label class="form-check-label" for="<%= day %>-slot-<%= index %>-active">Active</label>
+                  </div>
+                  <% if (index> 0) { %>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-slot-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    <% } %>
+                </div>
+                <% }); %>
+            </div>
+          </div>
+          <% }); %>
       </form>
     </div>
 
@@ -38,26 +85,12 @@
       <h4>Notifications</h4>
       <div class="notification-settings">
         <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="email-notifications"
-            checked
-          />
-          <label class="form-check-label" for="email-notifications"
-            >Email Notifications</label
-          >
+          <input class="form-check-input" type="checkbox" id="email-notifications" checked />
+          <label class="form-check-label" for="email-notifications">Email Notifications</label>
         </div>
         <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="sms-notifications"
-            checked
-          />
-          <label class="form-check-label" for="sms-notifications"
-            >SMS Notifications</label
-          >
+          <input class="form-check-input" type="checkbox" id="sms-notifications" checked />
+          <label class="form-check-label" for="sms-notifications">SMS Notifications</label>
         </div>
       </div>
     </div>
@@ -72,3 +105,28 @@
     </div>
   </div>
 </section>
+<style>
+  .slot-row {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .slot-row:hover {
+    background-color: #e9ecef;
+  }
+
+  .day-toggle:checked+label {
+    color: #4f46e5;
+  }
+
+  #saveAvailabilityBtn {
+    transition: all 0.3s ease;
+  }
+
+  #saveAvailabilityBtn.saving {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+</style>

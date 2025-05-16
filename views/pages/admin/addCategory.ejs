@@ -1,200 +1,380 @@
 <% layout('/layouts/admin-layout') %>
-<% 
-// Set page variables 
-locals.title = "Add Category"; 
-locals.currentPath = "/admin/categories"; 
-locals.breadcrumbs = [
-  { text: "Categories", url: "/admin/categories" }, 
-  { text: "Add Category", active: true }
-]; 
-%>
-<div class="admin-section-header">
-    <h2><i class="fas fa-plus-circle me-2"></i>Add New Category</h2>
-    <div>
-        <a href="/admin/categories" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back to Categories
-        </a>
-    </div>
-</div>
+    <% locals.title="Add Category" ; locals.currentPath="/admin/categories" ; locals.breadcrumbs=[ { text: "Categories"
+        , url: "/admin/categories" }, { text: "Add Category" , active: true } ]; %>
+        <div class="admin-section-header">
+            <h2><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Category</h2>
+            <div>
+                <a href="/admin/categories" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Categories
+                </a>
+            </div>
+        </div>
 
-<div class="admin-card">
-    <div class="admin-card-body">
-        <form action="/admin/categories" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-            <div class="row">
-                <div class="col-md-8">
-                    <!-- Category Name -->
-                    <div class="mb-4">
-                        <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                        <div class="invalid-feedback">
-                            Please provide a category name.
-                        </div>
-                    </div>
-
-                    <!-- Category Description -->
-                    <div class="mb-4">
-                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
-                        <div class="invalid-feedback">
-                            Please provide a category description.
-                        </div>
-                        <div class="form-text">Provide a clear and concise description of services in this category.</div>
-                    </div>
-
-                    <!-- Category Status -->
-                    <div class="mb-4">
-                        <label class="form-label d-block">Status</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="isActive" id="statusActive" value="true" checked>
-                            <label class="form-check-label" for="statusActive">Active</label>
-                        </div>
-                        <div class="form-text">Inactive categories won't be displayed to users</div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <!-- Category Image - Updated for better UX -->
-                    <div class="mb-4">
-                        <label class="form-label">Category Image <span class="text-danger">*</span></label>
-                        <div class="image-upload-container">
-                            <div class="image-preview" id="imagePreview">
-                                <img id="preview" src="/img/placeholder-image.png" alt="Image Preview">
-                                <div class="upload-overlay">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Upload Image</span>
+        <div class="admin-card">
+            <div class="admin-card-body">
+                <form action="/admin/categories" method="POST" enctype="multipart/form-data" class="needs-validation"
+                    novalidate>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Category Name -->
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Category Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="invalid-feedback">
+                                    Please provide a category name.
                                 </div>
                             </div>
+
+                            <!-- Category Description -->
+                            <div class="mb-4">
+                                <label for="description" class="form-label">Description <span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="4"
+                                    required></textarea>
+                                <div class="invalid-feedback">
+                                    Please provide a category description.
+                                </div>
+                                <div class="form-text">Provide a clear and concise description of services in this
+                                    category.</div>
+                            </div>
+
+                            <!-- Category Status -->
+                            <div class="mb-4">
+                                <label class="form-label d-block">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="isActive" id="statusActive"
+                                        value="true" checked>
+                                    <label class="form-check-label" for="statusActive">Active</label>
+                                </div>
+                                <div class="form-text">Inactive categories won't be displayed to users</div>
+                            </div>
                         </div>
-                        <input type="file" class="form-control mt-2" id="image" name="image" accept="image/*" required>
-                        <div class="invalid-feedback">
-                            Please select an image for this category.
+
+                        <div class="col-md-4">
+                            <!-- Category Image - Updated for better UX -->
+                            <div class="mb-4">
+                                <label class="form-label">Category Image <span class="text-danger">*</span></label>
+                                <div class="image-upload-container">
+                                    <div class="image-preview" id="imagePreview">
+                                        <img id="preview" src="/img/placeholder-image.png" alt="Image Preview">
+                                        <div class="upload-overlay">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span>Upload Image</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" class="form-control mt-2" id="image" name="image" accept="image/*"
+                                    required>
+                                <div class="invalid-feedback">
+                                    Please select an image for this category.
+                                </div>
+                                <div class="form-text mt-2">Recommended size: 400x300 pixels (Max. 2MB)</div>
+                            </div>
                         </div>
-                        <div class="form-text mt-2">Recommended size: 400x300 pixels (Max. 2MB)</div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Submit Buttons -->
-            <div class="border-top pt-4 mt-4 d-flex justify-content-end">
-                <a href="/admin/categories" class="btn btn-outline-secondary me-2">Cancel</a>
-                <button type="submit" class="btn btn-primary px-4">
-                    <i class="fas fa-save me-1"></i> Save Category
-                </button>
+                    <!-- Submit Buttons -->
+                    <div class="border-top pt-4 mt-4 d-flex justify-content-end">
+                        <a href="/admin/categories" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i> Save Category
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<% locals.pageScript = `
-    // Image preview functionality
-    const imageInput = document.getElementById('image');
-    const previewImg = document.getElementById('preview');
-    
-    imageInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            // File size validation
-            if (this.files[0].size > 2 * 1024 * 1024) {
-                alert('File size too large! Maximum size is 2MB.');
-                this.value = '';
-                return;
+        <style>
+            /* Enhanced base styling */
+            .admin-card {
+                border: none;
+                box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+                border-radius: 0.75rem;
+                overflow: hidden;
+                margin-bottom: 2rem;
+                background-color: #fff;
             }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
+
+            .admin-card-body {
+                padding: 1.75rem;
             }
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-    
-    // Make the image preview clickable to trigger file input
-    document.getElementById('imagePreview').addEventListener('click', function() {
-        imageInput.click();
-    });
-    
-    // Form validation
-    (function() {
-        'use strict'
-        
-        // Fetch all forms we want to apply validation styles to
-        const forms = document.querySelectorAll('.needs-validation');
-        
-        // Loop over them and prevent submission
-        Array.from(forms).forEach(function(form) {
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
+
+            .form-label {
+                font-weight: 600;
+                color: #495057;
+                margin-bottom: 0.5rem;
+            }
+
+            .form-control {
+                border-radius: 0.5rem;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s ease;
+                box-shadow: none;
+            }
+
+            .form-control:focus {
+                border-color: #4e73df;
+                box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
+            }
+
+            textarea.form-control {
+                min-height: 120px;
+            }
+
+            .form-text {
+                color: #6c757d;
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+            }
+
+            /* Header styling */
+            .admin-section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .admin-section-header h2 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #333;
+                margin: 0;
+            }
+
+            /* Button styling */
+            .btn {
+                font-weight: 500;
+                padding: 0.625rem 1.25rem;
+                border-radius: 0.5rem;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+                background-color: #4e73df;
+                border-color: #4e73df;
+                box-shadow: 0 2px 3px rgba(78, 115, 223, 0.15);
+            }
+
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2e59d9;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+            }
+
+            .btn-outline-secondary:hover {
+                background-color: #f8f9fa;
+                transform: translateY(-1px);
+            }
+
+            /* Image upload styling */
+            .image-upload-container {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+
+            .image-preview {
+                width: 100%;
+                aspect-ratio: 4/3;
+                border-radius: 12px;
+                overflow: hidden;
+                position: relative;
+                cursor: pointer;
+                border: 2px dashed #d1d9e6;
+                background-color: #f8f9fa;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            }
+
+            .image-preview:hover {
+                border-color: #4e73df;
+                box-shadow: 0 6px 12px rgba(78, 115, 223, 0.15);
+            }
+
+            .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: all 0.3s ease;
+            }
+
+            .upload-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to bottom, rgba(78, 115, 223, 0.85), rgba(41, 66, 146, 0.85));
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .image-preview:hover .upload-overlay {
+                opacity: 1;
+            }
+
+            .upload-overlay i {
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+
+            /* Form switch styling */
+            .form-switch .form-check-input {
+                width: 3em;
+                height: 1.5em;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(0, 0, 0, 0.25)'/%3e%3c/svg%3e");
+                transition: all 0.3s ease;
+            }
+
+            .form-check-input:checked {
+                background-color: #4e73df;
+                border-color: #4e73df;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+                transform: scale(1.05);
+            }
+
+            /* Upload progress indicator */
+            .upload-progress {
+                height: 4px;
+                background-color: #e2e8f0;
+                border-radius: 2px;
+                overflow: hidden;
+                margin-top: 0.5rem;
+                display: none;
+            }
+
+            .upload-progress-bar {
+                height: 100%;
+                width: 0;
+                background-color: #4e73df;
+                transition: width 0.3s ease;
+            }
+
+            /* Validation styles */
+            .form-control.is-valid {
+                border-color: #1cc88a;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%231cc88a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(.375em + .1875rem) center;
+                background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+            }
+
+            /* Form spacing */
+            .mb-4 {
+                margin-bottom: 1.5rem;
+            }
+        </style>
+
+        <script>
+            // Image preview functionality with enhanced feedback
+            const imageInput = document.getElementById('image');
+            const previewImg = document.getElementById('preview');
+            const imagePreviewContainer = document.getElementById('imagePreview');
+
+            // Add progress indicator to form
+            const progressIndicator = document.createElement('div');
+            progressIndicator.className = 'upload-progress';
+            progressIndicator.innerHTML = '<div class="upload-progress-bar"></div>';
+            imageInput.parentNode.insertBefore(progressIndicator, imageInput.nextSibling);
+
+            imageInput.addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    // File size validation
+                    if (this.files[0].size > 2 * 1024 * 1024) {
+                        alert('File size too large! Maximum size is 2MB.');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Show progress indicator
+                    progressIndicator.style.display = 'block';
+                    const progressBar = progressIndicator.querySelector('.upload-progress-bar');
+                    let progress = 0;
+
+                    // Simulate progress for better UX
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        progressBar.style.width = progress + '%';
+
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                progressIndicator.style.display = 'none';
+                            }, 500);
+                        }
+                    }, 20);
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+
+                        // Add a nice little animation
+                        previewImg.style.opacity = '0';
+                        setTimeout(() => {
+                            previewImg.style.opacity = '1';
+                        }, 50);
+
+                        // Add success feedback
+                        imagePreviewContainer.style.borderColor = '#1cc88a';
+                        setTimeout(() => {
+                            imagePreviewContainer.style.borderColor = '';
+                        }, 2000);
+                    }
+                    reader.readAsDataURL(this.files[0]);
                 }
-                
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
-`; %>
+            });
 
-<style>
-    .image-upload-container {
-        width: 100%;
-        max-width: 300px;
-        margin: 0 auto;
-    }
+            // Make the image preview clickable to trigger file input
+            document.getElementById('imagePreview').addEventListener('click', function () {
+                imageInput.click();
+            });
 
-    .image-preview {
-        width: 100%;
-        aspect-ratio: 4/3;
-        border-radius: 8px;
-        overflow: hidden;
-        position: relative;
-        cursor: pointer;
-        border: 2px dashed #ced4da;
-        background-color: #f8f9fa;
-        transition: all 0.2s ease;
-    }
-    
-    .image-preview:hover {
-        border-color: #4e73df;
-    }
+            // Form validation with better UX
+            (function () {
+                'use strict'
 
-    .image-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: all 0.3s ease;
-    }
+                const forms = document.querySelectorAll('.needs-validation');
 
-    .upload-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+                // Add input event listeners for real-time validation
+                document.querySelectorAll('.form-control').forEach(input => {
+                    input.addEventListener('input', function () {
+                        if (this.checkValidity()) {
+                            this.classList.add('is-valid');
+                            this.classList.remove('is-invalid');
+                        } else {
+                            this.classList.remove('is-valid');
+                            this.classList.add('is-invalid');
+                        }
+                    });
+                });
 
-    .image-preview:hover .upload-overlay {
-        opacity: 1;
-    }
+                Array.from(forms).forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
 
-    .upload-overlay i {
-        font-size: 32px;
-        margin-bottom: 8px;
-    }
-    
-    .form-switch .form-check-input {
-        width: 3em;
-        height: 1.5em;
-    }
-    
-    .form-check-input:checked {
-        background-color: #4e73df;
-        border-color: #4e73df;
-    }
-</style>
+                            // Scroll to first invalid element
+                            const firstInvalid = form.querySelector(':invalid');
+                            if (firstInvalid) {
+                                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstInvalid.focus({ preventScroll: true });
+                            }
+                        }
+
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            })();
+        </script>

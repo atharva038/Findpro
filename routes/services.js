@@ -54,46 +54,136 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
 router.get("/:id/providers", async (req, res) => {
   try {
     const serviceId = req.params.id;
-
-    // Fetch the service and its category
-    const service = await Service.findById(serviceId).populate("category");
+    const service = await Service.findById(serviceId).populate("category").lean();
 
     if (!service) {
       req.flash("error", "Service not found");
       return res.redirect("/services");
     }
 
-    // Find all providers who offer this specific service
+    // Get the selected date and time from query params (if provided)
+    let selectedDate = req.query.date ? new Date(req.query.date) : new Date();
+    let selectedTime = req.query.time || "";
+
+    // Find providers who offer this service 
     const providers = await ServiceProvider.find({
+      // Only find active providers
+      isActive: true,
+      // Find providers who offer this service
       "servicesOffered.services.service": serviceId
     })
       .populate({
-        path: 'user',
+        path: "user",
         select: 'name profileImage addresses phone'
       })
       .lean();
 
+    // Debug information
+    console.log(`Found ${providers.length} providers for service ${serviceId}`);
+
+    // Filter providers based on availability
+    const availableProviders = providers.filter(provider => {
+      // If no availability data, assume available
+      if (!provider.availability) {
+        console.log(`Provider ${provider._id} has no availability data, assuming available`);
+        return true;
+      }
+
+      // Get day of week
+      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][selectedDate.getDay()];
+      console.log(`Checking availability for ${dayOfWeek}`);
+
+      // Check if provider is available on this day
+      const dayAvailability = provider.availability[dayOfWeek];
+      if (!dayAvailability) {
+        console.log(`Provider ${provider._id} has no data for ${dayOfWeek}`);
+        return false;
+      }
+
+      if (!dayAvailability.isAvailable) {
+        console.log(`Provider ${provider._id} is not available on ${dayOfWeek}`);
+        return false;
+      }
+
+      // If no specific time requested, consider available if the day is available
+      if (!selectedTime) {
+        console.log(`No specific time requested, provider ${provider._id} is available on ${dayOfWeek}`);
+        return true;
+      }
+
+      // Check if provider has any active slot that includes the requested time
+      try {
+        const requestedHour = parseInt(selectedTime.split(':')[0]);
+        const requestedMinute = parseInt(selectedTime.split(':')[1] || '0');
+
+        console.log(`Checking if time ${requestedHour}:${requestedMinute} is in any active slot`);
+
+        // Make sure slots exist
+        if (!dayAvailability.slots || !Array.isArray(dayAvailability.slots) || dayAvailability.slots.length === 0) {
+          console.log(`Provider ${provider._id} has no slots for ${dayOfWeek}`);
+          return false;
+        }
+
+        const available = dayAvailability.slots.some(slot => {
+          // Skip if slot is not active or missing critical data
+          if (!slot || !slot.isActive || !slot.startTime || !slot.endTime) {
+            console.log('Slot is inactive or missing data', slot);
+            return false;
+          }
+
+          try {
+            const startHour = parseInt(slot.startTime.split(':')[0]);
+            const startMinute = parseInt(slot.startTime.split(':')[1] || '0');
+            const endHour = parseInt(slot.endTime.split(':')[0]);
+            const endMinute = parseInt(slot.endTime.split(':')[1] || '0');
+
+            // Convert to minutes for easier comparison
+            const requestedTimeInMinutes = requestedHour * 60 + requestedMinute;
+            const startTimeInMinutes = startHour * 60 + startMinute;
+            const endTimeInMinutes = endHour * 60 + endMinute;
+
+            const isInSlot = requestedTimeInMinutes >= startTimeInMinutes && requestedTimeInMinutes <= endTimeInMinutes;
+            console.log(`Slot ${startHour}:${startMinute} - ${endHour}:${endMinute} is ${isInSlot ? 'available' : 'not available'} for ${requestedHour}:${requestedMinute}`);
+
+            return isInSlot;
+          } catch (error) {
+            console.error(`Error parsing time slot: ${error.message}`, slot);
+            return false;
+          }
+        });
+
+        console.log(`Provider ${provider._id} is ${available ? 'available' : 'not available'} at requested time`);
+        return available;
+      } catch (error) {
+        console.error(`Error checking time availability: ${error.message}`);
+        // If there's an error in time parsing, let's be lenient and show the provider
+        return true;
+      }
+    });
+
+    console.log(`After filtering, ${availableProviders.length} providers are available`);
+
     // Add fallback image if user or profileImage is not available
-    providers.forEach(provider => {
-      // Check if provider.user exists before trying to access its properties
+    availableProviders.forEach(provider => {
       if (!provider.user || !provider.user.profileImage) {
-        // If user is null, create an empty user object
         if (!provider.user) {
           provider.user = {};
         }
-        // Set default profile image
         provider.user.profileImage = 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png';
       }
     });
 
     res.render("pages/providers", {
-      providers,
+      providers: availableProviders,
       service,
       category: service.category,
-      serviceId
+      serviceId,
+      selectedDate: selectedDate.toISOString().split('T')[0],
+      selectedTime
     });
 
   } catch (err) {
@@ -102,72 +192,6 @@ router.get("/:id/providers", async (req, res) => {
     res.redirect("/services");
   }
 });
-// router.get("/:id/:provider/book", async (req, res) => {
-//   try {
-//     // Check if the user is authenticated
-//     if (!req.isAuthenticated()) {
-//       req.flash("error", "You must be logged in to book a service.");
-//       return res.redirect("back"); // Redirects to the previous page
-//     }
-
-//     // Extract service and provider IDs from the URL
-//     const { id: serviceId, provider: providerId } = req.params;
-
-//     // Fetch the specific service by ID
-//     const service = await Service.findById(serviceId)
-//       .populate("category")
-//       .lean();
-
-//     if (!service) {
-//       return res
-//         .status(404)
-//         .render("pages/services", { error: "Service not found." });
-//     }
-
-//     // Fetch the specific provider by ID
-//     const provider = await ServiceProvider.findById(providerId)
-//       .populate("user") // Assuming 'user' has provider details
-//       .populate("servicesOffered")
-//       .lean();
-
-//     if (!provider) {
-//       return res
-//         .status(404)
-//         .render("pages/services", { error: "Provider not found." });
-//     }
-
-//     // Fetch the user's saved addresses
-//     const user = await User.findById(req.user._id).lean(); // Ensure user is authenticated
-//     const addresses = user ? user.addresses : []; // Get saved addresses if they exist
-
-//     // Render the booking page with the fetched service, provider, and addresses
-//     res.render("pages/booking", { service, provider, addresses });
-//   } catch (error) {
-//     console.error("Error fetching service or provider:", error);
-//     res.status(500).send("Server error");
-//   }
-// });
-
-// // Route for customers to book a service
-// router.post("/book/:serviceId", async (req, res) => {
-//   try {
-//     const service = await Service.findById(req.params.serviceId);
-//     if (!service) {
-//       return res.status(404).send("Service not found");
-//     }
-
-//     const booking = new Booking({
-//       customer: req.user.id, // Assuming customer is logged in
-//       service: req.params.serviceId,
-//       provider: service.provider,
-//     });
-
-//     await booking.save();
-//     res.redirect("/bookings");
-//   } catch (err) {
-//     res.status(500).send("Server error");
-//   }
-// });
 // Update the book route
 router.get("/:id/:provider/book", async (req, res) => {
   try {

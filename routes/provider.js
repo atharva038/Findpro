@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Route for service providers to view their services
 router.get("/myservices", async (req, res) => {
-  try {
+  try {getProviderDashboardDat
     const services = await Service.find({ provider: req.user.id });
     res.render("myservices", { services });
   } catch (err) {

@@ -23,110 +23,157 @@
           </ol>
         </nav>
       </header>
-
-      <% if (providers && providers.length> 0) { %>
-        <!-- Provider Cards Grid -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-          <% providers.forEach(provider=> {
-            let matchedService = null;
-            provider.servicesOffered.forEach(offer => {
-            offer.services.forEach(s => {
-            if (s.service == serviceId) matchedService = s;
-            });
-            });
-            %>
-            <div class="col">
-              <div class="card provider-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                <!-- Provider Image -->
-                <div class="position-relative">
-                  <div class="provider-image-wrapper">
-                    <img
-                      src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-                      class="card-img-top" alt="<%= provider.user.name %>">
-                  </div>
-
-                  <!-- Provider Rating Badge -->
-                  <div class="position-absolute top-0 end-0 m-3">
-                    <div class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
-                      <i class="fas fa-star me-1"></i> 4.8
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Provider Info -->
-                <div class="card-body">
-                  <h5 class="card-title text-center fw-bold mb-3">
-                    <%= provider.user.name %>
-                  </h5>
-
-                  <div class="provider-details">
-                    <div class="provider-detail d-flex align-items-center mb-2">
-                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                        <i class="fas fa-briefcase text-primary"></i>
-                      </div>
-                      <div>
-                        <small class="text-muted">Experience</small>
-                        <div class="fw-medium">
-                          <%= matchedService && matchedService.experience ? matchedService.experience : "N/A" %>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="provider-detail d-flex align-items-center mb-2">
-                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                        <i class="fas fa-rupee-sign text-primary"></i>
-                      </div>
-                      <div>
-                        <small class="text-muted">Service Price</small>
-                        <div class="fw-medium">₹<%= matchedService && matchedService.customCost ?
-                            matchedService.customCost : "N/A" %>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="provider-detail d-flex align-items-center mb-2">
-                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                        <i class="fas fa-map-marker-alt text-primary"></i>
-                      </div>
-                      <div>
-                        <small class="text-muted">Location</small>
-                        <div class="fw-medium">
-                          <%= provider.address || "Not Available" %>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Book Now Button -->
-                <div class="card-footer border-0 bg-white pt-0 pb-4">
-                  <form action="/services/<%= serviceId %>/<%= provider._id %>/book" method="get">
-                    <button class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">
-                      <i class="fas fa-calendar-check me-2"></i>Book Now
-                    </button>
-                  </form>
-                </div>
-              </div>
+      <!-- Add this code near the top of your providers.ejs file, just below the header -->
+      <div class="container mb-4">
+        <div class="card border-0 shadow-sm p-3">
+          <form action="/services/<%= serviceId %>/providers" method="get" class="row g-3 align-items-end"
+            id="availability-filter">
+            <div class="col-md-5">
+              <label for="date" class="form-label text-muted">Date</label>
+              <input type="date" class="form-control" id="date" name="date"
+                value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
+                min="<%= new Date().toISOString().split('T')[0] %>">
             </div>
-            <% }); %>
+            <div class="col-md-5">
+              <label for="time" class="form-label text-muted">Preferred Time</label>
+              <input type="time" class="form-control" id="time" name="time" value="<%= selectedTime || '' %>">
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-filter me-2"></i>Filter
+              </button>
+            </div>
+          </form>
         </div>
-        <% } else { %>
-          <!-- Empty State with Bootstrap classes -->
-          <div class="text-center py-5">
-            <div class="card border-0 shadow-sm mx-auto p-5" style="max-width: 500px;">
-              <div class="py-4">
-                <div class="empty-icon rounded-circle bg-light mx-auto mb-4">
-                  <i class="fas fa-user-slash text-secondary"></i>
-                </div>
-                <h3 class="fw-bold mb-3">No Providers Available</h3>
-                <p class="text-muted mb-4">Sorry, there are currently no providers for this service in your area.</p>
-                <a href="/services" class="btn btn-outline-primary rounded-3 px-4">
-                  <i class="fas fa-arrow-left me-2"></i>Back to Services
-                </a>
+      </div>
+
+      <!-- Add this if no providers are available -->
+      <% if (!providers || providers.length===0) { %>
+        <div class="text-center py-5">
+          <div class="card border-0 shadow-sm mx-auto p-5" style="max-width: 500px;">
+            <div class="py-4">
+              <div class="empty-icon rounded-circle bg-light mx-auto mb-4">
+                <i class="fas fa-calendar-times text-secondary"></i>
               </div>
+              <h3 class="fw-bold mb-3">No Providers Available</h3>
+              <p class="text-muted mb-4">
+                Sorry, there are no providers available at the selected date and time. Please try different timing.
+              </p>
+              <a href="/services/<%= serviceId %>/providers" class="btn btn-outline-primary rounded-3 px-4">
+                <i class="fas fa-redo me-2"></i>Show All Available Providers
+              </a>
             </div>
           </div>
-          <% } %>
+        </div>
+        <% } %>
+
+          <!-- Your existing providers list code -->
+          <% if (providers && providers.length> 0) { %>
+            <!-- Provider Cards Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+              <% providers.forEach(provider=> {
+                let matchedService = null;
+                provider.servicesOffered.forEach(offer => {
+                offer.services.forEach(s => {
+                if (s.service == serviceId) matchedService = s;
+                });
+                });
+                %>
+                <div class="col">
+                  <div class="card provider-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <!-- Provider Image -->
+                    <div class="position-relative">
+                      <div class="provider-image-wrapper">
+                        <img
+                          src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+                          class="card-img-top" alt="<%= provider.user.name %>">
+                      </div>
+
+                      <!-- Provider Rating Badge -->
+                      <div class="position-absolute top-0 end-0 m-3">
+                        <div class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
+                          <i class="fas fa-star me-1"></i> 4.8
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Provider Info -->
+                    <div class="card-body">
+                      <h5 class="card-title text-center fw-bold mb-3">
+                        <%= provider.user.name %>
+                      </h5>
+
+                      <div class="provider-details">
+                        <div class="provider-detail d-flex align-items-center mb-2">
+                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                            <i class="fas fa-briefcase text-primary"></i>
+                          </div>
+                          <div>
+                            <small class="text-muted">Experience</small>
+                            <div class="fw-medium">
+                              <%= matchedService && matchedService.experience ? matchedService.experience : "N/A" %>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="provider-detail d-flex align-items-center mb-2">
+                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                            <i class="fas fa-rupee-sign text-primary"></i>
+                          </div>
+                          <div>
+                            <small class="text-muted">Service Price</small>
+                            <div class="fw-medium">₹<%= matchedService && matchedService.customCost ?
+                                matchedService.customCost : "N/A" %>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="provider-detail d-flex align-items-center mb-2">
+                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                          </div>
+                          <div>
+                            <small class="text-muted">Location</small>
+                            <div class="fw-medium">
+                              <%= provider.address || "Not Available" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Book Now Button -->
+                    <div class="card-footer border-0 bg-white pt-0 pb-4">
+                      <form action="/services/<%= serviceId %>/<%= provider._id %>/book" method="get">
+                        <input type="hidden" name="date" value="<%= selectedDate || '' %>">
+                        <input type="hidden" name="time" value="<%= selectedTime || '' %>">
+                        <button class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">
+                          <i class="fas fa-calendar-check me-2"></i>Book Now
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+            </div>
+            <% } else { %>
+              <!-- Empty State with Bootstrap classes -->
+              <div class="text-center py-5">
+                <div class="card border-0 shadow-sm mx-auto p-5" style="max-width: 500px;">
+                  <div class="py-4">
+                    <div class="empty-icon rounded-circle bg-light mx-auto mb-4">
+                      <i class="fas fa-user-slash text-secondary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">No Providers Available</h3>
+                    <p class="text-muted mb-4">Sorry, there are currently no providers for this service in your area.
+                    </p>
+                    <a href="/services" class="btn btn-outline-primary rounded-3 px-4">
+                      <i class="fas fa-arrow-left me-2"></i>Back to Services
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <% } %>
     </div>
   </div>
 

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-   z
     // Check if elements exist
     if (!sidebarToggle || !sidebar) {
         console.error("Sidebar elements not found:", {
