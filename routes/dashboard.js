@@ -29,19 +29,24 @@ async function getCustomerDashboardData(userId) {
 async function getProviderDashboardData(userId) {
   let serviceProviderData = await ServiceProvider.findOne({ user: userId });
 
-  if (!serviceProviderData) {
-    // Create default availability for each day
+  // Create appropriate default availability slots with new timeframe (7 AM to 9 PM)
+  const createDefaultAvailability = () => {
     const defaultAvailability = {};
     ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
       defaultAvailability[day] = {
         isAvailable: true,
         slots: [{
-          startTime: "09:00",
-          endTime: "17:00",
+          startTime: "07:00",  // Changed from 09:00 to 07:00
+          endTime: "21:00",    // Changed from 17:00 to 21:00 (9 PM in 24h format)
           isActive: true
         }]
       };
     });
+    return defaultAvailability;
+  };
+
+  if (!serviceProviderData) {
+    const defaultAvailability = createDefaultAvailability();
 
     serviceProviderData = await ServiceProvider.create({
       user: userId,
@@ -531,7 +536,7 @@ router.post('/:id/advance-payment', isLoggedIn, async (req, res) => {
 router.post('/provider/update-availability', isLoggedIn, async (req, res) => {
   try {
     console.log('Updating provider availability:', JSON.stringify(req.body, null, 2));
-    
+
     const provider = await ServiceProvider.findOne({ user: req.user._id });
 
     if (!provider) {
@@ -543,56 +548,55 @@ router.post('/provider/update-availability', isLoggedIn, async (req, res) => {
 
     // Update overall active status
     provider.isActive = req.body.isActive;
-    
+
     // Update availability for each day
     if (req.body.availability) {
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
+
       // Validate and ensure complete availability data
       days.forEach(day => {
         if (!req.body.availability[day]) {
           req.body.availability[day] = {
             isAvailable: true,
             slots: [{
-              startTime: "09:00",
-              endTime: "17:00",
+              startTime: "07:00",  // Updated default start time
+              endTime: "21:00",    // Updated default end time
               isActive: true
             }]
           };
         }
-        
+
         // Ensure slots array exists and has at least one entry
-        if (!req.body.availability[day].slots || !Array.isArray(req.body.availability[day].slots)) {
+        if (!req.body.availability[day].slots || !Array.isArray(req.body.availability[day].slots) || req.body.availability[day].slots.length === 0) {
           req.body.availability[day].slots = [{
-            startTime: "09:00",
-            endTime: "17:00",
+            startTime: "07:00",  // Updated default start time
+            endTime: "21:00",    // Updated default end time
             isActive: true
           }];
         }
-        
-        // If day is available but no slots, add default
+
         if (req.body.availability[day].isAvailable && req.body.availability[day].slots.length === 0) {
           req.body.availability[day].slots.push({
-            startTime: "09:00",
-            endTime: "17:00",
+            startTime: "07:00",  // Updated default start time
+            endTime: "21:00",    // Updated default end time
             isActive: true
           });
         }
-        
+
         // Validate each slot has proper format
         req.body.availability[day].slots = req.body.availability[day].slots.map(slot => ({
-          startTime: slot.startTime || "09:00",
-          endTime: slot.endTime || "17:00",
+          startTime: slot.startTime || "07:00",  // Updated default
+          endTime: slot.endTime || "21:00",      // Updated default
           isActive: typeof slot.isActive === 'boolean' ? slot.isActive : true
         }));
       });
-      
+
       // Replace provider's availability with validated data
       provider.availability = req.body.availability;
     }
 
     await provider.save();
-    console.log('Provider availability saved successfully');
+
 
     res.json({
       success: true,

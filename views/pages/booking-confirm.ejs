@@ -95,7 +95,9 @@
                 <div class="detail-content">
                   <label>Time</label>
                   <p>
-                    <%= new Date(bookingData.date).toLocaleTimeString('en-US', {hour: '2-digit' , minute:'2-digit'}) %>
+                    <% const bookingTime=new Date(bookingData.date).toLocaleTimeString('en-US', {hour: '2-digit' ,
+                      minute: '2-digit' , hour12: true}); %>
+                      <%= bookingTime %>
                   </p>
                 </div>
               </div>
