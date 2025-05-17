@@ -26,14 +26,21 @@
           </div>
         </div>
 
-        <% const days=['monday', 'tuesday' , 'wednesday' , 'thursday' , 'friday' , 'saturday' , 'sunday' ];
-          days.forEach(day=> {
-          const dayData = provider.availability && provider.availability[day] ? provider.availability[day] : {
-          isAvailable: true, slots: [] };
-          if (dayData.slots.length === 0) {
-          dayData.slots.push({ startTime: "09:00", endTime: "17:00", isActive: true });
-          }
-          %>
+        <% 
+const days=['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+days.forEach(day=> {
+  const dayData = provider.availability && provider.availability[day] ? provider.availability[day] : {
+    isAvailable: true, slots: [] 
+  };
+  
+  if (dayData.slots.length === 0) {
+    dayData.slots.push({ 
+      startTime: "07:00",  // Updated default start time 
+      endTime: "21:00",    // Updated default end time
+      isActive: true 
+    });
+  }
+%>
           <div class="day-container mb-4" data-day="<%= day %>">
             <div class="day-header d-flex align-items-center mb-2">
               <div class="form-check form-switch">

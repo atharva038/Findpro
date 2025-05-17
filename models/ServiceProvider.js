@@ -58,56 +58,56 @@ const serviceProviderSchema = new mongoose.Schema({
     monday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,  // Format: "HH:MM" (24-hour)
-        endTime: String,    // Format: "HH:MM" (24-hour)
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     tuesday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     wednesday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     thursday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     friday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     saturday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     },
     sunday: {
       isAvailable: { type: Boolean, default: true },
       slots: [{
-        startTime: String,
-        endTime: String,
+        startTime: { type: String, default: "07:00" },
+        endTime: { type: String, default: "21:00" },
         isActive: { type: Boolean, default: true }
       }]
     }

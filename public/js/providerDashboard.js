@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Add new time slot
+    // Update the addSlotBtns event listener to set the default time slots from 7 AM to 9 PM
     addSlotBtns.forEach(btn => {
         btn.addEventListener('click', function () {
             const day = this.getAttribute('data-day');
@@ -557,27 +557,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const slotRows = slotsContainer.querySelectorAll('.slot-row');
             const newIndex = slotRows.length;
 
-            // Create new slot HTML
+            // Create new slot HTML with default times from 7 AM to 9 PM
             const slotRow = document.createElement('div');
             slotRow.className = 'slot-row d-flex align-items-center mb-2';
             slotRow.setAttribute('data-index', newIndex);
 
             slotRow.innerHTML = `
-                <div class="time-range flex-grow-1">
-                    <div class="input-group">
-                        <input type="time" class="form-control slot-start" value="09:00" name="${day}-start-${newIndex}" required>
-                        <span class="input-group-text">to</span>
-                        <input type="time" class="form-control slot-end" value="17:00" name="${day}-end-${newIndex}" required>
-                    </div>
+            <div class="time-range flex-grow-1">
+                <div class="input-group">
+                    <input type="time" class="form-control slot-start" value="07:00" name="${day}-start-${newIndex}" required>
+                    <span class="input-group-text">to</span>
+                    <input type="time" class="form-control slot-end" value="21:00" name="${day}-end-${newIndex}" required>
                 </div>
-                <div class="form-check form-switch ms-3 me-2">
-                    <input class="form-check-input slot-active" type="checkbox" id="${day}-slot-${newIndex}-active" checked>
-                    <label class="form-check-label" for="${day}-slot-${newIndex}-active">Active</label>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-danger remove-slot-btn">
-                    <i class="fas fa-trash"></i>
-                </button>
-            `;
+            </div>
+            <div class="form-check form-switch ms-3 me-2">
+                <input class="form-check-input slot-active" type="checkbox" id="${day}-slot-${newIndex}-active" checked>
+                <label class="form-check-label" for="${day}-slot-${newIndex}-active">Active</label>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger remove-slot-btn">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
 
             slotsContainer.appendChild(slotRow);
 
@@ -650,11 +650,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            // Always ensure at least one slot per day
+            // Always ensure at least one slot per day with new default times
             if (slots.length === 0 && isAvailable) {
                 slots.push({
-                    startTime: "09:00",
-                    endTime: "17:00",
+                    startTime: "07:00",  // Updated from 09:00
+                    endTime: "21:00",    // Updated from 17:00
                     isActive: true
                 });
             }
@@ -664,8 +664,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 slots
             };
         });
-
-        console.log('Saving availability data:', availabilityData);
 
         // Send to server
         fetch('/dashboard/provider/update-availability', {

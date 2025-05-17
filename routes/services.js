@@ -54,7 +54,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
+// Inside your /:id/providers route handler:
 router.get("/:id/providers", async (req, res) => {
   try {
     const serviceId = req.params.id;
@@ -69,11 +69,8 @@ router.get("/:id/providers", async (req, res) => {
     let selectedDate = req.query.date ? new Date(req.query.date) : new Date();
     let selectedTime = req.query.time || "";
 
-    // Find providers who offer this service 
-    const providers = await ServiceProvider.find({
-      // Only find active providers
-      isActive: true,
-      // Find providers who offer this service
+    // Find all providers who offer this service 
+    const allProviders = await ServiceProvider.find({
       "servicesOffered.services.service": serviceId
     })
       .populate({
@@ -82,108 +79,155 @@ router.get("/:id/providers", async (req, res) => {
       })
       .lean();
 
-    // Debug information
-    console.log(`Found ${providers.length} providers for service ${serviceId}`);
+    // Get day of week for availability check
+    const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][selectedDate.getDay()];
 
-    // Filter providers based on availability
-    const availableProviders = providers.filter(provider => {
-      // If no availability data, assume available
-      if (!provider.availability) {
-        console.log(`Provider ${provider._id} has no availability data, assuming available`);
-        return true;
-      }
+    // Separate providers into available and unavailable
+    const availableProviders = [];
+    const unavailableProviders = [];
 
-      // Get day of week
-      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][selectedDate.getDay()];
-      console.log(`Checking availability for ${dayOfWeek}`);
-
-      // Check if provider is available on this day
-      const dayAvailability = provider.availability[dayOfWeek];
-      if (!dayAvailability) {
-        console.log(`Provider ${provider._id} has no data for ${dayOfWeek}`);
-        return false;
-      }
-
-      if (!dayAvailability.isAvailable) {
-        console.log(`Provider ${provider._id} is not available on ${dayOfWeek}`);
-        return false;
-      }
-
-      // If no specific time requested, consider available if the day is available
-      if (!selectedTime) {
-        console.log(`No specific time requested, provider ${provider._id} is available on ${dayOfWeek}`);
-        return true;
-      }
-
-      // Check if provider has any active slot that includes the requested time
-      try {
-        const requestedHour = parseInt(selectedTime.split(':')[0]);
-        const requestedMinute = parseInt(selectedTime.split(':')[1] || '0');
-
-        console.log(`Checking if time ${requestedHour}:${requestedMinute} is in any active slot`);
-
-        // Make sure slots exist
-        if (!dayAvailability.slots || !Array.isArray(dayAvailability.slots) || dayAvailability.slots.length === 0) {
-          console.log(`Provider ${provider._id} has no slots for ${dayOfWeek}`);
-          return false;
-        }
-
-        const available = dayAvailability.slots.some(slot => {
-          // Skip if slot is not active or missing critical data
-          if (!slot || !slot.isActive || !slot.startTime || !slot.endTime) {
-            console.log('Slot is inactive or missing data', slot);
-            return false;
-          }
-
-          try {
-            const startHour = parseInt(slot.startTime.split(':')[0]);
-            const startMinute = parseInt(slot.startTime.split(':')[1] || '0');
-            const endHour = parseInt(slot.endTime.split(':')[0]);
-            const endMinute = parseInt(slot.endTime.split(':')[1] || '0');
-
-            // Convert to minutes for easier comparison
-            const requestedTimeInMinutes = requestedHour * 60 + requestedMinute;
-            const startTimeInMinutes = startHour * 60 + startMinute;
-            const endTimeInMinutes = endHour * 60 + endMinute;
-
-            const isInSlot = requestedTimeInMinutes >= startTimeInMinutes && requestedTimeInMinutes <= endTimeInMinutes;
-            console.log(`Slot ${startHour}:${startMinute} - ${endHour}:${endMinute} is ${isInSlot ? 'available' : 'not available'} for ${requestedHour}:${requestedMinute}`);
-
-            return isInSlot;
-          } catch (error) {
-            console.error(`Error parsing time slot: ${error.message}`, slot);
-            return false;
-          }
-        });
-
-        console.log(`Provider ${provider._id} is ${available ? 'available' : 'not available'} at requested time`);
-        return available;
-      } catch (error) {
-        console.error(`Error checking time availability: ${error.message}`);
-        // If there's an error in time parsing, let's be lenient and show the provider
-        return true;
-      }
-    });
-
-    console.log(`After filtering, ${availableProviders.length} providers are available`);
-
-    // Add fallback image if user or profileImage is not available
-    availableProviders.forEach(provider => {
+    // Process each provider
+    allProviders.forEach(provider => {
+      // Add fallback image if needed
       if (!provider.user || !provider.user.profileImage) {
         if (!provider.user) {
           provider.user = {};
         }
         provider.user.profileImage = 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png';
       }
+
+      // Extract service details for this provider
+      let matchedService = null;
+      if (provider.servicesOffered) {
+        provider.servicesOffered.forEach(category => {
+          if (category.services) {
+            category.services.forEach(s => {
+              if (s.service.toString() === serviceId) {
+                matchedService = s;
+              }
+            });
+          }
+        });
+      }
+      provider.matchedService = matchedService;
+
+      // Check if provider is inactive
+      if (provider.isActive === false) {
+        provider.unavailabilityReason = 'Provider is not currently accepting bookings';
+        unavailableProviders.push(provider);
+        return;
+      }
+
+      // Check availability for the selected date/time
+      let isAvailable = true;
+      let availableTimeSlots = [];
+
+      // If no availability data, consider unavailable
+      if (!provider.availability) {
+        isAvailable = false;
+        provider.unavailabilityReason = 'Provider has not set their availability';
+      } else {
+        // Check if provider is available on this day
+        const dayAvailability = provider.availability[dayOfWeek];
+        if (!dayAvailability || !dayAvailability.isAvailable) {
+          isAvailable = false;
+          provider.unavailabilityReason = `Provider is not available on ${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}s`;
+        } else {
+          // Always collect available time slots regardless of whether a specific time is requested
+          if (dayAvailability.slots && Array.isArray(dayAvailability.slots)) {
+            dayAvailability.slots.forEach(slot => {
+              if (slot && slot.isActive && slot.startTime && slot.endTime) {
+                availableTimeSlots.push({
+                  startTime: slot.startTime,
+                  endTime: slot.endTime
+                });
+              }
+            });
+          }
+          // Sort time slots chronologically
+          availableTimeSlots.sort((a, b) => {
+            return a.startTime.localeCompare(b.startTime);
+          });
+
+          // Store the available slots for display
+          provider.availableTimeSlots = availableTimeSlots;
+
+          // Add debugging to check what time slots are found
+          console.log(`Provider ${provider._id} has ${availableTimeSlots.length} time slots on ${dayOfWeek}`);
+          if (availableTimeSlots.length > 0) {
+            console.log('Time slots:', availableTimeSlots.map(slot => `${slot.startTime}-${slot.endTime}`).join(', '));
+          }
+
+          // Check specific time slot if requested
+          try {
+            const requestedHour = parseInt(selectedTime.split(':')[0]);
+            const requestedMinute = parseInt(selectedTime.split(':')[1] || '0');
+
+            // Check if there are any slots
+            if (!dayAvailability.slots || !Array.isArray(dayAvailability.slots) || dayAvailability.slots.length === 0) {
+              isAvailable = false;
+              provider.unavailabilityReason = `Provider has no time slots set for ${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}s`;
+            } else {
+              // Check each slot for the requested time
+              isAvailable = dayAvailability.slots.some(slot => {
+                // Skip if slot is not active or missing data
+                if (!slot || !slot.isActive || !slot.startTime || !slot.endTime) {
+                  return false;
+                }
+
+                const startHour = parseInt(slot.startTime.split(':')[0]);
+                const startMinute = parseInt(slot.startTime.split(':')[1] || '0');
+                const endHour = parseInt(slot.endTime.split(':')[0]);
+                const endMinute = parseInt(slot.endTime.split(':')[1] || '0');
+
+                // Convert to minutes for comparison
+                const requestedTimeInMinutes = requestedHour * 60 + requestedMinute;
+                const startTimeInMinutes = startHour * 60 + startMinute;
+                const endTimeInMinutes = endHour * 60 + endMinute;
+
+                return requestedTimeInMinutes >= startTimeInMinutes && requestedTimeInMinutes <= endTimeInMinutes;
+              });
+
+              if (!isAvailable) {
+                provider.unavailabilityReason = `Not available at ${selectedTime}, but has other time slots`;
+              }
+            }
+          } catch (error) {
+            console.error(`Error checking time availability: ${error.message}`);
+            isAvailable = false;
+            provider.unavailabilityReason = 'Error checking availability';
+          }
+        }
+      }
+
+      // Format the time slots for display
+      if (provider.availableTimeSlots && provider.availableTimeSlots.length > 0) {
+        provider.formattedTimeSlots = provider.availableTimeSlots.map(slot => {
+          return formatTimeSlot(slot.startTime, slot.endTime);
+        }).join(', ');
+      }
+
+      // Add to appropriate array
+      if (isAvailable) {
+        availableProviders.push(provider);
+      } else {
+        unavailableProviders.push(provider);
+      }
     });
 
+    console.log(`Total providers: ${allProviders.length}, Available: ${availableProviders.length}, Unavailable: ${unavailableProviders.length}`);
+
     res.render("pages/providers", {
-      providers: availableProviders,
+      providers: {
+        available: availableProviders,
+        unavailable: unavailableProviders
+      },
       service,
       category: service.category,
       serviceId,
       selectedDate: selectedDate.toISOString().split('T')[0],
-      selectedTime
+      selectedTime,
+      dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
     });
 
   } catch (err) {
@@ -192,6 +236,22 @@ router.get("/:id/providers", async (req, res) => {
     res.redirect("/services");
   }
 });
+
+// Helper function to format time slots in a readable way
+function formatTimeSlot(startTime, endTime) {
+  // Convert 24-hour format to 12-hour format
+  function formatTime(time) {
+    if (!time) return "N/A";
+
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = hour % 12 || 12;
+    return `${formattedHour}:${minutes || '00'} ${ampm}`;
+  }
+
+  return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+}
 // Update the book route
 router.get("/:id/:provider/book", async (req, res) => {
   try {

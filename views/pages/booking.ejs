@@ -88,6 +88,10 @@
                       <div class="col-md-6">
                         <select id="time-picker" class="form-control" required>
                           <option value="" disabled selected>Select Time</option>
+                          <option value="07:00">07:00 AM</option>
+                          <option value="07:30">07:30 AM</option>
+                          <option value="08:00">08:00 AM</option>
+                          <option value="08:30">08:30 AM</option>
                           <option value="09:00">09:00 AM</option>
                           <option value="09:30">09:30 AM</option>
                           <option value="10:00">10:00 AM</option>
@@ -106,94 +110,100 @@
                           <option value="16:30">04:30 PM</option>
                           <option value="17:00">05:00 PM</option>
                           <option value="17:30">05:30 PM</option>
-                        </select>
+                          <option value="18:00">06:00 PM</option>
+                          <option value="18:30">06:30 PM</option>
+                          <option value="19:00">07:00 PM</option>
+                          <option value="19:30">07:30 PM</option>
+                          <option value="20:00">08:00 PM</option>
+                          <option value="20:30">08:30 PM</option>
+                          <option value="21:00">09:00 PM</option>
                       </div>
                     </div>
 
                     <!-- Hidden input to store combined date/time for form submission -->
-                    <input type="hidden" id="datetime-combined" name="date" required>
+                    <input type=" hidden" id="datetime-combined" name="date" required>
+                      </div>
+
+                      <p class="selected-datetime mt-2 mb-0 text-primary d-none">
+                        <i class="fas fa-check-circle me-1"></i>
+                        <span id="selected-date-display"></span>
+                      </p>
+                    </div>
                   </div>
-
-                  <p class="selected-datetime mt-2 mb-0 text-primary d-none">
-                    <i class="fas fa-check-circle me-1"></i>
-                    <span id="selected-date-display"></span>
-                  </p>
                 </div>
-              </div>
-            </div>
 
-            <!-- Location Section -->
-            <div class="form-section">
-              <div class="form-section-header">
-                <span class="section-number">2</span> Set Your Location
-              </div>
-              <div class="form-section-body">
-                <div class="mb-3">
-                  <label class="form-label">
-                    <i class="fas fa-map-marker-alt me-2"></i>Address
-                  </label>
-                  <div class="input-group mb-2">
-                    <input type="text" id="address-input" class="form-control"
-                      placeholder="Search for your location..." />
-                    <button type="button" class="btn btn-outline-primary" id="fetch-location-btn">
-                      <i class="fas fa-location-arrow me-md-2"></i><span class="d-none d-md-inline">Current
-                        Location</span>
-                    </button>
+                <!-- Location Section -->
+                <div class="form-section">
+                  <div class="form-section-header">
+                    <span class="section-number">2</span> Set Your Location
                   </div>
-                  <div id="map"></div>
+                  <div class="form-section-body">
+                    <div class="mb-3">
+                      <label class="form-label">
+                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                      </label>
+                      <div class="input-group mb-2">
+                        <input type="text" id="address-input" class="form-control"
+                          placeholder="Search for your location..." />
+                        <button type="button" class="btn btn-outline-primary" id="fetch-location-btn">
+                          <i class="fas fa-location-arrow me-md-2"></i><span class="d-none d-md-inline">Current
+                            Location</span>
+                        </button>
+                      </div>
+                      <div id="map"></div>
 
-                  <div class="mt-3">
-                    <label class="form-label">
-                      <i class="fas fa-home me-2"></i>Detailed Address
-                    </label>
-                    <textarea id="detailed-address" name="detailedAddress" rows="2"
-                      placeholder="Enter flat/house number, landmark, etc." required></textarea>
+                      <div class="mt-3">
+                        <label class="form-label">
+                          <i class="fas fa-home me-2"></i>Detailed Address
+                        </label>
+                        <textarea id="detailed-address" name="detailedAddress" rows="2"
+                          placeholder="Enter flat/house number, landmark, etc." required></textarea>
+                      </div>
+
+                      <input type="hidden" id="latitude" name="latitude" required />
+                      <input type="hidden" id="longitude" name="longitude" required />
+                    </div>
                   </div>
-
-                  <input type="hidden" id="latitude" name="latitude" required />
-                  <input type="hidden" id="longitude" name="longitude" required />
                 </div>
-              </div>
-            </div>
 
-            <!-- Additional Info Section -->
-            <div class="form-section">
-              <div class="form-section-header">
-                <span class="section-number">3</span> Additional Information
-              </div>
-              <div class="form-section-body">
-                <div class="mb-3">
-                  <label class="form-label">
-                    <i class="fas fa-comment-alt me-2"></i>Special Instructions (Optional)
-                  </label>
-                  <textarea name="notes" class="form-control" rows="3"
-                    placeholder="Any specific requirements or instructions for the service provider..."></textarea>
+                <!-- Additional Info Section -->
+                <div class="form-section">
+                  <div class="form-section-header">
+                    <span class="section-number">3</span> Additional Information
+                  </div>
+                  <div class="form-section-body">
+                    <div class="mb-3">
+                      <label class="form-label">
+                        <i class="fas fa-comment-alt me-2"></i>Special Instructions (Optional)
+                      </label>
+                      <textarea name="notes" class="form-control" rows="3"
+                        placeholder="Any specific requirements or instructions for the service provider..."></textarea>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Booking Summary -->
-            <div class="booking-summary">
-              <div class="summary-item">
-                <div class="summary-label">Service Cost</div>
-                <div class="summary-value">₹<%= serviceDetails.customCost %>
+                <!-- Booking Summary -->
+                <div class="booking-summary">
+                  <div class="summary-item">
+                    <div class="summary-label">Service Cost</div>
+                    <div class="summary-value">₹<%= serviceDetails.customCost %>
+                    </div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-label">Service Charge</div>
+                    <div class="summary-value">₹50</div>
+                  </div>
+                  <div class="summary-item total">
+                    <div class="summary-label">Total Amount</div>
+                    <div class="summary-value">₹<%= parseInt(serviceDetails.customCost) + 50 %>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Service Charge</div>
-                <div class="summary-value">₹50</div>
-              </div>
-              <div class="summary-item total">
-                <div class="summary-label">Total Amount</div>
-                <div class="summary-value">₹<%= parseInt(serviceDetails.customCost) + 50 %>
-                </div>
-              </div>
-            </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary w-100 py-3">
-              <i class="fas fa-check-circle me-2"></i>Confirm Booking
-            </button>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                  <i class="fas fa-check-circle me-2"></i>Confirm Booking
+                </button>
           </form>
         </div>
       </div>
