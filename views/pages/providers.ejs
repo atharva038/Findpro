@@ -1,16 +1,12 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<%
-function formatTimeSlot(startTime, endTime) {
-  function formatTime(time) {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+  <% function formatTimeSlot(startTime, endTime) { function formatTime(time) { const [hours, minutes]=time.split(':');
+    const hour=parseInt(hours); const ampm=hour>= 12 ? 'PM' : 'AM';
     const formattedHour = hour % 12 || 12;
     return `${formattedHour}:${minutes} ${ampm}`;
-  }
-  return `${formatTime(startTime)} - ${formatTime(endTime)}`;
-}
-%>
+    }
+    return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+    }
+    %>
     <div class="providers-page bg-light py-5">
       <div class="container py-md-3">
         <!-- Page Header with Bootstrap classes -->
@@ -34,29 +30,77 @@ function formatTimeSlot(startTime, endTime) {
             </ol>
           </nav>
         </header>
-        <!-- Add this code near the top of your providers.ejs file, just below the header -->
-        <div class="container mb-4">
-          <div class="card border-0 shadow-sm p-3">
-            <form action="/services/<%= serviceId %>/providers" method="get" class="row g-3 align-items-end"
-              id="availability-filter">
-              <div class="col-md-5">
-                <label for="date" class="form-label text-muted">Date</label>
-                <input type="date" class="form-control" id="date" name="date"
-                  value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
-                  min="<%= new Date().toISOString().split('T')[0] %>">
-              </div>
-              <div class="col-md-5">
-                <label for="time" class="form-label text-muted">Preferred Time</label>
-                <input type="time" class="form-control" id="time" name="time" value="<%= selectedTime || '' %>">
-              </div>
-              <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                  <i class="fas fa-filter me-2"></i>Filter
-                </button>
-              </div>
-            </form>
+     <div class="container mb-4">
+  <div class="card border-0 shadow-sm p-3">
+    <form action="/services/<%= serviceId %>/providers" method="get" class="row g-3 align-items-end" id="availability-filter">
+      <div class="col-md-3">
+        <label for="date" class="form-label text-muted">Date</label>
+        <input type="date" class="form-control" id="date" name="date"
+          value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
+          min="<%= new Date().toISOString().split('T')[0] %>">
+      </div>
+      <div class="col-md-3">
+        <label for="time" class="form-label text-muted">Time</label>
+        <select class="form-select" id="time" name="time">
+          <option value="" <%= !selectedTime ? 'selected' : '' %>>Any time</option>
+          <% 
+          const startHour = 7; // 7 AM
+          const endHour = 21;  // 9 PM
+          
+          for (let hour = startHour; hour <= endHour; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+              if (hour === endHour && minute > 0) continue;
+              
+              const timeValue = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+              const hour12 = hour % 12 || 12;
+              const ampm = hour >= 12 ? 'PM' : 'AM';
+              const timeDisplay = `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+              const isSelected = timeValue === selectedTime;
+          %>
+            <option value="<%= timeValue %>" <%= isSelected ? 'selected' : '' %>><%= timeDisplay %></option>
+          <% }} %>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="location" class="form-label text-muted">Location</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="location" name="location" 
+            placeholder="Enter area, city or pincode" value="<%= typeof location !== 'undefined' ? location : '' %>">
+          <button type="button" class="btn btn-outline-secondary" id="use-my-location">
+            <i class="fas fa-map-marker-alt"></i>
+          </button>
+          <input type="hidden" id="latitude" name="latitude" value="<%= typeof latitude !== 'undefined' ? latitude : '' %>">
+          <input type="hidden" id="longitude" name="longitude" value="<%= typeof longitude !== 'undefined' ? longitude : '' %>">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-filter me-2"></i>Find Providers
+          </button>
+        </div>
+      </div>
+      <% if (typeof location !== 'undefined' && location) { %>
+        <div class="col-12 mt-2">
+          <div class="d-flex align-items-center">
+            <span class="badge bg-primary me-2"><i class="fas fa-map-marker-alt me-1"></i> <%= location %></span>
+            <small class="text-muted">Showing providers near your location</small>
+            
+            <div class="ms-auto">
+              <select name="distance" class="form-select form-select-sm" style="width: auto; display: inline-block">
+                <option value="5" <%= distance == 5 ? 'selected' : '' %>>Within 5 km</option>
+                <option value="10" <%= distance == 10 ? 'selected' : '' %>>Within 10 km</option>
+                <option value="20" <%= distance == 20 ? 'selected' : '' %>>Within 20 km</option>
+                <option value="50" <%= distance == 50 ? 'selected' : '' %>>Within 50 km</option>
+              </select>
+              <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+            </div>
           </div>
         </div>
+      <% } %>
+    </form>
+  </div>
+</div>
 
         <!-- Add this if no providers are available at all -->
         <% if (!providers || (providers.available.length===0 && providers.unavailable.length===0)) { %>
@@ -196,99 +240,96 @@ function formatTimeSlot(startTime, endTime) {
                         });
                         %>
                         <div class="col">
-  <div class="card provider-card unavailable-provider h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-    <!-- Provider Image - grayscale filter applied -->
-    <div class="position-relative">
-      <div class="provider-image-wrapper grayscale">
-        <img src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>" 
-            class="card-img-top" alt="<%= provider.user.name %>">
-      </div>
-      
-      <!-- Provider Rating Badge -->
-      <div class="position-absolute top-0 end-0 m-3">
-        <div class="badge bg-secondary text-white rounded-pill fw-bold px-3 py-2">
-          <i class="fas fa-star me-1"></i> 4.8
-        </div>
-      </div>
-      
-      <!-- Unavailable badge -->
-      <div class="position-absolute top-0 start-0 m-3">
-        <div class="badge bg-secondary rounded-pill fw-bold px-3 py-2">
-          <i class="fas fa-clock me-1"></i> Unavailable
-        </div>
-      </div>
+                          <div
+                            class="card provider-card unavailable-provider h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                            <!-- Provider Image - grayscale filter applied -->
+                            <div class="position-relative">
+                              <div class="provider-image-wrapper grayscale">
+                                <img
+                                  src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+                                  class="card-img-top" alt="<%= provider.user.name %>">
+                              </div>
+
+                              <!-- Provider Rating Badge -->
+                              <div class="position-absolute top-0 end-0 m-3">
+                                <div class="badge bg-secondary text-white rounded-pill fw-bold px-3 py-2">
+                                  <i class="fas fa-star me-1"></i> 4.8
+                                </div>
+                              </div>
+
+                              <!-- Unavailable badge -->
+                              <div class="position-absolute top-0 start-0 m-3">
+                                <div class="badge bg-secondary rounded-pill fw-bold px-3 py-2">
+                                  <i class="fas fa-clock me-1"></i> Unavailable
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Provider Info - with muted colors -->
+                            <div class="card-body">
+                              <h5 class="card-title text-center fw-bold mb-3 text-muted">
+                                <%= provider.user.name %>
+                              </h5>
+
+                              <!-- Unavailability reason -->
+                              <% if (provider.unavailabilityReason) { %>
+                                <div class="alert alert-secondary mb-3 small">
+                                  <i class="fas fa-info-circle me-2"></i>
+                                  <%= provider.unavailabilityReason %>
+                                </div>
+                                <% } %>
+<% if (provider.availableTimeSlots && provider.availableTimeSlots.length > 0) { %>
+  <div class="mb-3">
+    <h6>Available times on <%= dayOfWeek %>:</h6>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <% provider.availableTimeSlots.forEach(slot => { %>
+        <span class="badge bg-light text-primary border">
+          <%= formatTimeSlot(slot.startTime, slot.endTime) %>
+        </span>
+      <% }); %>
     </div>
+  </div>
+<% } %>
+                                      <!-- Provider details here -->
+                                      <div class="provider-details">
+                                        <!-- Same details as before but with muted styling -->
+                                        <div class="provider-detail d-flex align-items-center mb-2">
+                                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                                            <i class="fas fa-briefcase text-secondary"></i>
+                                          </div>
+                                          <div>
+                                            <small class="text-muted">Experience</small>
+                                            <div class="fw-medium text-muted">
+                                              <%= matchedService && matchedService.experience ?
+                                                matchedService.experience : "N/A" %>
+                                            </div>
+                                          </div>
+                                        </div>
 
-    <!-- Provider Info - with muted colors -->
-    <div class="card-body">
-      <h5 class="card-title text-center fw-bold mb-3 text-muted">
-        <%= provider.user.name %>
-      </h5>
-      
-      <!-- Unavailability reason -->
-      <% if (provider.unavailabilityReason) { %>
-        <div class="alert alert-secondary mb-3 small">
-          <i class="fas fa-info-circle me-2"></i>
-          <%= provider.unavailabilityReason %>
-        </div>
-      <% } %>
-      
-      <!-- Available time slots if any - KEEP THIS SECTION, REMOVE THE DUPLICATE -->
-      <% if (provider.availableTimeSlots && provider.availableTimeSlots.length > 0) { %>
-        <div class="available-slots mb-3">
-          <h6 class="text-secondary mb-2">
-            <i class="fas fa-calendar-check me-2"></i> 
-            Available on <%= dayOfWeek %>:
-          </h6>
-          <div class="time-slots-container">
-            <% provider.availableTimeSlots.forEach(slot => { %>
-              <span class="badge bg-light text-secondary border mb-1 me-1 py-2 px-3">
-                <%= formatTimeSlot(slot.startTime, slot.endTime) %>
-              </span>
-            <% }); %>
-          </div>
-        </div>
-      <% } %>
-                                  <!-- Provider details here -->
-                                  <div class="provider-details">
-                                    <!-- Same details as before but with muted styling -->
-                                    <div class="provider-detail d-flex align-items-center mb-2">
-                                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                                        <i class="fas fa-briefcase text-secondary"></i>
-                                      </div>
-                                      <div>
-                                        <small class="text-muted">Experience</small>
-                                        <div class="fw-medium text-muted">
-                                          <%= matchedService && matchedService.experience ? matchedService.experience
-                                            : "N/A" %>
+                                        <div class="provider-detail d-flex align-items-center mb-2">
+                                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                                            <i class="fas fa-rupee-sign text-secondary"></i>
+                                          </div>
+                                          <div>
+                                            <small class="text-muted">Service Price</small>
+                                            <div class="fw-medium text-muted">₹<%= matchedService &&
+                                                matchedService.customCost ? matchedService.customCost : "N/A" %>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="provider-detail d-flex align-items-center mb-2">
+                                          <div class="icon-wrapper bg-light rounded-circle me-3">
+                                            <i class="fas fa-map-marker-alt text-secondary"></i>
+                                          </div>
+                                          <div>
+                                            <small class="text-muted">Location</small>
+                                            <div class="fw-medium text-muted">
+                                              <%= provider.address || "Not Available" %>
+                                            </div>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-
-                                    <div class="provider-detail d-flex align-items-center mb-2">
-                                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                                        <i class="fas fa-rupee-sign text-secondary"></i>
-                                      </div>
-                                      <div>
-                                        <small class="text-muted">Service Price</small>
-                                        <div class="fw-medium text-muted">₹<%= matchedService &&
-                                            matchedService.customCost ? matchedService.customCost : "N/A" %>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div class="provider-detail d-flex align-items-center mb-2">
-                                      <div class="icon-wrapper bg-light rounded-circle me-3">
-                                        <i class="fas fa-map-marker-alt text-secondary"></i>
-                                      </div>
-                                      <div>
-                                        <small class="text-muted">Location</small>
-                                        <div class="fw-medium text-muted">
-                                          <%= provider.address || "Not Available" %>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
                             </div>
                             <!-- Corrected version with single footer -->
                             <!-- Action buttons -->
@@ -663,3 +704,211 @@ function formatTimeSlot(startTime, endTime) {
         }
       }
     </style>
+   <!-- Add this JavaScript at the end of your providers.ejs file -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    const timeSelect = document.getElementById('time');
+    
+    // When date changes, update available time options
+    dateInput.addEventListener('change', updateTimeOptions);
+    
+    // Initial update
+    updateTimeOptions();
+    
+// Replace the current updateTimeOptions function with this improved version
+function updateTimeOptions() {
+  const selectedDate = dateInput.value;
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0];
+  const isToday = selectedDate === currentDate;
+  
+  // Get all time options
+  const options = Array.from(timeSelect.options);
+  
+  // First, make all options visible
+  options.forEach(option => {
+    if (option.value) {
+      option.disabled = false;
+      option.style.display = '';
+    }
+  });
+  
+  // If it's today, hide past time slots
+  if (isToday) {
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Calculate the current time in a comparable format
+    const currentTimeValue = currentHour * 60 + currentMinute;
+    
+    // Show a debugging message
+    console.log(`Current time: ${currentHour}:${currentMinute} (${currentTimeValue} minutes)`);
+    
+    let hasVisibleOptions = false;
+    
+    options.forEach(option => {
+      if (option.value) {
+        const [hours, minutes] = option.value.split(':').map(num => parseInt(num));
+        const optionTimeValue = hours * 60 + minutes;
+        
+        // Hide if this time slot has passed (add 15 min buffer)
+        if (optionTimeValue <= currentTimeValue + 15) {
+          option.disabled = true;
+          option.style.display = 'none';
+          console.log(`Hiding option: ${option.text} (${optionTimeValue} minutes)`);
+        } else {
+          option.disabled = false;
+          option.style.display = '';
+          hasVisibleOptions = true;
+          console.log(`Keeping option: ${option.text} (${optionTimeValue} minutes)`);
+        }
+      }
+    });
+    
+    // Check if selected option is now disabled
+    if (timeSelect.selectedIndex > 0 && timeSelect.options[timeSelect.selectedIndex].disabled) {
+      // Find first enabled option
+      const firstEnabled = options.findIndex(opt => !opt.disabled && opt.value);
+      if (firstEnabled > 0) {
+        timeSelect.selectedIndex = firstEnabled;
+      } else {
+        timeSelect.selectedIndex = 0; // Select placeholder if no times available
+      }
+    }
+    
+    // Calculate adjusted display times
+    const firstAvailableTime = options.find(opt => !opt.disabled && opt.value);
+    const displayStartTime = firstAvailableTime ? firstAvailableTime.text : '7:00 AM';
+    
+    document.querySelector('small.text-muted').textContent = 
+      `Available today: From ${displayStartTime} to 9:00 PM`;
+      
+    if (!hasVisibleOptions) {
+      // If no times are available today, inform the user
+      document.querySelector('small.text-muted').textContent = 
+        `No more slots available today. Please select another date.`;
+    }
+  } else {
+    // For future dates, show all time slots
+    document.querySelector('small.text-muted').textContent = 'Working hours: 7:00 AM - 9:00 PM';
+  }
+}
+    
+   
+    function formatTime(hour, minute) {
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    }
+    
+    // Also handle form submission to prevent selecting invalid times
+    const form = document.getElementById('availability-filter');
+    form.addEventListener('submit', function(e) {
+      const selectedTime = timeSelect.value;
+      if (selectedTime) {
+        const [hours, minutes] = selectedTime.split(':').map(num => parseInt(num));
+        
+        // Validate working hours
+        if (hours < 7 || hours >= 21) {
+          e.preventDefault();
+          alert('Please select a time between 7:00 AM and 9:00 PM');
+          return false;
+        }
+        
+        // Validate not in the past if today
+        const selectedDate = dateInput.value;
+        const now = new Date();
+        const currentDate = now.toISOString().split('T')[0];
+        
+        if (selectedDate === currentDate) {
+          const currentHour = now.getHours();
+          const currentMinute = now.getMinutes();
+          
+          if (hours < currentHour || (hours === currentHour && minutes <= currentMinute)) {
+            e.preventDefault();
+            alert('Please select a future time');
+            return false;
+          }
+        }
+      }
+    });
+  });
+</script><!-- Add this at the end of your providers.ejs file -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const useMyLocationBtn = document.getElementById('use-my-location');
+    const locationInput = document.getElementById('location');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    
+    useMyLocationBtn.addEventListener('click', function() {
+      if (navigator.geolocation) {
+        // Show loading state
+        useMyLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        useMyLocationBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            // Success
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Set values to form
+            latitudeInput.value = lat;
+            longitudeInput.value = lng;
+            
+            // Reverse geocode to get address
+            reverseGeocode(lat, lng);
+          },
+          function(error) {
+            // Error
+            useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            useMyLocationBtn.disabled = false;
+            
+            let errorMessage = 'Unable to retrieve your location: ';
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                errorMessage += 'Location permission denied. Please enable location in your browser settings.';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMessage += 'Location information is unavailable.';
+                break;
+              case error.TIMEOUT:
+                errorMessage += 'The request to get location timed out.';
+                break;
+              default:
+                errorMessage += 'An unknown error occurred.';
+            }
+            
+            alert(errorMessage);
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    });
+    
+    function reverseGeocode(lat, lng) {
+      fetch(`/api/location/reverse-geocode?lat=${lat}&lng=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            locationInput.value = data.address;
+            // Submit form
+            document.getElementById('availability-filter').submit();
+          } else {
+            useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            useMyLocationBtn.disabled = false;
+            alert('Unable to get your address. Please enter it manually.');
+          }
+        })
+        .catch(error => {
+          useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+          useMyLocationBtn.disabled = false;
+          console.error('Error geocoding:', error);
+          alert('Unable to get your address. Please enter it manually.');
+        });
+    }
+  });
+</script>

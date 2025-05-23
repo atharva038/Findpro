@@ -4,13 +4,13 @@
 
 <div class="sidebar">
   <div class="sidebar-header">
-    <img
-      src="<%= user.profileImage || '/img/default-avatar.png' %>"
-      alt="Profile"
-      class="sidebar-profile-img"
-    />
-    <h5 class="sidebar-name"><%= user.name %></h5>
-    <p class="sidebar-email"><%= user.username %></p>
+    <img src="<%= user.profileImage || '/img/default-avatar.png' %>" alt="Profile" class="sidebar-profile-img" />
+    <h5 class="sidebar-name">
+      <%= user.name %>
+    </h5>
+    <p class="sidebar-email">
+      <%= user.username %>
+    </p>
   </div>
 
   <nav class="sidebar-nav">
@@ -33,6 +33,10 @@
     <a href="#settings" class="nav-link" data-section="settings">
       <i class="fas fa-cog"></i>
       <span>Settings</span>
+    </a>
+    <a href="#locations" class="nav-link" data-section="locations">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Locations & Availability</span>
     </a>
     <a href="/dashboard/registerService" class="nav-link">
       <i class="fas fa-plus-circle"></i>
@@ -59,7 +63,8 @@
     color: #333;
     transition: transform 0.3s ease;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    padding-bottom: 76px; /* Add padding at bottom to prevent footer overlap */
+    padding-bottom: 76px;
+    /* Add padding at bottom to prevent footer overlap */
   }
 
   .sidebar-toggle {
@@ -174,3 +179,5 @@
     }
   }
 </style>
+<!-- Make sure this appears after the sidebar HTML -->
+<script src="/js/sidebarToggle.js"></script>

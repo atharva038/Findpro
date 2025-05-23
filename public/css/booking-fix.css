@@ -1,0 +1,408 @@
+/* Adjust the container width for better layout */
+.booking-page .container {
+  max-width: 900px !important; /* Reduced from default 1140px */
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+/* Add some padding around the booking page */
+.booking-page {
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 76px);
+  padding: 2rem 0 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Improve card layout */
+.booking-card {
+  width: 100%;
+  max-width: 850px; /* Slightly narrower than container */
+  margin: 0 auto 2rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Bar Styles */
+.booking-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.step-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.step-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  font-weight: 500;
+}
+
+.progress-line {
+  height: 3px;
+  background-color: #e9ecef;
+  flex: 1;
+  margin: 0 10px;
+  margin-bottom: 25px;
+}
+
+.progress-step.active .step-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.progress-step.active .step-text {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Card Styles */
+.booking-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 1rem 1rem 0 0;
+  color: white;
+  border: none;
+}
+
+/* Service Overview Styles */
+.service-overview {
+  background-color: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.service-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.provider-name {
+  font-size: 1rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.provider-details {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.provider-location {
+  display: flex;
+  align-items: center;
+  margin-top: 0.75rem;
+  color: #495057;
+}
+
+.provider-location i {
+  margin-right: 0.5rem;
+  color: #0d6efd;
+}
+
+.provider-address {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.service-details span {
+  display: inline-block;
+  margin-right: 1.25rem;
+  font-size: 0.95rem;
+  color: #495057;
+  border-radius: 4px;
+}
+
+.price {
+  font-weight: 700;
+  color: #212529;
+  font-size: 1.1rem;
+}
+
+.service-rating {
+  background-color: #fff8e6;
+  color: #ffa41c;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Form Styles */
+.form-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.form-section-header {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.section-number {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 24px;
+  margin-right: 0.75rem;
+}
+
+.form-section-body {
+  padding: 1.25rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Date and time picker styles */
+.date-time-container {
+  margin-bottom: 0.5rem;
+}
+
+#date-picker,
+#time-picker {
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #dee2e6;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+#date-picker:focus,
+#time-picker:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.selected-datetime {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+/* Address input styles */
+#address-input {
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem 0 0 0.5rem;
+  font-size: 0.95rem;
+  border-right: none;
+}
+
+#fetch-location-btn {
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-weight: 500;
+}
+
+#map {
+  height: 250px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+#detailed-address {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+/* Fix for address selection dropdown */
+#address-select {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+#address-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Utility classes */
+.hidden-data {
+  display: none;
+}
+
+#datetime-combined {
+  display: none;
+}
+
+/* Booking Summary Styles */
+.booking-summary {
+  background-color: #f8f9fa;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: #495057;
+}
+
+.summary-item.total {
+  border-top: 1px dashed #dee2e6;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  font-weight: 700;
+  color: #212529;
+  font-size: 1.1rem;
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-outline-primary {
+  color: #667eea;
+  border-color: #667eea;
+}
+
+.btn-outline-primary:hover {
+  background-color: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+/* Form validation styles */
+.form-control.is-invalid {
+  border-color: #dc3545;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM7 4a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V4zm0 8a1 1 0 1 1 2 0 1 1 0 0 1-2 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23198754' viewBox='0 0 16 16'%3E%3Cpath d='M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+  .booking-page .container {
+    padding: 0 1rem;
+  }
+
+  .booking-progress {
+    padding: 0 0.5rem;
+  }
+
+  .step-text {
+    font-size: 0.75rem;
+  }
+
+  .progress-line {
+    margin-bottom: 30px;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .form-section-body {
+    padding: 1rem;
+  }
+
+  .service-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .service-name {
+    font-size: 1.2rem;
+  }
+}

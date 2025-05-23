@@ -1,12 +1,24 @@
 .booking-page {
-  background-color: #f8f9fa;
-  min-height: calc(100vh - 76px);
+  background-color: #44cf21;
+  min-height: calc(100vh - 200px);
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
   padding: 2rem 0;
+  overflow-x: hidden;
+}
+
+.booking-page .container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 40px;
 }
 
 .booking-card {
   border-radius: 1rem;
   overflow: hidden;
+  margin-bottom: 2rem;
 }
 
 .card-header {

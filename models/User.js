@@ -22,10 +22,25 @@ const UserSchema = new mongoose.Schema({
   },
   addresses: [
     {
-      type: Array,
-      default: [], // Default to an empty array
-    },
+      street: { type: String },
+      city: { type: String },
+      state: { type: String },
+      pincode: { type: String },
+      coordinates: {
+        latitude: { type: Number },
+        longitude: { type: Number }
+      },
+      isDefault: { type: Boolean, default: false },
+      label: { type: String, default: "Home" } // e.g., "Home", "Work", "Other"
+    }
   ],
+  // Store current location
+  currentLocation: {
+    latitude: { type: Number },
+    longitude: { type: Number },
+    lastUpdated: { type: Date }
+  },
+
   phone: String,
 
   serviceCategories: [

@@ -194,12 +194,16 @@ router.get("/", isLoggedIn, async (req, res) => {
       const data = await getCustomerDashboardData(userId);
       return res.render("pages/customerDashboard", {
         currUser: user,
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
         ...data
       });
     } else if (user.role === "provider") {
       const data = await getProviderDashboardData(userId);
       return res.render("pages/providerDashboard", {
         currUser: user,
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+        googleMapsId: process.env.GOOGLE_MAPS_ID || '8ae73d86e35053e8' // Provide a default Map ID
+        ,
         ...data
       });
     } else {
@@ -610,5 +614,255 @@ router.post('/provider/update-availability', isLoggedIn, async (req, res) => {
     });
   }
 });
+router.post('/provider/update-service-area', isLoggedIn, async (req, res) => {
+  try {
+    // Find the provider
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
 
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        error: 'Provider profile not found'
+      });
+    }
+
+    // Get and validate the request data
+    const radius = parseInt(req.body.radius) || 20;
+    const city = req.body.city || '';
+    const state = req.body.state || '';
+    const pincode = req.body.pincode || '';
+
+    // Create or update service area object
+    if (!provider.serviceArea) {
+      provider.serviceArea = {};
+    }
+
+    // Update service area details
+    provider.serviceArea.radius = radius;
+    provider.serviceArea.city = city;
+    provider.serviceArea.state = state;
+    provider.serviceArea.pincode = pincode;
+
+    // Handle coordinates if provided in the request
+    if (req.body.latitude && req.body.longitude) {
+      const latitude = parseFloat(req.body.latitude);
+      const longitude = parseFloat(req.body.longitude);
+
+      // Validate coordinates
+      if (!isNaN(latitude) && !isNaN(longitude)) {
+        provider.serviceArea.coordinates = {
+          latitude,
+          longitude
+        };
+      }
+    }
+    // If coordinates not provided but user has addresses with coordinates
+    else if (!provider.serviceArea.coordinates) {
+      const user = await User.findById(req.user._id);
+      if (user && user.addresses && user.addresses.length > 0) {
+        const defaultAddress = user.addresses.find(addr => addr.isDefault) || user.addresses[0];
+        if (defaultAddress.coordinates &&
+          defaultAddress.coordinates.latitude &&
+          defaultAddress.coordinates.longitude) {
+          provider.serviceArea.coordinates = {
+            latitude: defaultAddress.coordinates.latitude,
+            longitude: defaultAddress.coordinates.longitude
+          };
+        }
+      }
+    }
+
+    // Add geocoded data for the provided city/state if missing coordinates
+    if (!provider.serviceArea.coordinates && (city || state)) {
+      try {
+        // You would implement geocoding here if needed
+        // This is a placeholder - in production, you'd use a geocoding service
+        console.log('Would geocode:', city, state);
+      } catch (geocodeError) {
+        console.error('Geocoding error:', geocodeError);
+      }
+    }
+
+    // Save the provider with updated service area
+    await provider.save();
+
+    // Return success response
+    res.json({
+      success: true,
+      message: 'Service area updated successfully',
+      data: {
+        serviceArea: provider.serviceArea
+      }
+    });
+  } catch (error) {
+    console.error('Error updating service area:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update service area: ' + error.message
+    });
+  }
+});
+
+// Add this to your dashboard.js file after the service-area route
+router.post('/api/provider/locations', isLoggedIn, async (req, res) => {
+  try {
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: 'Provider profile not found'
+      });
+    }
+
+    // Validate location data
+    const { name, lat, lng, radius } = req.body;
+
+    if (!name || !lat || !lng || !radius) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required location data'
+      });
+    }
+
+    // Convert to proper types
+    const location = {
+      name: name.trim(),
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
+      radius: parseInt(radius)
+    };
+
+    // Validate values
+    if (isNaN(location.lat) || isNaN(location.lng) || isNaN(location.radius)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid location coordinates or radius'
+      });
+    }
+
+    // Create serviceAreas array if it doesn't exist
+    if (!provider.serviceAreas) {
+      provider.serviceAreas = [];
+    }
+
+    // Add the new service area
+    provider.serviceAreas.push(location);
+
+    // Save the provider
+    await provider.save();
+
+    res.json({
+      success: true,
+      message: 'Service area location added successfully',
+      location
+    });
+  } catch (error) {
+    console.error('Error adding service area location:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error: ' + error.message
+    });
+  }
+});
+
+// API endpoint to delete a service area location
+router.delete('/api/provider/locations/:id', isLoggedIn, async (req, res) => {
+  try {
+    const locationId = req.params.id;
+
+    if (!locationId || !mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid location ID'
+      });
+    }
+
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: 'Provider profile not found'
+      });
+    }
+
+    if (!provider.serviceAreas || provider.serviceAreas.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No service areas found'
+      });
+    }
+
+    // Remove the location
+    const locationIndex = provider.serviceAreas.findIndex(area =>
+      area._id.toString() === locationId
+    );
+
+    if (locationIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service area location not found'
+      });
+    }
+
+    provider.serviceAreas.splice(locationIndex, 1);
+    await provider.save();
+
+    res.json({
+      success: true,
+      message: 'Service area location removed successfully'
+    });
+  } catch (error) {
+    console.error('Error removing service area location:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error: ' + error.message
+    });
+  }
+});
+
+// API endpoint to save travel fee settings
+router.post('/api/provider/location-settings', isLoggedIn, async (req, res) => {
+  try {
+    const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: 'Provider profile not found'
+      });
+    }
+
+    // Get and validate request data
+    const { travelFeeEnabled, travelFeeAmount } = req.body;
+
+    // Update provider with travel fee settings
+    provider.travelFeeEnabled = !!travelFeeEnabled; // Convert to boolean
+
+    if (travelFeeAmount !== undefined) {
+      const amount = parseFloat(travelFeeAmount);
+      if (!isNaN(amount) && amount >= 0) {
+        provider.travelFeeAmount = amount;
+      }
+    }
+
+    await provider.save();
+
+    res.json({
+      success: true,
+      message: 'Travel fee settings updated successfully',
+      data: {
+        travelFeeEnabled: provider.travelFeeEnabled,
+        travelFeeAmount: provider.travelFeeAmount
+      }
+    });
+  } catch (error) {
+    console.error('Error updating travel fee settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error: ' + error.message
+    });
+  }
+});
 module.exports = router;

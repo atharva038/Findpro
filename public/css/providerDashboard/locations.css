@@ -1,0 +1,249 @@
+/* Location Management Styles */
+.location-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 0.75rem;
+}
+
+.location-tag {
+  background-color: #e9f5ff;
+  border: 1px solid #c1ddff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.location-tag:hover {
+  background-color: #d7edff;
+  transform: translateY(-1px);
+}
+
+.btn-remove-location {
+  background: none;
+  border: none;
+  color: #dc3545;
+  margin-left: 8px;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.btn-remove-location:hover {
+  color: #b02a37;
+}
+
+#location-map {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  height: 300px !important;
+  margin-top: 1rem;
+}
+
+.location-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  pointer-events: none;
+  border: 2px solid #4f46e5;
+}
+
+/* Availability and Slot Management */
+.day-container {
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.day-container:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.day-header {
+  padding: 6px 0;
+}
+
+.slot-row {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.slot-row:hover {
+  background-color: #f0f4f8;
+  border-color: #d1d5db;
+}
+
+.time-range {
+  margin-right: 12px;
+}
+
+.day-toggle:checked + label {
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: #4f46e5;
+  border-color: #4338ca;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+  border-color: #3730a3;
+}
+
+.btn-outline-primary {
+  color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.btn-outline-primary:hover {
+  background-color: #4f46e5;
+  color: #fff;
+}
+
+.btn-outline-danger {
+  padding: 0.25rem 0.5rem;
+}
+
+.add-slot-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Button States */
+#saveAvailabilityBtn,
+#saveServiceAreaBtn,
+#save-location-settings,
+#saveAllLocationSettings {
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+#saveAvailabilityBtn.saving,
+#saveServiceAreaBtn.saving,
+#save-location-settings.saving,
+#saveAllLocationSettings.saving {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 1.25rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Form Styling */
+.form-control,
+.form-select {
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+}
+
+.input-group-text {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Travel Fee Section */
+#travel-fee-options {
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+.form-check-input:checked {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* Alert Styling */
+.alert-info {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* Section Spacing */
+.dashboard-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .add-location .row .col-md-2,
+  .add-location .row .col-md-4,
+  .add-location .row .col-md-6 {
+    margin-bottom: 12px;
+  }
+
+  #location-map {
+    height: 250px !important;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .section-header button {
+    align-self: stretch;
+  }
+}

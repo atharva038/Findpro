@@ -4,7 +4,7 @@ const User = require("../models/User");
 const Category = require("../models/category");
 const ServiceProvider = require("../models/ServiceProvider");
 const router = express.Router();
-const mongoose = require("mongoose");
+const calculateDistance = require('../utils/distance');
 
 router.get("/", async (req, res) => {
   try {
@@ -54,6 +54,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
 // Inside your /:id/providers route handler:
 router.get("/:id/providers", async (req, res) => {
   try {
@@ -64,10 +65,84 @@ router.get("/:id/providers", async (req, res) => {
       req.flash("error", "Service not found");
       return res.redirect("/services");
     }
+    // Get user location from different sources with priority
+    let userLocation = null;
 
+    // 1. Try to get from the session (most recent)
+    if (req.session.currentLocation) {
+      userLocation = req.session.currentLocation;
+    }
+    // 2. If logged in, try to get from the user's default address
+    else if (req.user) {
+      const user = await User.findById(req.user._id);
+
+      if (user) {
+        // Find default address first
+        const defaultAddress = user.addresses.find(addr => addr.isDefault);
+
+        if (defaultAddress && defaultAddress.coordinates) {
+          userLocation = defaultAddress.coordinates;
+        }
+        // If no default address but there are other addresses, use the first one
+        else if (user.addresses.length > 0 && user.addresses[0].coordinates) {
+          userLocation = user.addresses[0].coordinates;
+        }
+      }
+    }
     // Get the selected date and time from query params (if provided)
     let selectedDate = req.query.date ? new Date(req.query.date) : new Date();
     let selectedTime = req.query.time || "";
+
+    // Validate date (can't be in the past)
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (selectedDate < today) {
+      selectedDate = today;
+    }
+
+    // Validate time if date is today
+    if (selectedDate.getTime() === today.getTime() && selectedTime) {
+      const [hours, minutes] = selectedTime.split(':').map(num => parseInt(num));
+      const selectedDateTime = new Date(selectedDate);
+      selectedDateTime.setHours(hours, minutes);
+
+      // If selected time is in the past, adjust to next available slot
+      if (selectedDateTime < now) {
+        let nextHour = now.getHours();
+        let nextMinute = now.getMinutes() < 30 ? 30 : 0;
+
+        if (nextMinute === 0) {
+          nextHour++;
+        }
+
+        // Ensure within working hours
+        if (nextHour < 7) {
+          nextHour = 7;
+          nextMinute = 0;
+        } else if (nextHour >= 21) {
+          // No more slots today, move to tomorrow
+          selectedDate = new Date(today);
+          selectedDate.setDate(selectedDate.getDate() + 1);
+          nextHour = 7;
+          nextMinute = 0;
+        }
+
+        selectedTime = `${nextHour.toString().padStart(2, '0')}:${nextMinute.toString().padStart(2, '0')}`;
+      }
+    }
+
+    // Working hours constraint (7 AM to 9 PM)
+    if (selectedTime) {
+      const [hours] = selectedTime.split(':').map(num => parseInt(num));
+
+      // Check if time is outside working hours
+      if (hours < 7 || hours >= 21) {
+        // Default to 7 AM if outside working hours
+        selectedTime = "07:00";
+      }
+    }
+
 
     // Find all providers who offer this service 
     const allProviders = await ServiceProvider.find({
@@ -116,6 +191,27 @@ router.get("/:id/providers", async (req, res) => {
         provider.unavailabilityReason = 'Provider is not currently accepting bookings';
         unavailableProviders.push(provider);
         return;
+      }
+
+      // Calculate distance if user location is available
+      if (userLocation && provider.user && provider.user.addresses && provider.user.addresses.length > 0) {
+        // Find provider's address
+        const providerAddress = provider.user.addresses.find(addr => addr.isDefault) || provider.user.addresses[0];
+
+        if (providerAddress && providerAddress.coordinates &&
+          providerAddress.coordinates.latitude && providerAddress.coordinates.longitude) {
+          const distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            providerAddress.coordinates.latitude,
+            providerAddress.coordinates.longitude
+          );
+
+          provider.distance = distance;
+          provider.formattedDistance = distance < 1 ?
+            `${(distance * 1000).toFixed(0)} meters` :
+            `${distance.toFixed(1)} km`;
+        }
       }
 
       // Check availability for the selected date/time
@@ -217,6 +313,21 @@ router.get("/:id/providers", async (req, res) => {
 
     console.log(`Total providers: ${allProviders.length}, Available: ${availableProviders.length}, Unavailable: ${unavailableProviders.length}`);
 
+    // After populating both arrays, sort them by distance if location is available
+    if (userLocation) {
+      availableProviders.sort((a, b) => {
+        const distA = a.distance !== undefined ? a.distance : Infinity;
+        const distB = b.distance !== undefined ? b.distance : Infinity;
+        return distA - distB;
+      });
+
+      unavailableProviders.sort((a, b) => {
+        const distA = a.distance !== undefined ? a.distance : Infinity;
+        const distB = b.distance !== undefined ? b.distance : Infinity;
+        return distA - distB;
+      });
+    }
+
     res.render("pages/providers", {
       providers: {
         available: availableProviders,
@@ -227,7 +338,8 @@ router.get("/:id/providers", async (req, res) => {
       serviceId,
       selectedDate: selectedDate.toISOString().split('T')[0],
       selectedTime,
-      dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
+      dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1),
+      hasUserLocation: !!userLocation
     });
 
   } catch (err) {
@@ -316,6 +428,38 @@ router.get("/:id/:provider/book", async (req, res) => {
     console.error("Error fetching service or provider:", error);
     req.flash("error", "Something went wrong");
     res.redirect("/services");
+  }
+});
+
+router.post('/update-location', async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({ success: false, error: 'Invalid coordinates provided' });
+    }
+
+    // Store the coordinates in the user's session for non-logged-in users
+    req.session.currentLocation = { latitude, longitude };
+
+    // If user is logged in, update their profile too
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+
+      if (user) {
+        user.currentLocation = {
+          latitude,
+          longitude,
+          lastUpdated: new Date()
+        };
+        await user.save();
+      }
+    }
+
+    res.json({ success: true, message: 'Location updated successfully' });
+  } catch (error) {
+    console.error('Error updating user location:', error);
+    res.status(500).json({ success: false, error: 'Error updating location' });
   }
 });
 module.exports = router;

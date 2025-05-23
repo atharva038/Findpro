@@ -11,30 +11,21 @@
       <!-- Profile Image Section -->
       <div class="col-md-4 text-center">
         <div class="profile-image-container mb-4">
-          <img
-            src="<%= user.profileImage || '/img/default-avatar.png' %>"
-            alt="Profile"
-            class="profile-image"
-            id="profilePreview"
-          />
-          <div
-            class="image-overlay"
-            onclick="document.getElementById('profileImage').click()"
-          >
+          <img src="<%= user.profileImage || '/img/default-avatar.png' %>" alt="Profile" class="profile-image"
+            id="profilePreview" />
+          <div class="image-overlay" onclick="document.getElementById('profileImage').click()">
             <i class="fas fa-camera"></i>
             <span>Change Photo</span>
           </div>
-          <input
-            type="file"
-            id="profileImage"
-            name="profileImage"
-            accept="image/*"
-            style="display: none"
-          />
+          <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display: none" />
         </div>
 
-        <h3 class="user-name mb-2"><%= user.name %></h3>
-        <p class="user-email mb-4"><%= user.username %></p>
+        <h3 class="user-name mb-2">
+          <%= user.name %>
+        </h3>
+        <p class="user-email mb-4">
+          <%= user.username %>
+        </p>
       </div>
 
       <!-- Profile Details Section -->
@@ -42,21 +33,22 @@
         <div class="profile-details">
           <div class="detail-item">
             <label><i class="fas fa-phone me-2"></i>Phone Number</label>
-            <p><%= user.phone || 'Not provided' %></p>
+            <p>
+              <%= user.phone || 'Not provided' %>
+            </p>
           </div>
-          <div class="detail-item">
-            <label><i class="fas fa-map-marker-alt me-2"></i>Address</label>
-            <p><%= user.addresses || 'Not provided' %></p>
-          </div>
+
           <div class="detail-item">
             <label><i class="fas fa-envelope me-2"></i>Email</label>
-            <p><%= user.username %></p>
+            <p>
+              <%= user.username %>
+            </p>
           </div>
           <div class="detail-item">
             <label><i class="fas fa-calendar me-2"></i>Member Since</label>
             <p>
-              <%= new Date(user.createdAt).toLocaleDateString('en-IN', { year:
-              'numeric', month: 'long', day: 'numeric' }) %>
+              <%= new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric' , month: 'long' ,
+                day: 'numeric' }) %>
             </p>
           </div>
         </div>
@@ -70,47 +62,27 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Edit Profile</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="editProfileForm">
             <div class="mb-3">
               <label class="form-label">Full Name</label>
-              <input
-                type="text"
-                class="form-control"
-                id="editName"
-                value="<%= user.name %>"
-                required
-              />
+              <input type="text" class="form-control" id="editName" value="<%= user.name %>" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Phone Number</label>
-              <input
-                type="tel"
-                class="form-control"
-                id="editPhone"
-                value="<%= user.phone || '' %>"
-              />
+              <input type="tel" class="form-control" id="editPhone" value="<%= user.phone || '' %>" />
             </div>
             <div class="mb-3">
               <label class="form-label">Address</label>
               <textarea class="form-control" id="editAddress" rows="3">
-<%= user.address || '' %></textarea
-              >
+<%= user.address || '' %></textarea>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Cancel
           </button>
           <button type="button" class="btn btn-primary" onclick="saveProfile()">
@@ -127,28 +99,15 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Crop Profile Picture</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="img-container">
-            <img
-              id="cropImage"
-              src=""
-              alt="Picture to crop"
-              class="max-width-100"
-            />
+            <img id="cropImage" src="" alt="Picture to crop" class="max-width-100" />
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Cancel
           </button>
           <button type="button" class="btn btn-primary" id="cropButton">
@@ -158,6 +117,203 @@
       </div>
     </div>
   </div>
+
+  <div class="card mt-4">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">My Addresses</h5>
+      <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+        <i class="fas fa-plus me-2"></i>Add New Address
+      </button>
+    </div>
+    <div class="card-body">
+      <% if (user.addresses && user.addresses.length> 0) { %>
+        <div class="row">
+          <% user.addresses.forEach((address, index)=> { %>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100 <%= address.isDefault ? 'border-primary' : 'border-light' %>">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">
+                      <span class="badge <%= address.isDefault ? 'bg-primary' : 'bg-secondary' %> me-2">
+                        <%= address.label %>
+                      </span>
+                      <% if (address.isDefault) { %>
+                        <span class="badge bg-success">Default</span>
+                        <% } %>
+                    </h6>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <button class="dropdown-item" data-bs-toggle="modal"
+                            data-bs-target="#editAddressModal<%= index %>">
+                            <i class="fas fa-edit me-2"></i>Edit
+                          </button>
+                        </li>
+                        <% if (!address.isDefault) { %>
+                          <li>
+                            <form action="/user/set-default-address/<%= index %>" method="POST">
+                              <button type="submit" class="dropdown-item">
+                                <i class="fas fa-check-circle me-2"></i>Make Default
+                              </button>
+                            </form>
+                          </li>
+                          <% } %>
+                            <li>
+                              <form action="/user/delete-address/<%= index %>" method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this address?')">
+                                <button type="submit" class="dropdown-item text-danger">
+                                  <i class="fas fa-trash-alt me-2"></i>Delete
+                                </button>
+                              </form>
+                            </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <p class="mb-1">
+                    <%= address.street %>
+                  </p>
+                  <p class="mb-1">
+                    <%= address.city %>, <%= address.state %>
+                  </p>
+                  <p class="mb-0">PIN: <%= address.pincode %>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Address Modal for this address -->
+            <div class="modal fade" id="editAddressModal<%= index %>" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form action="/user/update-address/<%= index %>" method="POST">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Address</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <!-- Address form fields pre-filled with existing values -->
+                      <div class="mb-3">
+                        <label for="label<%= index %>" class="form-label">Address Label</label>
+                        <select class="form-select" id="label<%= index %>" name="label" required>
+                          <option value="Home" <%=address.label==='Home' ? 'selected' : '' %>>Home</option>
+                          <option value="Work" <%=address.label==='Work' ? 'selected' : '' %>>Work</option>
+                          <option value="Other" <%=address.label==='Other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label for="street<%= index %>" class="form-label">Street Address</label>
+                        <input type="text" class="form-control" id="street<%= index %>" name="street"
+                          value="<%= address.street %>" placeholder="Street address, landmark, etc.">
+                      </div>
+                      <div class="row mb-3">
+                        <div class="col">
+                          <label for="city<%= index %>" class="form-label">City</label>
+                          <input type="text" class="form-control" id="city<%= index %>" name="city"
+                            value="<%= address.city %>" required>
+                        </div>
+                        <div class="col">
+                          <label for="state<%= index %>" class="form-label">State</label>
+                          <input type="text" class="form-control" id="state<%= index %>" name="state"
+                            value="<%= address.state %>" required>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="pincode<%= index %>" class="form-label">PIN Code</label>
+                        <input type="text" class="form-control" id="pincode<%= index %>" name="pincode"
+                          value="<%= address.pincode %>" required pattern="[0-9]{6}"
+                          title="Enter a valid 6-digit PIN code">
+                      </div>
+                      <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="makeDefault<%= index %>" name="makeDefault"
+                          value="true" <%=address.isDefault ? 'checked' : '' %>>
+                        <label class="form-check-label" for="makeDefault<%= index %>">Set as default address</label>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <% }); %>
+        </div>
+        <% } else { %>
+          <div class="text-center py-4">
+            <i class="fas fa-map-marker-alt text-muted mb-3" style="font-size: 3rem;"></i>
+            <p>No addresses added yet.</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+              Add Your First Address
+            </button>
+          </div>
+          <% } %>
+    </div>
+  </div>
+
+  <!-- Add Address Modal -->
+  <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="/user/add-address" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New Address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Address form fields -->
+            <div class="mb-3">
+              <label for="label" class="form-label">Address Label</label>
+              <select class="form-select" id="label" name="label" required>
+                <option value="Home" selected>Home</option>
+                <option value="Work">Work</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="street" class="form-label">Street Address</label>
+              <input type="text" class="form-control" id="street" name="street"
+                placeholder="Street address, landmark, etc.">
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="city" class="form-label">City</label>
+                <input type="text" class="form-control" id="city" name="city" required>
+              </div>
+              <div class="col">
+                <label for="state" class="form-label">State</label>
+                <input type="text" class="form-control" id="state" name="state" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="pincode" class="form-label">PIN Code</label>
+              <input type="text" class="form-control" id="pincode" name="pincode" required pattern="[0-9]{6}"
+                title="Enter a valid 6-digit PIN code">
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="makeDefault" name="makeDefault" value="true">
+              <label class="form-check-label" for="makeDefault">Set as default address</label>
+            </div>
+            <!-- Auto-detect location button -->
+            <div class="d-grid">
+              <button type="button" class="btn btn-outline-secondary" id="detectLocationBtn">
+                <i class="fas fa-map-marker-alt me-2"></i>Detect My Current Location
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
 </section>
 
 <style>
@@ -255,4 +411,65 @@
     height: 400px !important;
   }
 </style>
+<!-- Add this script for auto-detection of location -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const detectLocationBtn = document.getElementById('detectLocationBtn');
+
+    if (detectLocationBtn) {
+      detectLocationBtn.addEventListener('click', function () {
+        if (navigator.geolocation) {
+          // Show loading state
+          detectLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Detecting...';
+          detectLocationBtn.disabled = true;
+
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              // Get reverse geocoding data
+              reverseGeocode(position.coords.latitude, position.coords.longitude);
+            },
+            function (error) {
+              console.error('Geolocation error:', error);
+              detectLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i>Detect My Current Location';
+              detectLocationBtn.disabled = false;
+              alert('Unable to detect your location. Please check your browser permissions.');
+            }
+          );
+        } else {
+          alert('Geolocation is not supported by your browser.');
+        }
+      });
+    }
+
+    // Function to get address from coordinates
+    function reverseGeocode(lat, lng) {
+      // Use a geocoding service (this example uses MapQuest)
+      fetch(`https://www.mapquestapi.com/geocoding/v1/reverse?key=YOUR_API_KEY&location=${lat},${lng}&includeRoadMetadata=true&includeNearestIntersection=true`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.results && data.results[0] && data.results[0].locations && data.results[0].locations[0]) {
+            const location = data.results[0].locations[0];
+
+            // Fill the form fields with the detected address
+            document.getElementById('street').value = location.street || '';
+            document.getElementById('city').value = location.adminArea5 || ''; // City
+            document.getElementById('state').value = location.adminArea3 || ''; // State
+            document.getElementById('pincode').value = location.postalCode || '';
+
+            // Reset button state
+            detectLocationBtn.innerHTML = '<i class="fas fa-check me-2"></i>Location Detected';
+            detectLocationBtn.disabled = false;
+          } else {
+            throw new Error('Invalid geocoding response');
+          }
+        })
+        .catch(error => {
+          console.error('Reverse geocoding error:', error);
+          detectLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i>Detect My Current Location';
+          detectLocationBtn.disabled = false;
+          alert('Unable to get your address. Please enter it manually.');
+        });
+    }
+  });
+</script>
 <script src="/js/profileEdit.js"></script>

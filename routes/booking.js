@@ -97,6 +97,7 @@ router.post("/confirm", isLoggedIn, async (req, res) => {
       serviceId,
       providerId,
       date,
+      addressId,
       latitude,
       longitude,
       detailedAddress,
@@ -122,7 +123,34 @@ router.post("/confirm", isLoggedIn, async (req, res) => {
       req.flash('error', 'Service or provider not found');
       return res.redirect('/services');
     }
+    // Get user addresses
+    const user = await User.findById(req.user._id);
+    let userAddress = null;
+    let coordinates = { latitude, longitude };
 
+    // If using a saved address
+    if (addressId && addressId !== 'new' && user.addresses) {
+      const addressIndex = parseInt(addressId);
+      if (user.addresses[addressIndex]) {
+        userAddress = user.addresses[addressIndex];
+        // Use saved coordinates if available
+        if (userAddress.coordinates) {
+          coordinates = {
+            latitude: userAddress.coordinates.latitude,
+            longitude: userAddress.coordinates.longitude
+          };
+        }
+      }
+    }
+
+    // Finalize location data
+    const locationData = {
+      coordinates: {
+        latitude: parseFloat(coordinates.latitude) || 0,
+        longitude: parseFloat(coordinates.longitude) || 0
+      },
+      address: detailedAddress
+    };
     // Find service details from provider's offerings
     let serviceDetails = null;
     provider.servicesOffered.forEach(category => {

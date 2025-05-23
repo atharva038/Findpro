@@ -182,15 +182,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const sections = document.querySelectorAll('.dashboard-section');
 
     function showSection(sectionId) {
+        // Look for both possibilities: with and without -section suffix
+        const targetSection = document.getElementById(sectionId + '-section') ||
+            document.getElementById(sectionId);
+
+        if (!targetSection) {
+            console.warn(`Section "${sectionId}" or "${sectionId}-section" not found`);
+            return;
+        }
+
+        // Hide all sections first
         sections.forEach(section => {
+            section.style.display = 'none';
             section.classList.remove('active');
         });
 
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        }
+        // Show the target section
+        targetSection.style.display = 'block';
+        targetSection.classList.add('active');
 
+        // Update active state in navigation
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('data-section') === sectionId) {
@@ -211,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show section based on URL hash or default to overview
     const defaultSection = window.location.hash.slice(1) || 'overview';
     showSection(defaultSection);
+
 
     // SECTION 2: PROFILE MANAGEMENT
     // ---------------------------------------------
@@ -727,5 +739,96 @@ document.addEventListener('DOMContentLoaded', function () {
                 saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
                 saveBtn.classList.remove('saving');
             });
+    }
+});
+// Add this to your providerDashboard.js file
+document.addEventListener('DOMContentLoaded', function () {
+    // Service area form handling
+    const saveServiceAreaBtn = document.getElementById('saveServiceAreaBtn');
+    if (saveServiceAreaBtn) {
+        saveServiceAreaBtn.addEventListener('click', saveServiceArea);
+    }
+
+    function saveServiceArea() {
+        const saveBtn = document.getElementById('saveServiceAreaBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+        // Get form data
+        const serviceAreaData = {
+            radius: parseInt(document.getElementById('service-radius').value) || 20,
+            city: document.getElementById('service-city').value,
+            state: document.getElementById('service-state').value,
+            pincode: document.getElementById('service-pincode').value
+        };
+
+        // Send to server
+        fetch('/dashboard/provider/update-service-area', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(serviceAreaData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showToast('success', 'Service area updated successfully');
+                } else {
+                    throw new Error(data.error || 'Failed to update service area');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving service area:', error);
+                showToast('error', 'Failed to update service area. Please try again.');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Service Area';
+            });
+    }
+
+    function showToast(type, message) {
+        const toastContainer = document.getElementById('toast-container') || createToastContainer();
+
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+
+        toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+
+        toastContainer.appendChild(toast);
+
+        // Use Bootstrap's toast functionality if available
+        if (typeof bootstrap !== 'undefined') {
+            const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
+            bsToast.show();
+        } else {
+            // Manual fallback
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+    }
+
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        container.style.zIndex = '1080';
+        document.body.appendChild(container);
+        return container;
     }
 });

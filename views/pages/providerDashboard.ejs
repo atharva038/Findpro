@@ -1,24 +1,33 @@
 <% layout("/layouts/boilerplate.ejs") %>
-<link rel="stylesheet" href="/css/providerDashboard.css" />
+  <link rel="stylesheet" href="/css/providerDashboard.css" />
+  <link rel="stylesheet" href="/css/providerDashboard/locations.css" />
 
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <%- include('../components/providerDashboard/providerSidebar', { user:
-  currUser }) %>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <%- include('../components/providerDashboard/providerSidebar', { user: currUser }) %>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <%- include('../components/providerDashboard/overview', { user: currUser,
-    provider: provider, bookings: bookings, bookingStats: bookingStats, ratings:
-    ratings }) %> <%- include('../components/providerDashboard/services', {
-    provider: provider, services: services }) %> <%-
-    include('../components/providerDashboard/bookings', { bookings: bookings,
-    user: currUser }) %> <%- include('../components/providerDashboard/profile',
-    { user: currUser, provider: provider }) %> <%-
-    include('../components/providerDashboard/settings', { user: currUser,
-    provider: provider }) %>
+      <!-- Main Content -->
+      <div class="main-content">
+        <%- include('../components/providerDashboard/overview', { user: currUser, provider: provider, bookings:
+          bookings, bookingStats: bookingStats, ratings: ratings }) %>
+          <%- include('../components/providerDashboard/services', { provider: provider, services: services }) %>
+            <%- include('../components/providerDashboard/bookings', { bookings: bookings, user: currUser }) %>
+              <%- include('../components/providerDashboard/locations', { provider: provider }) %>
+                <%- include('../components/providerDashboard/profile', { user: currUser, provider: provider }) %>
+                  <%- include('../components/providerDashboard/settings', { user: currUser, provider: provider }) %>
+      </div>
   </div>
-</div>
 
-<script src="/js/providerDashboard.js"></script>
-<script src="/js/sidebarToggle.js"></script>
+  <!-- Google Maps initialization -->
+  <script src="/js/mapInit.js"></script>
+  <script>
+    // Load Maps API with the key from the server (loaded only once)
+    document.addEventListener('DOMContentLoaded', function () {
+      window.loadGoogleMapsAPI('<%= googleMapsApiKey %>', '<%= googleMapsId %>');
+    });
+  </script>
+
+  <!-- Load other scripts -->
+  <script src="/js/providerDashboard.js"></script>
+  <script src="/js/sidebarToggle.js"></script>
+  <script src="/js/providerLocations.js"></script>

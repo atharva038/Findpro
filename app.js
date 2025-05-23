@@ -29,6 +29,7 @@ const addRoutes = require("./routes/admin/add.js");
 const feedbackRoutes = require('./routes/feedback.js');
 const chatRoutes = require('./routes/chat.js');
 const complaintsRoutes = require('./routes/complaints.js');
+const userRoutes = require('./routes/user');
 // Database connection
 
 // Update the database connection section
@@ -225,6 +226,7 @@ app.use('/api/bookings', bookingApiRoutes);
 app.use('/complaints', complaintsRoutes);
 app.use('/', chatRoutes);
 app.use('/', addRoutes);
+app.use('/user', userRoutes);
 // Listen on port
 app.listen(3000, () => {
   console.log("Server started on port 3000");
