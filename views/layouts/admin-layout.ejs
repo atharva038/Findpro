@@ -26,8 +26,8 @@
     
     <!-- Additional page-specific styles -->
     <% if (locals.pageStyle) { %>
-        <style><%- locals.pageStyle %></style>
-    <% } %>
+        <style><%= locals.pageStyle %></style>
+    <% } %
     
     <style>
         :root {
@@ -47,7 +47,7 @@
             --transition-speed: 0.3s;
             --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fc;
@@ -387,18 +387,7 @@
                             <span>Bookings</span>
                         </a>
                     </li>
-                    <li class="nav-item <%= locals.currentPath === '/admin/providers' ? 'active' : '' %>">
-                        <a href="/admin/providers" class="nav-link">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Service Providers</span>
-                        </a>
-                    </li>
-                    <li class="nav-item <%= locals.currentPath === '/admin/settings' ? 'active' : '' %>">
-                        <a href="/admin/settings" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
+
                     <li class="nav-item mt-auto border-top pt-2 mt-2">
                         <a href="/logout" class="nav-link text-white-50 hover-danger">
                             <i class="fas fa-sign-out-alt"></i>
