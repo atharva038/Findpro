@@ -20,6 +20,7 @@
         detectLocationBtn = document.getElementById('detect-location-btn');
         addLocationBtn = document.getElementById('add-location-btn');
 
+
         // Set up travel fee toggle
         const travelFeeToggle = document.getElementById('travel-fee-toggle');
         const travelFeeOptions = document.getElementById('travel-fee-options');
@@ -316,6 +317,9 @@
 
     // Setup legacy autocomplete as fallback
     function setupLegacyAutocomplete(inputElement) {
+        if (!inputElement.placeholder) {
+            inputElement.placeholder = "Enter a location or use 'Detect My Location'";
+        }
         autocomplete = new google.maps.places.Autocomplete(inputElement, {
             types: ['geocode'],
             componentRestrictions: { country: 'in' }
@@ -422,80 +426,90 @@
         const locationInput = document.getElementById('new-location');
         const radiusSelect = document.getElementById('radius-select');
 
-        if (!locationInput || !radiusSelect) {
-            showToast('error', 'Required form elements not found');
+        if (!locationInput || !locationInput.value || !radiusSelect) {
+            showToast('error', 'Please enter a location and select a radius');
             return;
         }
 
-        const locationName = locationInput.value;
-        const radius = radiusSelect.value;
-
-        if (!locationName) {
-            showToast('error', 'Please enter a location name');
-            return;
-        }
-
-        if (!marker) {
-            showToast('error', 'Please place a marker on the map');
-            return;
-        }
-
-        // Get position based on marker type
-        let position;
-        if (marker.position && typeof marker.position.lat === 'function') {
-            // Legacy marker
-            position = {
-                lat: marker.position.lat(),
-                lng: marker.position.lng()
-            };
-        } else if (marker.position) {
-            // AdvancedMarkerElement
-            position = marker.position;
-        } else {
-            showToast('error', 'Could not get marker position');
-            return;
-        }
-
-        // Show loading state
+        // Disable the button to prevent multiple clicks
         addLocationBtn.disabled = true;
         addLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
 
-        // Save to server
-        fetch('/api/provider/locations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: locationName,
-                lat: position.lat,
-                lng: position.lng,
-                radius: parseInt(radius)
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Location added successfully');
+        // Get location coordinates - either from stored data attributes or from geocoding
+        let lat = locationInput.dataset.lat ? parseFloat(locationInput.dataset.lat) : null;
+        let lng = locationInput.dataset.lng ? parseFloat(locationInput.dataset.lng) : null;
+        const radius = parseInt(radiusSelect.value);
+        const address = locationInput.value;
 
-                    // Add to UI
-                    updateLocationsList(data, position);
+        const processLocationData = (position) => {
+            // Send to server
+            fetch('/dashboard/api/provider/locations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: address,  // Add this line - use the address as the name
+                    address: address,
+                    lat: position.lat,
+                    lng: position.lng,
+                    radius: radius
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Location added successfully');
+                        updateLocationsList(data, position);
 
-                    // Clear form
-                    locationInput.value = '';
-                } else {
-                    throw new Error(data.message || 'Failed to add location');
-                }
-            })
-            .catch(error => {
-                console.error('Error adding location:', error);
-                showToast('error', error.message || 'Failed to add location');
-            })
-            .finally(() => {
-                // Reset button
-                addLocationBtn.disabled = false;
-                addLocationBtn.innerHTML = 'Add';
-            });
+                        // Clear form
+                        locationInput.value = '';
+                        locationInput.dataset.lat = '';
+                        locationInput.dataset.lng = '';
+                    } else {
+                        throw new Error(data.message || 'Failed to add location');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding location:', error);
+                    showToast('error', error.message || 'Error adding location');
+                })
+                .finally(() => {
+                    // Reset button
+                    addLocationBtn.disabled = false;
+                    addLocationBtn.innerHTML = 'Add';
+                });
+        };
+
+        // If we already have coordinates (from detect location), use them directly
+        if (lat && lng) {
+            processLocationData({ lat, lng });
+        }
+        // Otherwise geocode the address
+        else if (geocoder) {
+            geocoder.geocode({ address: address })
+                .then(response => {
+                    if (response.results && response.results[0]) {
+                        const position = {
+                            lat: response.results[0].geometry.location.lat(),
+                            lng: response.results[0].geometry.location.lng()
+                        };
+                        processLocationData(position);
+                    } else {
+                        throw new Error('No results found for this location');
+                    }
+                })
+                .catch(error => {
+                    console.error('Geocoding error:', error);
+                    addLocationBtn.disabled = false;
+                    addLocationBtn.innerHTML = 'Add';
+                    showToast('error', 'Could not find coordinates for this location');
+                });
+        } else {
+            addLocationBtn.disabled = false;
+            addLocationBtn.innerHTML = 'Add';
+            showToast('error', 'Geocoding service not available');
+        }
     }
 
     // Function to update the locations list after adding a new one
@@ -601,7 +615,8 @@
         });
     }
 
-    // Function to remove a location
+    // In the removeLocation function, update the fetch URL:
+
     function removeLocation(locationId, buttonElement) {
         if (!locationId) {
             showToast('error', 'Invalid location ID');
@@ -613,11 +628,19 @@
             buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             buttonElement.disabled = true;
 
-            // Remove from server
-            fetch(`/api/provider/locations/${locationId}`, {
+            // Fix the URL to match your backend route structure
+            fetch(`/dashboard/api/provider/locations/${locationId}`, {  // Changed from /api/provider/locations/
                 method: 'DELETE'
             })
-                .then(response => response.json())
+                .then(response => {
+                    // Add proper error handling for non-JSON responses
+                    if (!response.ok) {
+                        if (response.headers.get('content-type')?.includes('text/html')) {
+                            return Promise.reject(new Error(`Server returned status ${response.status}`));
+                        }
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         // Remove from UI
@@ -642,11 +665,11 @@
                             const existingAreas = document.getElementById('existing-service-areas');
                             if (existingAreas) {
                                 existingAreas.innerHTML = `
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    You haven't added any specific service areas yet. Add locations below to appear in those areas.
-                                </div>
-                            `;
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You haven't added any specific service areas yet. Add locations below to appear in those areas.
+                            </div>
+                        `;
                             }
                         }
 
@@ -690,7 +713,7 @@
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
         // Save to server
-        fetch('/api/provider/travel-fee', {
+        fetch('/profile/travel-fee', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -700,7 +723,17 @@
                 amount: amount
             })
         })
-            .then(response => response.json())
+            .then(response => {
+                // Check if response is OK before parsing JSON
+                if (!response.ok) {
+                    if (response.headers.get('content-type')?.includes('text/html')) {
+                        // Handle HTML response (likely an error page)
+                        return Promise.reject(new Error(`Server returned status ${response.status}`));
+                    }
+                    return response.json().then(data => Promise.reject(new Error(data.message || `Server returned status ${response.status}`)));
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Update provider data
@@ -727,82 +760,136 @@
 
     // Function to detect current location
     function detectCurrentLocation() {
-        if (!navigator.geolocation) {
-            showToast('error', 'Geolocation is not supported by your browser');
-            return;
-        }
+        // Check if geolocation is available
+        if (navigator.geolocation) {
+            // Show loading state
+            detectLocationBtn.disabled = true;
+            detectLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Detecting...';
 
-        const button = detectLocationBtn;
-        const locationInput = document.getElementById('new-location');
+            navigator.geolocation.getCurrentPosition(async function (position) {
+                try {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const locationInput = document.getElementById('new-location');
 
-        // Show loading state
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+                    // Update map to show current position
+                    if (map) {
+                        const currentLocation = { lat, lng };
+                        map.setCenter(currentLocation);
+                        map.setZoom(14);
 
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                const pos = { lat, lng };
-
-                if (map && marker) {
-                    // Update map
-                    map.setCenter(pos);
-                    map.setZoom(15);
-
-                    // Update marker based on type
-                    if (marker.position && typeof marker.position.lat === 'function') {
-                        // Legacy marker
-                        marker.setPosition(pos);
-                    } else if (marker.position) {
-                        // AdvancedMarkerElement
-                        marker.position = pos;
-                    }
-
-                    circle.setCenter(pos);
-                }
-
-                // Reverse geocode to get address
-                if (geocoder && locationInput) {
-                    geocoder.geocode({ location: pos }, function (results, status) {
-                        if (status === 'OK' && results[0]) {
-                            locationInput.value = results[0].formatted_address;
-                        } else {
-                            showToast('error', 'Could not get address for this location');
+                        // Add or update marker
+                        if (marker) {
+                            if (marker.setMap) marker.setMap(null);
                         }
 
-                        // Reset button
-                        button.disabled = false;
-                        button.innerHTML = '<i class="fas fa-location-arrow"></i> Detect My Location';
-                    });
-                } else {
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-location-arrow"></i> Detect My Location';
+                        marker = new google.maps.Marker({
+                            position: currentLocation,
+                            map: map,
+                            animation: google.maps.Animation.DROP
+                        });
+
+                        // Add or update circle for radius
+                        const radiusSelect = document.getElementById('radius-select');
+                        const radius = radiusSelect ? parseInt(radiusSelect.value) * 1000 : 10000; // Convert to meters
+
+                        if (circle) {
+                            if (circle.setMap) circle.setMap(null);
+                        }
+
+                        circle = new google.maps.Circle({
+                            strokeColor: '#FF6347',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: '#FF6347',
+                            fillOpacity: 0.2,
+                            map: map,
+                            center: currentLocation,
+                            radius: radius
+                        });
+
+                        // Reverse geocode to get address
+                        if (geocoder) {
+                            console.log("Geocoding current location:", currentLocation);
+                            const response = await geocoder.geocode({ location: currentLocation });
+
+                            if (response && response.results && response.results[0]) {
+                                const address = response.results[0].formatted_address;
+                                console.log("Found address:", address);
+
+                                // Update the location input field with the detected address
+                                // Make the original input visible and update its value
+                                if (locationInput) {
+                                    // If using the new autocomplete element, might need to handle differently
+                                    if (autocompleteElement) {
+                                        // Display the original input again if it was hidden
+                                        locationInput.style.display = '';
+
+                                        // For Google's autocomplete, we need to force a value update
+                                        locationInput.value = address;
+
+                                        // Also update any container element that might be showing the value
+                                        const autocompleteContainer = document.querySelector('.autocomplete-container');
+                                        if (autocompleteContainer) {
+                                            const visibleInput = autocompleteContainer.querySelector('input');
+                                            if (visibleInput) {
+                                                visibleInput.value = address;
+                                            }
+                                        }
+                                    } else {
+                                        // Simple case - just update the input value
+                                        locationInput.value = address;
+                                    }
+
+                                    // Store the coordinates for later use when adding location
+                                    locationInput.dataset.lat = lat;
+                                    locationInput.dataset.lng = lng;
+                                }
+                            } else {
+                                console.warn("No address found in geocoding response:", response);
+                                throw new Error('No address found for this location');
+                            }
+                        }
+                    }
+
+                    showToast('success', 'Current location detected successfully');
+                } catch (error) {
+                    console.error('Error getting address:', error);
+                    showToast('error', 'Failed to get address for current location: ' + error.message);
+                } finally {
+                    // Reset button state
+                    detectLocationBtn.disabled = false;
+                    detectLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Detect My Location';
                 }
-            },
-            function (error) {
-                let errorMessage = 'Could not get your location: ';
+            }, function (error) {
+                console.error('Geolocation error:', error);
+                detectLocationBtn.disabled = false;
+                detectLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Detect My Location';
+
+                let errorMessage = 'Failed to detect your location';
+
+                // More specific error messages based on the error code
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMessage += 'Location permission denied';
+                        errorMessage = 'Location access denied. Please allow location access in your browser settings.';
                         break;
                     case error.POSITION_UNAVAILABLE:
-                        errorMessage += 'Location information is unavailable';
+                        errorMessage = 'Location information is unavailable.';
                         break;
                     case error.TIMEOUT:
-                        errorMessage += 'The request to get location timed out';
+                        errorMessage = 'The request to get user location timed out.';
                         break;
-                    default:
-                        errorMessage += 'An unknown error occurred';
                 }
 
                 showToast('error', errorMessage);
-
-                // Reset button
-                button.disabled = false;
-                button.innerHTML = '<i class="fas fa-location-arrow"></i> Detect My Location';
-            }
-        );
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        } else {
+            showToast('error', 'Geolocation is not supported by this browser');
+        }
     }
 
     // Utility function to show a toast notification

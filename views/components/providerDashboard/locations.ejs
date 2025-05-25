@@ -247,11 +247,11 @@
     // Small connector script to pass server-side variables to the external JS
     document.addEventListener('DOMContentLoaded', function () {
         // Pass provider data to the external locations script
-        window.providerData = {
-            travelFeeEnabled: <%= provider.travelFeeEnabled || false %>,
-            travelFeeAmount: <%= provider.travelFeeAmount || 5 %>,
-            serviceAreas: <% - JSON.stringify(provider.serviceAreas || []) %>
-        };
+        window.providerData = <%- JSON.stringify({
+            travelFeeEnabled: provider.travelFeeEnabled || false,
+            travelFeeAmount: provider.travelFeeAmount || 5,
+            serviceAreas: provider.serviceAreas || []
+        }) %>;
 
         // Initialize travel fee toggle based on provider data
         const travelFeeToggle = document.getElementById('travel-fee-toggle');

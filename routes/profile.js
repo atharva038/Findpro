@@ -5,6 +5,8 @@ const { cloudinary, storage } = require('../config/cloudinary');
 const upload = multer({ storage });
 const User = require('../models/User');
 const { isLoggedIn } = require('../middleware');
+const Provider = require('../models/ServiceProvider');
+
 
 router.post('/update', isLoggedIn, upload.single('profileImage'), async (req, res) => {
     try {
@@ -74,6 +76,48 @@ router.post('/update', isLoggedIn, upload.single('profileImage'), async (req, re
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to update profile'
+        });
+    }
+});
+router.post('/travel-fee', isLoggedIn, async (req, res) => {
+    try {
+        const { enabled, amount } = req.body;
+
+        // Validate input
+        if (enabled === undefined || (enabled && (isNaN(amount) || amount <= 0))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid travel fee settings'
+            });
+        }
+
+        // Find provider associated with current user
+        const provider = await Provider.findOne({ user: req.user._id });
+
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider profile not found'
+            });
+        }
+
+        // Update provider
+        provider.travelFeeEnabled = enabled;
+        provider.travelFeeAmount = enabled ? amount : 0;
+        await provider.save();
+
+        res.json({
+            success: true,
+            message: 'Travel fee settings updated successfully',
+            travelFeeEnabled: provider.travelFeeEnabled,
+            travelFeeAmount: provider.travelFeeAmount
+        });
+
+    } catch (error) {
+        console.error('Error updating travel fee settings:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to update travel fee settings'
         });
     }
 });

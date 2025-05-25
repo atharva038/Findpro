@@ -28,7 +28,22 @@ const serviceProviderSchema = new mongoose.Schema({
       ],
     },
   ],
+  serviceArea: {
+    radius: { type: Number, default: 20 },
+    city: { type: String },
+    state: { type: String },
+    pincode: { type: String }
+  },
 
+  // Specific service areas/locations
+  serviceAreas: [
+    {
+      address: { type: String },
+      lat: { type: Number },
+      lng: { type: Number },
+      radius: { type: Number, default: 10 }
+    }
+  ],
   addresses: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -112,7 +127,14 @@ const serviceProviderSchema = new mongoose.Schema({
       }]
     }
   },
-
+  travelFeeEnabled: {
+    type: Boolean,
+    default: false
+  },
+  travelFeeAmount: {
+    type: Number,
+    default: 5
+  },
   // Provider can set their overall status
   isActive: { type: Boolean, default: true }
 });

@@ -114,9 +114,7 @@ router.get('/autocomplete', async (req, res) => {
         });
     }
 });
-// Current location route
-// Update this in routes/location.js
-// Current location route
+
 router.get('/current-location', async (req, res) => {
     try {
         const { lat, lng } = req.query;
