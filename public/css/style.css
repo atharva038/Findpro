@@ -10,8 +10,6 @@ body {
   flex: 1;
 }
 
-/* Add this to your existing CSS file */
-/* Add to g:\Coding\KnockNFix\public\css\style.css */
 #langSwitcher {
   background-color: #ffffff;
   border: 1px solid #dee2e6;
@@ -76,37 +74,6 @@ search-container {
   background: white;
 }
 
-.navbar {
-  height: 4rem;
-  /* margin-bottom: 20px; */
-  background-color: #f8f9fa;
-  transition: background-color 0.5s ease;
-}
-
-.nav-link {
-  color: #222222 !important;
-  position: relative;
-  overflow: hidden;
-  padding: 0.5rem 1rem;
-  transition: all 0.4s ease;
-}
-.navbar:hover {
-  background-color: #e9ecef;
-}
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 0;
-  height: 2px;
-  background-color: #007bff;
-  transition: width 0.4s ease;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
 /* footer styling */
 
 .f-info-link a {
@@ -314,28 +281,7 @@ h1 {
 .electrition-img {
   height: 200px; /* Fixed height for images */
   object-fit: contain;
-}
-.login {
-  background-color: #007bff !important; /* Primary color */
-  color: #ffffff !important; /* Text color */
-  border: none !important; /* Remove border */
-  padding: 10px 20px !important; /* Add padding */
-  border-radius: 5px !important; /* Rounded corners */
-  font-size: 16px !important; /* Font size */
-  transition: background-color 0.3s !important; /* Smooth transition */
-}
-.login:hover {
-  background-color: #0056b3; /* Darker shade on hover */
-  color: #ffffff; /* Keep text color white */
-}
-.login-container {
-  width: 45rem;
-  padding: 2rem;
-  margin-left: 18rem;
-  -webkit-border-radius: 8px;
-  border-radius: 8px;
-}
-/* Make the layout responsive */
+} /* Make the layout responsive */
 @media (max-width: 768px) {
   .login-container {
     width: 90%; /* Adapt the container width for smaller screens */

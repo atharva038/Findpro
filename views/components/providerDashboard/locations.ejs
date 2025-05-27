@@ -1,79 +1,78 @@
 <div class="dashboard-section" id="locations-section" style="display: none;">
-    <div class="section-header">
-        <h2><i class="fas fa-map-marker-alt me-2"></i> Service Locations</h2>
-        <button type="button" class="btn btn-primary" id="saveAllLocationSettings">
-            <i class="fas fa-save me-2"></i>Save All Changes
+    <div class="section-header d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fs-4 mb-0"><i class="fas fa-map-marker-alt me-2"></i> Service Locations</h2>
+        <button type="button" class="btn btn-sm btn-primary" id="saveAllLocationSettings">
+            <i class="fas fa-save me-1"></i>Save All Changes
         </button>
     </div>
 
     <!-- Service Area Section -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Service Area Settings</h5>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light py-2">
+            <h5 class="mb-0 fs-5">General Service Coverage</h5>
         </div>
-        <div class="card-body">
-            <div class="alert alert-info">
+        <div class="card-body py-3">
+            <div class="alert alert-info py-2 px-3 mb-3">
                 <i class="fas fa-info-circle me-2"></i>
-                Set your service area to specify how far you're willing to travel for bookings.
+                <small>Set your service area to specify how far you're willing to travel for bookings.</small>
             </div>
 
             <form id="serviceAreaForm">
-                <div class="row mb-3">
+                <div class="row g-2 mb-2">
                     <div class="col-md-6">
-                        <label for="service-radius" class="form-label">Service Radius</label>
-                        <div class="input-group">
+                        <label for="service-radius" class="form-label small">Service Radius</label>
+                        <div class="input-group input-group-sm">
                             <input type="number" class="form-control" id="service-radius" name="radius"
                                 value="<%= provider.serviceArea?.radius || 20 %>" min="1" max="100">
                             <span class="input-group-text">km</span>
                         </div>
-                        <small class="text-muted">Maximum distance you're willing to travel</small>
+                        <small class="text-muted fs-7">Maximum distance you're willing to travel</small>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="service-city" class="form-label">Based In (City)</label>
-                        <input type="text" class="form-control" id="service-city" name="city"
+                        <label for="service-city" class="form-label small">Based In (City)</label>
+                        <input type="text" class="form-control form-control-sm" id="service-city" name="city"
                             value="<%= provider.serviceArea?.city || '' %>" placeholder="Your city">
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row g-2 mb-3">
                     <div class="col-md-6">
-                        <label for="service-state" class="form-label">State</label>
-                        <input type="text" class="form-control" id="service-state" name="state"
+                        <label for="service-state" class="form-label small">State</label>
+                        <input type="text" class="form-control form-control-sm" id="service-state" name="state"
                             value="<%= provider.serviceArea?.state || '' %>">
                     </div>
 
                     <div class="col-md-6">
-                        <label for="service-pincode" class="form-label">PIN Code</label>
-                        <input type="text" class="form-control" id="service-pincode" name="pincode"
+                        <label for="service-pincode" class="form-label small">PIN Code</label>
+                        <input type="text" class="form-control form-control-sm" id="service-pincode" name="pincode"
                             value="<%= provider.serviceArea?.pincode || '' %>" pattern="[0-9]{6}">
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-primary" id="saveServiceAreaBtn">
-                    <i class="fas fa-save me-2"></i>Save Service Area
+                <button type="button" class="btn btn-sm btn-primary" id="saveServiceAreaBtn">
+                    <i class="fas fa-save me-1"></i>Save Service Area
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Availability Settings -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Availability Settings</h5>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light py-2">
+            <h5 class="mb-0 fs-5">Availability Settings</h5>
         </div>
-        <div class="card-body">
-            <div class="alert alert-info">
+        <div class="card-body py-3">
+            <div class="alert alert-info py-2 px-3 mb-3">
                 <i class="fas fa-info-circle me-2"></i>
-                Set your working hours to determine when you're available for bookings. Only customers booking during
-                these hours will see your profile.
+                <small>Set your working hours to determine when you're available for bookings.</small>
             </div>
             <form id="availabilityForm">
-                <div class="mb-4">
+                <div class="mb-3">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="overall-availability" <%=provider.isActive
                             ? 'checked' : '' %>>
-                        <label class="form-check-label fw-bold" for="overall-availability">
+                        <label class="form-check-label small fw-bold" for="overall-availability">
                             Active Status (When turned off, you will not be visible to customers)
                         </label>
                     </div>
@@ -93,17 +92,18 @@
                     });
                     }
                     %>
-                    <div class="day-container mb-4" data-day="<%= day %>">
+                    <div class="day-container mb-2 p-2 border-bottom" data-day="<%= day %>">
                         <div class="day-header d-flex align-items-center mb-2">
                             <div class="form-check form-switch">
                                 <input class="form-check-input day-toggle" type="checkbox" id="<%= day %>-available"
                                     data-day="<%= day %>" <%=dayData.isAvailable ? 'checked' : '' %>
                                 >
-                                <label class="form-check-label fw-bold text-capitalize" for="<%= day %>-available">
+                                <label class="form-check-label small fw-bold text-capitalize"
+                                    for="<%= day %>-available">
                                     <%= day %>
                                 </label>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary ms-auto add-slot-btn"
+                            <button type="button" class="btn btn-xs btn-outline-primary ms-auto add-slot-btn"
                                 data-day="<%= day %>">
                                 <i class="fas fa-plus me-1"></i> Add Slot
                             </button>
@@ -114,7 +114,7 @@
                             <% dayData.slots.forEach((slot, index)=> { %>
                                 <div class="slot-row d-flex align-items-center mb-2" data-index="<%= index %>">
                                     <div class="time-range flex-grow-1">
-                                        <div class="input-group">
+                                        <div class="input-group input-group-sm">
                                             <input type="time" class="form-control slot-start"
                                                 value="<%= slot.startTime %>" name="<%= day %>-start-<%= index %>"
                                                 required>
@@ -123,16 +123,16 @@
                                                 name="<%= day %>-end-<%= index %>" required>
                                         </div>
                                     </div>
-                                    <div class="form-check form-switch ms-3 me-2">
+                                    <div class="form-check form-switch ms-2 me-1">
                                         <input class="form-check-input slot-active" type="checkbox"
                                             id="<%= day %>-slot-<%= index %>-active" <%=slot.isActive ? 'checked' : ''
                                             %>
                                         >
-                                        <label class="form-check-label"
+                                        <label class="form-check-label small"
                                             for="<%= day %>-slot-<%= index %>-active">Active</label>
                                     </div>
                                     <% if (index> 0) { %>
-                                        <button type="button" class="btn btn-sm btn-outline-danger remove-slot-btn">
+                                        <button type="button" class="btn btn-xs btn-outline-danger remove-slot-btn">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         <% } %>
@@ -142,56 +142,62 @@
                     </div>
                     <% }); %>
 
-                        <button type="button" class="btn btn-primary" id="saveAvailabilityBtn">
-                            <i class="fas fa-save me-2"></i>Save Availability Settings
+                        <button type="button" class="btn btn-sm btn-primary mt-2" id="saveAvailabilityBtn">
+                            <i class="fas fa-save me-1"></i>Save Availability Settings
                         </button>
             </form>
         </div>
     </div>
 
     <!-- Service Locations Map -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Your Service Areas</h5>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light py-2">
+            <h5 class="mb-0 fs-5">Specific Service Locations</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body py-3">
+            <div class="alert alert-info py-2 px-3 mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <small>Add specific locations where you offer services. Each location can have its own custom
+                    radius.</small>
+            </div>
             <div class="location-manager">
                 <div class="current-locations mb-3">
-                    <h6>Current Service Areas</h6>
-                    <div id="existing-service-areas">
+                    <h6 class="fs-6 mb-2">Current Service Areas</h6>
+                    <div id="existing-service-areas" class="border rounded p-2 bg-light">
                         <% if (provider.serviceAreas && provider.serviceAreas.length> 0) { %>
                             <div class="location-tags">
                                 <% provider.serviceAreas.forEach(area=> { %>
-                                    <div class="location-tag" data-id="<%= area._id %>" data-lat="<%= area.lat %>"
-                                        data-lng="<%= area.lng %>" data-radius="<%= area.radius %>"
-                                        data-name="<%= area.name %>">
-                                        <%= area.name %>
-                                            <button class="btn-remove-location" data-id="<%= area._id %>">
-                                                <i class="fas fa-times-circle"></i>
-                                            </button>
+                                    <div class="location-tag d-inline-block bg-primary text-white rounded-pill px-3 py-1 me-2 mb-2"
+                                        data-id="<%= area._id %>" data-lat="<%= area.lat %>" data-lng="<%= area.lng %>"
+                                        data-radius="<%= area.radius %>" data-name="<%= area.name %>">
+                                        <small>
+                                            <%= area.name %>
+                                        </small>
+                                        <button class="btn-remove-location border-0 bg-transparent text-white p-0 ms-1"
+                                            data-id="<%= area._id %>">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
                                     </div>
                                     <% }); %>
                             </div>
                             <% } else { %>
-                                <div class="alert alert-info">
+                                <div class="alert alert-info py-2 px-3 mb-0">
                                     <i class="fas fa-info-circle me-2"></i>
-                                    You haven't added any specific service areas yet. Add locations below to appear in
-                                    those
-                                    areas.
+                                    <small>You haven't added any specific service areas yet.</small>
                                 </div>
                                 <% } %>
                     </div>
                 </div>
 
-                <div class="add-location mt-4">
-                    <h6>Add New Service Area</h6>
-                    <div class="row g-3">
+                <div class="add-location mt-3">
+                    <h6 class="fs-6 mb-2">Add New Service Area</h6>
+                    <div class="row g-2 mb-2">
                         <div class="col-md-6">
-                            <input type="text" id="new-location" class="form-control"
+                            <input type="text" id="new-location" class="form-control form-control-sm"
                                 placeholder="Search for a location">
                         </div>
-                        <div class="col-md-4">
-                            <select id="radius-select" class="form-select">
+                        <div class="col-md-3">
+                            <select id="radius-select" class="form-select form-select-sm">
                                 <option value="5">Within 5 km</option>
                                 <option value="10" selected>Within 10 km</option>
                                 <option value="15">Within 15 km</option>
@@ -199,55 +205,101 @@
                                 <option value="25">Within 25 km</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button id="add-location-btn" class="btn btn-primary w-100">Add</button>
-                        </div>
-                        <div class="col-12 mt-2">
-                            <button id="detect-location-btn" type="button" class="btn btn-outline-secondary">
-                                <i class="fas fa-location-arrow"></i> Detect My Location
-                            </button>
+                        <div class="col-md-3">
+                            <div class="d-grid">
+                                <button id="add-location-btn" class="btn btn-sm btn-primary">Add</button>
+                            </div>
                         </div>
                     </div>
-                    <div id="location-map" class="mt-3" style="height: 300px; border-radius: 8px;"></div>
+                    <div class="mb-2">
+                        <button id="detect-location-btn" type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-location-arrow"></i> Detect My Location
+                        </button>
+                    </div>
+                    <div id="location-map" class="rounded border" style="height: 250px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Travel Fees -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Travel Fee Settings</h5>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light py-2">
+            <h5 class="mb-0 fs-5">Travel Fee Settings</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body py-3">
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="travel-fee-toggle">
-                <label class="form-check-label" for="travel-fee-toggle">
+                <label class="form-check-label small" for="travel-fee-toggle">
                     Enable travel fee for long distances
                 </label>
             </div>
 
             <div id="travel-fee-options" class="mb-3" style="display: none;">
-                <label class="form-label">Travel Fee per km (beyond base radius)</label>
-                <div class="input-group mb-3">
+                <label class="form-label small">Travel Fee per km (beyond base radius)</label>
+                <div class="input-group input-group-sm mb-2" style="max-width: 200px;">
                     <span class="input-group-text">₹</span>
                     <input type="number" class="form-control" id="travel-fee-amount" placeholder="Amount per km"
                         value="5">
                 </div>
             </div>
 
-            <button id="save-location-settings" class="btn btn-primary">Save Fee Settings</button>
+            <button id="save-location-settings" class="btn btn-sm btn-primary">Save Fee Settings</button>
         </div>
     </div>
 </div>
 
-<!-- At the end of the file, replace your current script with: -->
+<!-- Add custom CSS for further styling -->
+<style>
+    /* Custom styling for the location tags */
+    .location-tag {
+        transition: all 0.2s;
+    }
 
+    .location-tag:hover {
+        background-color: #0056b3 !important;
+    }
+
+    .btn-xs {
+        padding: 0.125rem 0.25rem;
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+
+    /* Add smaller font size utility */
+    .fs-7 {
+        font-size: 0.75rem;
+    }
+
+    /* Style the map container */
+    #location-map {
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Make cards more compact */
+    .card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    /* Make alerts more compact */
+    .alert {
+        border-radius: 0.375rem;
+    }
+
+    /* Improve buttons */
+    .btn-remove-location:hover {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+</style>
+
+<!-- At the end of the file, keep your script -->
 <script>
     // Small connector script to pass server-side variables to the external JS
     document.addEventListener('DOMContentLoaded', function () {
         // Pass provider data to the external locations script
-        window.providerData = <%- JSON.stringify({
+        window.providerData = <% - JSON.stringify({
             travelFeeEnabled: provider.travelFeeEnabled || false,
             travelFeeAmount: provider.travelFeeAmount || 5,
             serviceAreas: provider.serviceAreas || []

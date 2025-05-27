@@ -30,6 +30,9 @@ const feedbackRoutes = require('./routes/feedback.js');
 const chatRoutes = require('./routes/chat.js');
 const complaintsRoutes = require('./routes/complaints.js');
 const userRoutes = require('./routes/user');
+
+const port = process.env.PORT || 3000;
+
 // Database connection
 
 // Update the database connection section
@@ -228,6 +231,7 @@ app.use('/', chatRoutes);
 app.use('/', addRoutes);
 app.use('/user', userRoutes);
 // Listen on port
-app.listen(3000, () => {
-  console.log("Server started on port 3000");
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`KnockNFix server running on port ${port}`);
 });

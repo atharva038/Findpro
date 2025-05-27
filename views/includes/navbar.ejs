@@ -1,113 +1,122 @@
 <nav class="navbar navbar-expand-lg sticky-top">
-  <div class="container">
-    <!-- Brand Logo -->
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <div class="logo-container">
-        <img src="/img/icon.png" alt="KnockNFix Logo" class="logo-img" />
-      </div>
-      <span class="brand-text">KnockNFix</span>
-    </a>
+  <!-- Brand Logo -->
+  <a class="navbar-brand" href="/">
+    <div class="logo-container">
+      <img src="/img/icon.png" alt="KnockNFix Logo" class="logo-img" />
+    </div>
+    <span class="brand-text">KnockNFix</span>
+  </a>
 
-    <!-- Toggle Button -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="toggler-icon">
-        <i class="fas fa-bars"></i>
-      </span>
-    </button>
+  <!-- Toggle Button -->
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="toggler-icon">
+      <i class="fas fa-bars"></i>
+    </span>
+  </button>
 
-    <!-- Navbar Content -->
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <!-- Main Navigation Links -->
-      <ul class="navbar-nav mx-auto">
+  <!-- Navbar Content -->
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <!-- Main Navigation Links -->
+    <ul class="navbar-nav mx-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/">
+          <i class="fas fa-home nav-icon"></i>
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/services">
+          <i class="fas fa-tools nav-icon"></i>
+          <span>Services</span>
+        </a>
+      </li>
+      <% if (typeof currProvider !=="undefined" && currProvider) { %>
         <li class="nav-item">
-          <a class="nav-link" href="/">
-            <i class="fas fa-home nav-icon"></i>
-            <span>Home</span>
+          <a class="nav-link" href="/dashboard">
+            <i class="fas fa-columns nav-icon"></i>
+            <span>Dashboard</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/services">
-            <i class="fas fa-tools nav-icon"></i>
-            <span>Services</span>
-          </a>
-        </li>
-        <% if (typeof currProvider !=="undefined" && currProvider) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/dashboard">
-              <i class="fas fa-columns nav-icon"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <% } %>
-            <% if (typeof currCustomer !=="undefined" && currCustomer) { %>
-              <li class="nav-item">
-                <a class="nav-link" href="/dashboard">
-                  <i class="fas fa-user-circle nav-icon"></i>
-                  <span>Dashboard</span>
-                </a>
-              </li>
-              <% } %>
-      </ul>
-
-      <!-- Right-aligned Auth Links -->
-      <div class="navbar-nav auth-links">
-        <% if(!currUser){ %>
-          <a class="nav-link login-link" href="/login">
-            <i class="fas fa-sign-in-alt me-1"></i> Login
-          </a>
-          <a class="signup-btn" href="/register">
-            <i class="fas fa-user-plus me-1"></i> Sign Up
-          </a>
-          <% } else { %>
-            <a class="logout-btn" href="/logout">
-              <i class="fas fa-sign-out-alt me-1"></i> Logout
-            </a>
+        <% } %>
+          <% if (typeof currCustomer !=="undefined" && currCustomer) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">
+                <i class="fas fa-user-circle nav-icon"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
             <% } %>
-      </div>
+    </ul>
+
+    <!-- Right-aligned Auth Links -->
+    <div class="navbar-nav auth-links">
+      <% if(!currUser){ %>
+        <a class="nav-link login-link" href="/login">
+          <i class="fas fa-sign-in-alt me-1"></i> Login
+        </a>
+        <a class="signup-btn" href="/register">
+          <i class="fas fa-user-plus me-1"></i> Sign Up
+        </a>
+        <% } else { %>
+          <a class="logout-btn" href="/logout">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          </a>
+          <% } %>
     </div>
   </div>
 </nav>
 
 <style>
-  /* Modern Navbar Styling */
+  /* Completely rewritten navbar styles without container dependency */
+
+  /* Core navbar styling */
   .navbar {
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 0.2rem 0; /* Reduced top padding */
+    height: 64px;
+    /* 4rem in pixels for better consistency */
+    padding: 0 16px;
+    /* Side padding instead of container */
+    display: flex;
+    align-items: center;
+    width: 100%;
     transition: all 0.3s ease;
   }
 
   .navbar.scrolled {
-    padding: 0.5rem 0;
-    background-color: rgba(255, 255, 255, 0.98);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
-  /* Logo Styling */
+  /* Brand and Logo */
   .navbar-brand {
-    padding: 0;
-    margin-right: 1.5rem;
     display: flex;
     align-items: center;
-    height: 64px; /* Fixed height to keep alignment */
+    height: 64px;
+    padding: 0;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+  }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
   }
 
   .logo-img {
-    width: 50px; /* Smaller size */
-    height: 50px; /* Smaller size */
+    width: 40px;
+    height: 40px;
     object-fit: contain;
     border-radius: 8px;
   }
 
-  .navbar-brand:hover .logo-container {
-    transform: translateY(-3px) rotate(5deg);
-  }
-
   .brand-text {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 700;
     margin-left: 0.75rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -118,31 +127,84 @@
     line-height: 1;
   }
 
-  /* Navigation Links */
+  /* Navbar toggle button */
+  .navbar-toggler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    margin-left: auto;
+    /* Important: Push to right side */
+    order: 2;
+    /* Order for flex layout */
+  }
+
+  .toggler-icon {
+    color: #667eea;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  /* Collapsible content */
+  .navbar-collapse {
+    flex-grow: 1;
+    order: 3;
+    /* Order for flex layout - after toggler */
+    display: flex;
+  }
+
+  /* Nav links */
   .navbar-nav {
     display: flex;
     align-items: center;
+    margin: 0;
+    padding: 0;
+
   }
 
   .nav-item {
     margin: 0 0.35rem;
+    display: flex;
+    align-items: center;
   }
 
   .nav-link {
     font-weight: 500;
     color: #4a5568;
-    padding: 0.5rem 0.85rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 8px;
     position: relative;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    height: 40px;
+    /* Fixed height for consistency */
   }
 
   .nav-link:hover {
     color: #667eea;
     background-color: rgba(102, 126, 234, 0.05);
+  }
+
+  .nav-icon {
+    font-size: 0.95rem;
+    transition: transform 0.3s ease;
   }
 
   .nav-link::before {
@@ -165,46 +227,38 @@
   .nav-link.active {
     color: #667eea;
     font-weight: 600;
+    background-color: rgba(102, 126, 234, 0.08);
   }
 
   .nav-link.active::before {
     width: 70%;
   }
 
-  .nav-icon {
-    font-size: 0.95rem;
-    transition: transform 0.3s ease;
-  }
-
-  .nav-link:hover .nav-icon {
-    transform: translateY(-2px);
-  }
-
-  /* Auth Buttons */
+  /* Auth links on right side */
   .auth-links {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    margin-left: auto;
+    /* Push to right side */
   }
 
   .login-link {
     color: #4a5568;
     font-weight: 500;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 1rem;
     border-radius: 8px;
     transition: all 0.3s ease;
-  }
-
-  .login-link:hover {
-    color: #667eea;
-    background-color: rgba(102, 126, 234, 0.05);
+    height: 40px;
+    display: flex;
+    align-items: center;
   }
 
   .signup-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: 600;
-    padding: 0.6rem 1.5rem;
+    padding: 0.4rem 1.2rem;
     border-radius: 50px;
     text-decoration: none;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -212,6 +266,21 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    height: 40px;
+  }
+
+  .logout-btn {
+    background-color: #fff1f0;
+    color: #e53e3e;
+    font-weight: 500;
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 40px;
   }
 
   .signup-btn:hover {
@@ -220,125 +289,92 @@
     color: white;
   }
 
-  .logout-btn {
-    background-color: #fff1f0;
-    color: #e53e3e;
-    font-weight: 500;
-    padding: 0.6rem 1.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
   .logout-btn:hover {
     background-color: #fed7d7;
     color: #c53030;
   }
 
-  /* Toggler */
-  .navbar-toggler {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    width: 40px;
-    padding: 0;
-    border: none;
-    border-radius: 8px;
-    background: rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-  }
+  /* Responsive styles */
+  @media (min-width: 992px) {
 
-  .navbar-toggler:focus {
-    box-shadow: none;
-    outline: none;
-  }
-
-  .navbar-toggler:hover {
-    background: rgba(102, 126, 234, 0.15);
-  }
-
-  .toggler-icon {
-    color: #667eea;
-    font-size: 1.2rem;
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 991.98px) {
-    .navbar {
-      padding: 0.5rem 1rem; /* Reduced padding */
-    }
-
-    .navbar-brand {
-      margin-right: 0;
-      height: 45px; /* Fixed height for mobile */
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar>.container {
-      padding: 0;
-      position: relative;
-      flex-wrap: nowrap;
-      display: flex;
-      align-items: center;
+    /* Desktop specific */
+    .navbar-collapse {
       justify-content: space-between;
+      height: 64px;
     }
 
-    .logo-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-img {
-      width: 35px;
-      height: 35px;
-      object-fit: contain;
-    }
-
-    .brand-text {
-      font-size: 1rem;
+    .navbar-nav {
+      height: 64px;
     }
 
     .navbar-toggler {
-      height: 40px;
-      width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      margin-left: 0.5rem;
+      display: none;
     }
 
-    /* Collapse container styling */
+    .nav-item {
+      height: 64px;
+    }
+
+    .mx-auto {
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .navbar-brand:hover .logo-container {
+      transform: translateY(-2px) rotate(5deg);
+    }
+  }
+
+  @media (max-width: 991.98px) {
+
+    /* Mobile and tablet */
+    .navbar {
+      padding: 0 12px;
+      justify-content: space-between;
+    }
+
+    .navbar-brand {
+      z-index: 2;
+      /* Above the dropdown */
+    }
+
+    .logo-img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .brand-text {
+      font-size: 1.1rem;
+    }
+
+    /* Full width dropdown on mobile */
     .navbar-collapse {
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
       background-color: white;
-      margin-top: 1rem;
+      width: calc(100% - 24px);
+      margin: 0 12px;
       padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      width: calc(100% - 2rem);
-      margin-left: 1rem;
-      margin-right: 1rem;
+      flex-direction: column;
       max-height: 80vh;
       overflow-y: auto;
+      z-index: 1000;
     }
 
-    /* Fix the navigation items for mobile */
+    /* When not expanded, hide completely */
+    .navbar-collapse:not(.show):not(.collapsing) {
+      display: none;
+    }
+
+    /* Stacked nav items */
     .navbar-nav {
-      padding: 0.5rem 0;
       flex-direction: column;
       width: 100%;
-      margin: 0;
+      padding: 0;
     }
 
     .nav-item {
@@ -348,73 +384,77 @@
 
     .nav-link {
       width: 100%;
-      display: flex;
-      padding: 0.7rem 1rem;
+      padding: 0.85rem 1rem;
+      justify-content: flex-start;
     }
 
-    /* Auth links in mobile view */
+    /* Remove underline effect on mobile */
+    .nav-link:hover::before,
+    .nav-link.active::before {
+      width: 0;
+    }
+
+    /* Auth links stacking */
     .auth-links {
       flex-direction: column;
       width: 100%;
       gap: 0.5rem;
-      padding-top: 0.75rem;
-      margin-top: 0.75rem;
-      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .login-link, .signup-btn, .logout-btn {
+    .login-link,
+    .signup-btn,
+    .logout-btn {
       width: 100%;
       justify-content: center;
       text-align: center;
       margin: 0.25rem 0;
+      padding: 0.75rem 1rem;
+    }
+
+    /* No animation on mobile */
+    .signup-btn:hover {
+      transform: none;
+    }
+
+    .navbar-brand:hover .logo-container {
+      transform: none;
     }
   }
 
-  /* Fix mobile menu toggle behavior */
-  @media (max-width: 991.98px) {
+  /* Small mobile devices */
+  @media (max-width: 576px) {
+    .navbar {
+      padding: 0 8px;
+    }
+
+    .logo-img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .brand-text {
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
     .navbar-collapse {
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .navbar>.container {
-      position: relative;
+      width: calc(100% - 16px);
+      margin: 0 8px;
     }
   }
 
-  /* Ensure flexbox works on larger screens */
-  @media (min-width: 992px) {
-    .navbar-collapse.collapsing,
-    .navbar-collapse.show {
-      display: flex;
-    }
-
-    .navbar-nav {
-      display: flex;
-      flex-direction: row;
-    }
-  }
-
-  /* Add active class styles to current page */
-  .nav-link.active {
-    color: #667eea;
-    background-color: rgba(102, 126, 234, 0.08);
-    font-weight: 600;
-  }
-
-  .nav-link.active::before {
-    width: 70%;
-  }
-
-  /* Make navbar transparent on home page for better hero section visibility */
+  /* Home page transparent navbar */
   body.home-page .navbar:not(.scrolled) {
     background-color: rgba(255, 255, 255, 0.8);
   }
 </style>
 
 <script>
-  // Add scrolled class to navbar when scrolling
   document.addEventListener('DOMContentLoaded', function () {
+    // Handle scrolling effects
     window.addEventListener('scroll', function () {
       const navbar = document.querySelector('.navbar');
       if (window.scrollY > 50) {
@@ -435,5 +475,63 @@
         link.classList.add('active');
       }
     });
+
+    // Mobile menu toggle behavior
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+
+    if (navbarToggler && navbarCollapse) {
+      // Toggle icon between bars and times
+      navbarToggler.addEventListener('click', function () {
+        const togglerIcon = this.querySelector('i');
+        if (togglerIcon) {
+          if (togglerIcon.classList.contains('fa-bars')) {
+            togglerIcon.classList.remove('fa-bars');
+            togglerIcon.classList.add('fa-times');
+          } else {
+            togglerIcon.classList.remove('fa-times');
+            togglerIcon.classList.add('fa-bars');
+          }
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function (e) {
+        if (navbarCollapse.classList.contains('show') &&
+          !navbarToggler.contains(e.target) &&
+          !navbarCollapse.contains(e.target)) {
+
+          // Use Bootstrap's collapse API
+          const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+          bsCollapse.hide();
+
+          // Reset icon
+          const togglerIcon = navbarToggler.querySelector('i');
+          if (togglerIcon) {
+            togglerIcon.classList.remove('fa-times');
+            togglerIcon.classList.add('fa-bars');
+          }
+        }
+      });
+
+      // Close menu when clicking a link
+      const mobileNavLinks = navbarCollapse.querySelectorAll('.nav-link');
+      mobileNavLinks.forEach(link => {
+        link.addEventListener('click', function () {
+          if (window.innerWidth < 992) {
+            // Use Bootstrap's collapse API
+            const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+            bsCollapse.hide();
+
+            // Reset icon
+            const togglerIcon = navbarToggler.querySelector('i');
+            if (togglerIcon) {
+              togglerIcon.classList.remove('fa-times');
+              togglerIcon.classList.add('fa-bars');
+            }
+          }
+        });
+      });
+    }
   });
 </script>

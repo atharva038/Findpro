@@ -49,11 +49,32 @@
   </nav>
 </div>
 
+<!-- Add overlay for mobile -->
+<div class="sidebar-overlay"></div>
+
 <style>
-  /* Sidebar Styles */
+  /* Sidebar Overlay */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    /* Just below sidebar */
+  }
+
+  body.sidebar-open .sidebar-overlay {
+    display: block;
+  }
+
+  /* Sidebar Styles - Kept as sticky */
   .sidebar {
     width: 280px;
     position: sticky;
+    /* Maintaining sticky as requested */
     background-color: #ffffff;
     top: 76px;
     left: 0;
@@ -64,22 +85,42 @@
     transition: transform 0.3s ease;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
     padding-bottom: 76px;
-    /* Add padding at bottom to prevent footer overlap */
+    /* Add gradient to indicate end */
+    border-right: 1px solid #f0f0f0;
+  }
+
+  /* Add scrollbar styling */
+  .sidebar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
   .sidebar-toggle {
     display: none;
     position: fixed;
     top: 85px;
-    left: 10px;
+    left: 15px;
     z-index: 1000;
-    padding: 10px;
+    padding: 12px;
     background: #ffffff;
     color: #333;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-toggle:hover {
+    background-color: #f8f9fa;
   }
 
   .sidebar-header {
@@ -88,6 +129,9 @@
     border-bottom: 1px solid #f0f0f0;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
 
   .sidebar-profile-img {
@@ -169,15 +213,72 @@
       display: block;
     }
 
+    /* For mobile, override sticky position */
     .sidebar {
-      transform: translateX(-100%);
+      position: fixed;
+      /* Need fixed for mobile slide-out menu */
+      transform: translateX(-280px);
+      /* Use exact pixel value instead of percentage */
       width: 280px;
+      box-shadow: none;
     }
 
     .sidebar.active {
       transform: translateX(0);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* When sidebar active, move toggle button */
+    .sidebar.active~.sidebar-toggle,
+    body.sidebar-open .sidebar-toggle {
+      left: 290px;
+    }
+
+    /* Make main content full width on mobile */
+    .main-content {
+      width: 100%;
+      margin-left: 0;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    /* Add body class to prevent scrolling when sidebar is open */
+    body.sidebar-open {
+      overflow: hidden;
+    }
+  }
+
+  /* Extra small devices */
+  @media (max-width: 576px) {
+    .sidebar {
+      width: 260px;
+      transform: translateX(-260px);
+    }
+
+    .sidebar.active~.sidebar-toggle {
+      left: 270px;
+    }
+
+    .sidebar-toggle {
+      top: 80px;
+      left: 10px;
+      padding: 10px;
     }
   }
 </style>
-<!-- Make sure this appears after the sidebar HTML -->
-<script src="/js/sidebarToggle.js"></script>
+
+<script>
+  // This ensures elements are defined before sidebarToggle.js runs
+  document.addEventListener("DOMContentLoaded", function () {
+    // Create or get existing toggle elements
+    const sidebar = document.querySelector('.sidebar');
+    const toggle = document.getElementById('sidebarToggle');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    console.log("SidebarElements:", {
+      sidebar: sidebar,
+      toggle: toggle,
+      overlay: overlay
+    });
+  });
+</script>
