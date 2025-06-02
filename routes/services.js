@@ -5,7 +5,9 @@ const Category = require("../models/category");
 const ServiceProvider = require("../models/ServiceProvider");
 const router = express.Router();
 const calculateDistance = require('../utils/distance');
+const { isLoggedIn } = require('../middleware');
 
+// Get all services/categories
 router.get("/", async (req, res) => {
   try {
     // Fetch all categories with their images
@@ -55,324 +57,263 @@ router.get("/:id", async (req, res) => {
 });
 
 
-// Inside your /:id/providers route handler:
-router.get("/:id/providers", async (req, res) => {
+router.get('/:serviceId/providers', async (req, res) => {
   try {
-    const serviceId = req.params.id;
-    const service = await Service.findById(serviceId).populate("category").lean();
+    const { serviceId } = req.params;
+    const { date, time, location, latitude, longitude, distance = 10 } = req.query;
 
-    if (!service) {
-      req.flash("error", "Service not found");
-      return res.redirect("/services");
-    }
-    // Get user location from different sources with priority
+    console.log('Providers request params:', { serviceId, date, time, location, latitude, longitude });
+
+    // Parse coordinates if provided
     let userLocation = null;
-
-    // 1. Try to get from the session (most recent)
-    if (req.session.currentLocation) {
-      userLocation = req.session.currentLocation;
-    }
-    // 2. If logged in, try to get from the user's default address
-    else if (req.user) {
-      const user = await User.findById(req.user._id);
-
-      if (user) {
-        // Find default address first
-        const defaultAddress = user.addresses.find(addr => addr.isDefault);
-
-        if (defaultAddress && defaultAddress.coordinates) {
-          userLocation = defaultAddress.coordinates;
-        }
-        // If no default address but there are other addresses, use the first one
-        else if (user.addresses.length > 0 && user.addresses[0].coordinates) {
-          userLocation = user.addresses[0].coordinates;
-        }
-      }
-    }
-    // Get the selected date and time from query params (if provided)
-    let selectedDate = req.query.date ? new Date(req.query.date) : new Date();
-    let selectedTime = req.query.time || "";
-
-    // Validate date (can't be in the past)
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (selectedDate < today) {
-      selectedDate = today;
+    if (latitude && longitude) {
+      userLocation = {
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude)
+      };
+      console.log('User location coordinates:', userLocation);
     }
 
-    // Validate time if date is today
-    if (selectedDate.getTime() === today.getTime() && selectedTime) {
-      const [hours, minutes] = selectedTime.split(':').map(num => parseInt(num));
-      const selectedDateTime = new Date(selectedDate);
-      selectedDateTime.setHours(hours, minutes);
-
-      // If selected time is in the past, adjust to next available slot
-      if (selectedDateTime < now) {
-        let nextHour = now.getHours();
-        let nextMinute = now.getMinutes() < 30 ? 30 : 0;
-
-        if (nextMinute === 0) {
-          nextHour++;
-        }
-
-        // Ensure within working hours
-        if (nextHour < 7) {
-          nextHour = 7;
-          nextMinute = 0;
-        } else if (nextHour >= 21) {
-          // No more slots today, move to tomorrow
-          selectedDate = new Date(today);
-          selectedDate.setDate(selectedDate.getDate() + 1);
-          nextHour = 7;
-          nextMinute = 0;
-        }
-
-        selectedTime = `${nextHour.toString().padStart(2, '0')}:${nextMinute.toString().padStart(2, '0')}`;
-      }
+    // Get the service and its category
+    const service = await Service.findById(serviceId).populate('category');
+    if (!service) {
+      req.flash('error', 'Service not found');
+      return res.redirect('/services');
     }
 
-    // Working hours constraint (7 AM to 9 PM)
-    if (selectedTime) {
-      const [hours] = selectedTime.split(':').map(num => parseInt(num));
+    // Base query for providers who offer this service
+    let providerQuery = {
+      'servicesOffered.services.service': serviceId,
+      isActive: true
+    };
 
-      // Check if time is outside working hours
-      if (hours < 7 || hours >= 21) {
-        // Default to 7 AM if outside working hours
-        selectedTime = "07:00";
-      }
+    // Add location-based filtering if location is provided
+    if (location) {
+      console.log('Filtering providers by location:', location);
+      // Search for providers in the specified city/area
+      providerQuery.$or = [
+        { 'serviceArea.city': new RegExp(location, 'i') },
+        { 'serviceArea.state': new RegExp(location, 'i') },
+        { 'serviceAreas.address': new RegExp(location, 'i') }
+      ];
     }
 
+    console.log('Provider query:', JSON.stringify(providerQuery, null, 2));
 
-    // Find all providers who offer this service 
-    const allProviders = await ServiceProvider.find({
-      "servicesOffered.services.service": serviceId
-    })
+    // Find all providers who offer this service
+    let allProviders = await ServiceProvider.find(providerQuery)
       .populate({
-        path: "user",
-        select: 'name profileImage addresses phone'
+        path: 'user',
+        select: 'name email phone profileImage'
+      })
+      .populate({
+        path: 'servicesOffered.category',
+        model: 'Category'
+      })
+      .populate({
+        path: 'servicesOffered.services.service',
+        model: 'Service'
       })
       .lean();
 
-    // Get day of week for availability check
-    const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][selectedDate.getDay()];
+    console.log(`Found ${allProviders.length} providers before processing`);
 
-    // Separate providers into available and unavailable
+    // Process each provider to add service-specific information
+    allProviders = allProviders.map(provider => {
+      // Find the specific service details from provider's servicesOffered
+      let serviceDetails = null;
+      let serviceExperience = null;
+      let serviceCost = null;
+
+      provider.servicesOffered.forEach(category => {
+        category.services.forEach(s => {
+          if (s.service._id.toString() === serviceId) {
+            serviceDetails = s;
+            serviceExperience = s.experience;
+            serviceCost = s.customCost;
+          }
+        });
+      });
+
+      // Add service-specific information to provider
+      provider.serviceExperience = serviceExperience || 'Not specified';
+      provider.serviceCost = serviceCost;
+      provider.formattedPrice = serviceCost ? `₹${serviceCost}` : 'Price on request';
+
+      return provider;
+    });
+
+    // Apply distance filtering if coordinates are provided
+    if (userLocation && allProviders.length > 0) {
+      allProviders = allProviders.filter(provider => {
+        let hasNearbyServiceArea = false;
+        let minDistance = Infinity;
+
+        // Check main service area
+        if (provider.serviceArea && provider.serviceArea.coordinates) {
+          const providerDistance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            provider.serviceArea.coordinates.latitude,
+            provider.serviceArea.coordinates.longitude
+          );
+
+          if (providerDistance <= distance) {
+            minDistance = Math.min(minDistance, providerDistance);
+            hasNearbyServiceArea = true;
+          }
+        }
+
+        // Check specific service areas
+        if (provider.serviceAreas && provider.serviceAreas.length > 0) {
+          provider.serviceAreas.forEach(area => {
+            if (area.lat && area.lng) {
+              const areaDistance = calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                area.lat,
+                area.lng
+              );
+
+              const effectiveRadius = area.radius || distance;
+              if (areaDistance <= effectiveRadius) {
+                minDistance = Math.min(minDistance, areaDistance);
+                hasNearbyServiceArea = true;
+              }
+            }
+          });
+        }
+
+        // If no specific coordinates, but location text matches, include them
+        if (!hasNearbyServiceArea && location) {
+          const cityMatch = provider.serviceArea &&
+            provider.serviceArea.city &&
+            provider.serviceArea.city.toLowerCase().includes(location.toLowerCase());
+
+          const areaMatch = provider.serviceAreas &&
+            provider.serviceAreas.some(area =>
+              area.address && area.address.toLowerCase().includes(location.toLowerCase())
+            );
+
+          if (cityMatch || areaMatch) {
+            hasNearbyServiceArea = true;
+            minDistance = 0; // Default distance for text-based matches
+          }
+        }
+
+        if (hasNearbyServiceArea && minDistance !== Infinity) {
+          provider.distance = minDistance;
+        }
+
+        return hasNearbyServiceArea;
+      });
+
+      console.log(`${allProviders.length} providers after location filtering`);
+    }
+
+    // Process providers for availability
     const availableProviders = [];
     const unavailableProviders = [];
 
-    // Process each provider
-    allProviders.forEach(provider => {
-      // Add fallback image if needed
-      if (!provider.user || !provider.user.profileImage) {
-        if (!provider.user) {
-          provider.user = {};
-        }
-        provider.user.profileImage = 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png';
-      }
+    // Get day of week for display purposes
+    let dayOfWeek = '';
+    if (date) {
+      const requestedDate = new Date(date);
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      dayOfWeek = days[requestedDate.getDay()];
+    }
 
-      // Extract service details for this provider
-      let matchedService = null;
-      if (provider.servicesOffered) {
-        provider.servicesOffered.forEach(category => {
-          if (category.services) {
-            category.services.forEach(s => {
-              if (s.service.toString() === serviceId) {
-                matchedService = s;
-              }
-            });
-          }
-        });
-      }
-      provider.matchedService = matchedService;
-
-      // Check if provider is inactive
-      if (provider.isActive === false) {
-        provider.unavailabilityReason = 'Provider is not currently accepting bookings';
-        unavailableProviders.push(provider);
-        return;
-      }
-
-      // Calculate distance if user location is available
-      if (userLocation && provider.user && provider.user.addresses && provider.user.addresses.length > 0) {
-        // Find provider's address
-        const providerAddress = provider.user.addresses.find(addr => addr.isDefault) || provider.user.addresses[0];
-
-        if (providerAddress && providerAddress.coordinates &&
-          providerAddress.coordinates.latitude && providerAddress.coordinates.longitude) {
-          const distance = calculateDistance(
-            userLocation.latitude,
-            userLocation.longitude,
-            providerAddress.coordinates.latitude,
-            providerAddress.coordinates.longitude
-          );
-
-          provider.distance = distance;
-          provider.formattedDistance = distance < 1 ?
-            `${(distance * 1000).toFixed(0)} meters` :
-            `${distance.toFixed(1)} km`;
-        }
-      }
-
-      // Check availability for the selected date/time
+    // Process each provider for availability
+    for (const provider of allProviders) {
       let isAvailable = true;
-      let availableTimeSlots = [];
+      let unavailabilityReason = '';
 
-      // If no availability data, consider unavailable
-      if (!provider.availability) {
-        isAvailable = false;
-        provider.unavailabilityReason = 'Provider has not set their availability';
-      } else {
-        // Check if provider is available on this day
-        const dayAvailability = provider.availability[dayOfWeek];
-        if (!dayAvailability || !dayAvailability.isAvailable) {
+      // Check date and time availability if provided
+      if (date || time) {
+        try {
+          const availability = await checkProviderAvailability(provider._id, date, time);
+          isAvailable = availability.isAvailable;
+          if (!isAvailable) {
+            unavailabilityReason = availability.reason || 'Not available at selected time';
+            provider.availableTimeSlots = availability.availableSlots || [];
+          }
+        } catch (error) {
+          console.error(`Error checking availability for provider ${provider._id}:`, error);
           isAvailable = false;
-          provider.unavailabilityReason = `Provider is not available on ${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}s`;
-        } else {
-          // Always collect available time slots regardless of whether a specific time is requested
-          if (dayAvailability.slots && Array.isArray(dayAvailability.slots)) {
-            dayAvailability.slots.forEach(slot => {
-              if (slot && slot.isActive && slot.startTime && slot.endTime) {
-                availableTimeSlots.push({
-                  startTime: slot.startTime,
-                  endTime: slot.endTime
-                });
-              }
-            });
-          }
-          // Sort time slots chronologically
-          availableTimeSlots.sort((a, b) => {
-            return a.startTime.localeCompare(b.startTime);
-          });
-
-          // Store the available slots for display
-          provider.availableTimeSlots = availableTimeSlots;
-
-          // Add debugging to check what time slots are found
-          console.log(`Provider ${provider._id} has ${availableTimeSlots.length} time slots on ${dayOfWeek}`);
-          if (availableTimeSlots.length > 0) {
-            console.log('Time slots:', availableTimeSlots.map(slot => `${slot.startTime}-${slot.endTime}`).join(', '));
-          }
-
-          // Check specific time slot if requested
-          try {
-            const requestedHour = parseInt(selectedTime.split(':')[0]);
-            const requestedMinute = parseInt(selectedTime.split(':')[1] || '0');
-
-            // Check if there are any slots
-            if (!dayAvailability.slots || !Array.isArray(dayAvailability.slots) || dayAvailability.slots.length === 0) {
-              isAvailable = false;
-              provider.unavailabilityReason = `Provider has no time slots set for ${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}s`;
-            } else {
-              // Check each slot for the requested time
-              isAvailable = dayAvailability.slots.some(slot => {
-                // Skip if slot is not active or missing data
-                if (!slot || !slot.isActive || !slot.startTime || !slot.endTime) {
-                  return false;
-                }
-
-                const startHour = parseInt(slot.startTime.split(':')[0]);
-                const startMinute = parseInt(slot.startTime.split(':')[1] || '0');
-                const endHour = parseInt(slot.endTime.split(':')[0]);
-                const endMinute = parseInt(slot.endTime.split(':')[1] || '0');
-
-                // Convert to minutes for comparison
-                const requestedTimeInMinutes = requestedHour * 60 + requestedMinute;
-                const startTimeInMinutes = startHour * 60 + startMinute;
-                const endTimeInMinutes = endHour * 60 + endMinute;
-
-                return requestedTimeInMinutes >= startTimeInMinutes && requestedTimeInMinutes <= endTimeInMinutes;
-              });
-
-              if (!isAvailable) {
-                provider.unavailabilityReason = `Not available at ${selectedTime}, but has other time slots`;
-              }
-            }
-          } catch (error) {
-            console.error(`Error checking time availability: ${error.message}`);
-            isAvailable = false;
-            provider.unavailabilityReason = 'Error checking availability';
-          }
+          unavailabilityReason = 'Error checking availability';
         }
       }
 
-      // Format the time slots for display
-      if (provider.availableTimeSlots && provider.availableTimeSlots.length > 0) {
-        provider.formattedTimeSlots = provider.availableTimeSlots.map(slot => {
-          return formatTimeSlot(slot.startTime, slot.endTime);
-        }).join(', ');
+      // Add distance to display if available
+      if (provider.distance !== undefined) {
+        provider.distanceText = `${provider.distance.toFixed(1)} km away`;
+      }
+
+      // Add service area info for display
+      if (provider.serviceArea) {
+        provider.address = provider.serviceArea.city || provider.serviceArea.state || 'Service area available';
+      } else if (provider.serviceAreas && provider.serviceAreas.length > 0) {
+        provider.address = provider.serviceAreas[0].address || 'Service area available';
+      } else {
+        provider.address = 'Service area available';
       }
 
       // Add to appropriate array
       if (isAvailable) {
         availableProviders.push(provider);
       } else {
+        provider.unavailabilityReason = unavailabilityReason;
         unavailableProviders.push(provider);
       }
-    });
-
-    console.log(`Total providers: ${allProviders.length}, Available: ${availableProviders.length}, Unavailable: ${unavailableProviders.length}`);
-
-    // After populating both arrays, sort them by distance if location is available
-    if (userLocation) {
-      availableProviders.sort((a, b) => {
-        const distA = a.distance !== undefined ? a.distance : Infinity;
-        const distB = b.distance !== undefined ? b.distance : Infinity;
-        return distA - distB;
-      });
-
-      unavailableProviders.sort((a, b) => {
-        const distA = a.distance !== undefined ? a.distance : Infinity;
-        const distB = b.distance !== undefined ? b.distance : Infinity;
-        return distA - distB;
-      });
     }
 
-    res.render("pages/providers", {
+    // Sort by distance if location is available, otherwise by name
+    const sortProviders = (providers) => {
+      if (userLocation) {
+        return providers.sort((a, b) => {
+          const distA = a.distance !== undefined ? a.distance : Infinity;
+          const distB = b.distance !== undefined ? b.distance : Infinity;
+          return distA - distB;
+        });
+      } else {
+        return providers.sort((a, b) => {
+          return (a.user.name || '').localeCompare(b.user.name || '');
+        });
+      }
+    };
+
+    sortProviders(availableProviders);
+    sortProviders(unavailableProviders);
+
+    console.log(`Final results: ${availableProviders.length} available, ${unavailableProviders.length} unavailable`);
+
+    res.render('pages/providers', {
       providers: {
         available: availableProviders,
         unavailable: unavailableProviders
       },
       service,
-      category: service.category,
       serviceId,
-      selectedDate: selectedDate.toISOString().split('T')[0],
-      selectedTime,
-      dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1),
-      hasUserLocation: !!userLocation
+      category: service.category,
+      selectedDate: date,
+      selectedTime: time,
+      location,
+      latitude,
+      longitude,
+      distance: parseInt(distance),
+      dayOfWeek,
+      title: `${service.name} Providers`
     });
 
-  } catch (err) {
-    console.error("Error fetching providers:", err);
-    req.flash("error", "Unable to load providers");
-    res.redirect("/services");
+  } catch (error) {
+    console.error('Error finding providers:', error);
+    req.flash('error', 'Failed to load providers');
+    res.redirect('/services');
   }
 });
-
-// Helper function to format time slots in a readable way
-function formatTimeSlot(startTime, endTime) {
-  // Convert 24-hour format to 12-hour format
-  function formatTime(time) {
-    if (!time) return "N/A";
-
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = hour % 12 || 12;
-    return `${formattedHour}:${minutes || '00'} ${ampm}`;
-  }
-
-  return `${formatTime(startTime)} - ${formatTime(endTime)}`;
-}
-// Update the book route
-router.get("/:id/:provider/book", async (req, res) => {
+// Book service route
+router.get("/:id/:provider/book", isLoggedIn, async (req, res) => {
   try {
-    // Check if the user is authenticated
-    if (!req.isAuthenticated()) {
-      req.flash("error", "You must be logged in to book a service.");
-      return res.redirect(req.get("Referrer") || "/"); // Updated redirect
-    }
-
     const { id: serviceId, provider: providerId } = req.params;
 
     // Fetch service and provider
@@ -431,6 +372,7 @@ router.get("/:id/:provider/book", async (req, res) => {
   }
 });
 
+// Update location route
 router.post('/update-location', async (req, res) => {
   try {
     const { latitude, longitude } = req.body;
@@ -462,4 +404,135 @@ router.post('/update-location', async (req, res) => {
     res.status(500).json({ success: false, error: 'Error updating location' });
   }
 });
+
+// Add this function before the router.get('/:serviceId/providers') route
+
+// Helper function to check provider availability
+async function checkProviderAvailability(providerId, date, time) {
+  try {
+    const provider = await ServiceProvider.findById(providerId);
+    if (!provider || !provider.availability) {
+      return {
+        isAvailable: false,
+        reason: 'Provider availability not configured',
+        availableSlots: []
+      };
+    }
+
+    // If no date/time specified, consider available
+    if (!date && !time) {
+      return {
+        isAvailable: true,
+        reason: '',
+        availableSlots: []
+      };
+    }
+
+    // Get day of week for the requested date
+    let dayOfWeek = '';
+    if (date) {
+      const requestedDate = new Date(date);
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      dayOfWeek = days[requestedDate.getDay()];
+    }
+
+    // If date is provided but no time, check if provider is available on that day
+    if (date && !time) {
+      const dayAvailability = provider.availability[dayOfWeek];
+      if (!dayAvailability || !dayAvailability.isAvailable) {
+        return {
+          isAvailable: false,
+          reason: `Not available on ${dayOfWeek}`,
+          availableSlots: []
+        };
+      }
+
+      return {
+        isAvailable: true,
+        reason: '',
+        availableSlots: dayAvailability.slots || []
+      };
+    }
+
+    // If time is provided, check specific time slot availability
+    if (time) {
+      const requestedTime = time;
+      const [requestedHour, requestedMinute] = requestedTime.split(':').map(Number);
+      const requestedTimeInMinutes = requestedHour * 60 + requestedMinute;
+
+      // If no date provided, assume it's for today or a general check
+      if (!date) {
+        // Check against all days or current day
+        const today = new Date();
+        const todayDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][today.getDay()];
+        dayOfWeek = todayDay;
+      }
+
+      const dayAvailability = provider.availability[dayOfWeek];
+      if (!dayAvailability || !dayAvailability.isAvailable) {
+        return {
+          isAvailable: false,
+          reason: `Not available on ${dayOfWeek}`,
+          availableSlots: dayAvailability ? dayAvailability.slots : []
+        };
+      }
+
+      // Check if requested time falls within any available slot
+      let isTimeAvailable = false;
+      const availableSlots = [];
+
+      if (dayAvailability.slots) {
+        dayAvailability.slots.forEach(slot => {
+          if (slot.isActive) {
+            const [startHour, startMinute] = slot.startTime.split(':').map(Number);
+            const [endHour, endMinute] = slot.endTime.split(':').map(Number);
+
+            const startTimeInMinutes = startHour * 60 + startMinute;
+            const endTimeInMinutes = endHour * 60 + endMinute;
+
+            availableSlots.push({
+              startTime: slot.startTime,
+              endTime: slot.endTime
+            });
+
+            if (requestedTimeInMinutes >= startTimeInMinutes && requestedTimeInMinutes < endTimeInMinutes) {
+              isTimeAvailable = true;
+            }
+          }
+        });
+      }
+
+      return {
+        isAvailable: isTimeAvailable,
+        reason: isTimeAvailable ? '' : `Not available at ${formatTime(requestedTime)}`,
+        availableSlots: availableSlots
+      };
+    }
+
+    return {
+      isAvailable: true,
+      reason: '',
+      availableSlots: []
+    };
+
+  } catch (error) {
+    console.error('Error checking provider availability:', error);
+    return {
+      isAvailable: false,
+      reason: 'Error checking availability',
+      availableSlots: []
+    };
+  }
+}
+
+// Helper function to format time
+function formatTime(time) {
+  if (!time) return "N/A";
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = hour % 12 || 12;
+  return `${formattedHour}:${minutes || '00'} ${ampm}`;
+}
+
 module.exports = router;

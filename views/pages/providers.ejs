@@ -1,15 +1,16 @@
 <% layout("/layouts/boilerplate.ejs") %>
+
   <% function formatTimeSlot(startTime, endTime) { function formatTime(time) { const [hours, minutes]=time.split(':');
     const hour=parseInt(hours); const ampm=hour>= 12 ? 'PM' : 'AM';
     const formattedHour = hour % 12 || 12;
     return `${formattedHour}:${minutes} ${ampm}`;
     }
     return `${formatTime(startTime)} - ${formatTime(endTime)}`;
-    }
-    %>
+    } %>
+
     <div class="providers-page bg-light py-5">
       <div class="container py-md-3">
-        <!-- Page Header with Bootstrap classes -->
+        <!-- Page Header -->
         <header class="mb-5 text-center">
           <h1 class="fw-bold mb-4">
             <span class="text-primary">
@@ -19,7 +20,7 @@
             <span>Service Providers</span>
           </h1>
 
-          <!-- Optional Breadcrumbs -->
+          <!-- Breadcrumbs -->
           <nav aria-label="breadcrumb" class="d-none d-md-block">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="/services">Services</a></li>
@@ -30,407 +31,597 @@
             </ol>
           </nav>
         </header>
-     <div class="container mb-4">
-  <div class="card border-0 shadow-sm p-3">
-    <form action="/services/<%= serviceId %>/providers" method="get" class="row g-3 align-items-end" id="availability-filter">
-      <div class="col-md-3">
-        <label for="date" class="form-label text-muted">Date</label>
-        <input type="date" class="form-control" id="date" name="date"
-          value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
-          min="<%= new Date().toISOString().split('T')[0] %>">
-      </div>
-      <div class="col-md-3">
-        <label for="time" class="form-label text-muted">Time</label>
-        <select class="form-select" id="time" name="time">
-          <option value="" <%= !selectedTime ? 'selected' : '' %>>Any time</option>
-          <% 
-          const startHour = 7; // 7 AM
-          const endHour = 21;  // 9 PM
-          
-          for (let hour = startHour; hour <= endHour; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-              if (hour === endHour && minute > 0) continue;
-              
-              const timeValue = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-              const hour12 = hour % 12 || 12;
-              const ampm = hour >= 12 ? 'PM' : 'AM';
-              const timeDisplay = `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
-              const isSelected = timeValue === selectedTime;
-          %>
-            <option value="<%= timeValue %>" <%= isSelected ? 'selected' : '' %>><%= timeDisplay %></option>
-          <% }} %>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <label for="location" class="form-label text-muted">Location</label>
-        <div class="input-group">
-          <input type="text" class="form-control" id="location" name="location" 
-            placeholder="Enter area, city or pincode" value="<%= typeof location !== 'undefined' ? location : '' %>">
-          <button type="button" class="btn btn-outline-secondary" id="use-my-location">
-            <i class="fas fa-map-marker-alt"></i>
-          </button>
-          <input type="hidden" id="latitude" name="latitude" value="<%= typeof latitude !== 'undefined' ? latitude : '' %>">
-          <input type="hidden" id="longitude" name="longitude" value="<%= typeof longitude !== 'undefined' ? longitude : '' %>">
-        </div>
-      </div>
-      <div class="col-md-2">
-        <div class="d-grid">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-filter me-2"></i>Find Providers
-          </button>
-        </div>
-      </div>
-      <% if (typeof location !== 'undefined' && location) { %>
-        <div class="col-12 mt-2">
-          <div class="d-flex align-items-center">
-            <span class="badge bg-primary me-2"><i class="fas fa-map-marker-alt me-1"></i> <%= location %></span>
-            <small class="text-muted">Showing providers near your location</small>
-            
-            <div class="ms-auto">
-              <select name="distance" class="form-select form-select-sm" style="width: auto; display: inline-block">
-                <option value="5" <%= distance == 5 ? 'selected' : '' %>>Within 5 km</option>
-                <option value="10" <%= distance == 10 ? 'selected' : '' %>>Within 10 km</option>
-                <option value="20" <%= distance == 20 ? 'selected' : '' %>>Within 20 km</option>
-                <option value="50" <%= distance == 50 ? 'selected' : '' %>>Within 50 km</option>
-              </select>
-              <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+
+        <!-- Enhanced Filter Form (Date & Time Only) -->
+        <div class="container mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+              <form action="/services/<%= serviceId %>/providers" method="get" id="availability-filter">
+                <div class="row g-4">
+
+                  <!-- Date Input -->
+                  <div class="col-md-5">
+                    <label for="date" class="form-label text-muted fw-medium mb-2">
+                      <i class="fas fa-calendar-alt me-2 text-primary"></i>Select Date
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0">
+                        <i class="fas fa-calendar text-muted"></i>
+                      </span>
+                      <input type="date" class="form-control border-start-0 ps-0" id="date" name="date"
+                        value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
+                        min="<%= new Date().toISOString().split('T')[0] %>">
+                    </div>
+                  </div>
+
+                  <!-- Time Input -->
+                  <div class="col-md-5">
+                    <label for="time" class="form-label text-muted fw-medium mb-2">
+                      <i class="fas fa-clock me-2 text-primary"></i>Select Time
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0">
+                        <i class="fas fa-clock text-muted"></i>
+                      </span>
+                      <select class="form-select border-start-0 ps-2" id="time" name="time">
+                        <option value="" <%=!selectedTime ? 'selected' : '' %>>Any time</option>
+                        <% const startHour=7; // 7 AM %>
+                          <% const endHour=21; // 9 PM %>
+                            <% for (let hour=startHour; hour <=endHour; hour++) { %>
+                              <% for (let minute=0; minute < 60; minute +=30) { %>
+                                <% if (hour===endHour && minute> 0) continue; %>
+                                  <% const timeValue=`${hour.toString().padStart(2, '0'
+                                    )}:${minute.toString().padStart(2, '0' )}`; %>
+                                    <% const hour12=hour % 12 || 12; %>
+                                      <% const ampm=hour>= 12 ? 'PM' : 'AM'; %>
+                                        <% const timeDisplay=`${hour12}:${minute.toString().padStart(2, '0' )} ${ampm}`;
+                                          %>
+                                          <% const isSelected=timeValue===selectedTime; %>
+                                            <option value="<%= timeValue %>" <%=isSelected ? 'selected' : '' %>><%=
+                                                timeDisplay %>
+                                            </option>
+                                            <% } %>
+                                              <% } %>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-medium">
+                      <i class="fas fa-search me-2"></i>Find Providers
+                    </button>
+                  </div>
+                </div>
+
+                
+              </form>
             </div>
           </div>
         </div>
-      <% } %>
-    </form>
-  </div>
-</div>
 
-        <!-- Add this if no providers are available at all -->
-        <% if (!providers || (providers.available.length===0 && providers.unavailable.length===0)) { %>
-          <div class="text-center py-5">
-            <div class="card border-0 shadow-sm mx-auto p-5" style="max-width: 500px;">
-              <div class="py-4">
-                <div class="empty-icon rounded-circle bg-light mx-auto mb-4">
-                  <i class="fas fa-user-slash text-secondary"></i>
-                </div>
-                <h3 class="fw-bold mb-3">No Providers Available</h3>
-                <p class="text-muted mb-4">
-                  Sorry, there are currently no providers for this service in your area.
-                </p>
-                <a href="/services" class="btn btn-outline-primary rounded-3 px-4">
-                  <i class="fas fa-arrow-left me-2"></i>Back to Services
-                </a>
+        <!-- Location Status Display (Read-only) -->
+        <% if (typeof location !=='undefined' && location) { %>
+          <div class="container mb-4">
+            <div class="alert alert-info d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <span>Showing providers in <strong>
+                    <%= location %>
+                  </strong></span>
               </div>
+              <small class="text-muted">Change location using the navbar above</small>
             </div>
           </div>
           <% } else { %>
-
-            <% if (providers.available.length===0 && providers.unavailable.length> 0 && (selectedDate || selectedTime))
-              {
-              %>
-              <!-- Show message when filtered providers are all unavailable -->
-              <div class="alert alert-info mb-4">
-                <i class="fas fa-info-circle me-2"></i>
-                No providers are available at the selected date and time. Below are providers who offer this service but
-                aren't available for the requested slot.
+            <div class="container mb-4">
+              <div class="alert alert-warning d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <span>No location selected. Showing all providers.</span>
+                </div>
+                <small class="text-muted">
+                  <i class="fas fa-arrow-up me-1"></i>
+                  Set your location using the navbar above for better results
+                </small>
               </div>
-              <% } %>
+            </div>
+            <% } %>
 
-                <!-- Provider Cards Grid -->
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                  <!-- First show available providers -->
-                  <% providers.available.forEach(provider=> {
-                    let matchedService = null;
-                    provider.servicesOffered.forEach(offer => {
-                    offer.services.forEach(s => {
-                    if (s.service == serviceId) matchedService = s;
-                    });
-                    });
-                    %>
-                    <div class="col">
-                      <div class="card provider-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <!-- Provider Image -->
-                        <div class="position-relative">
-                          <div class="provider-image-wrapper">
-                            <img
-                              src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-                              class="card-img-top" alt="<%= provider.user.name %>">
-                          </div>
-
-                          <!-- Provider Rating Badge -->
-                          <div class="position-absolute top-0 end-0 m-3">
-                            <div class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
-                              <i class="fas fa-star me-1"></i> 4.8
-                            </div>
-                          </div>
-
-                          <!-- Available badge -->
-                          <div class="position-absolute top-0 start-0 m-3">
-                            <div class="badge bg-success rounded-pill fw-bold px-3 py-2">
-                              <i class="fas fa-check-circle me-1"></i> Available
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Provider Info -->
-                        <div class="card-body">
-                          <h5 class="card-title text-center fw-bold mb-3">
-                            <%= provider.user.name %>
-                          </h5>
-
-                          <!-- Provider details here -->
-                          <div class="provider-details">
-                            <!-- Same details as before -->
-                            <div class="provider-detail d-flex align-items-center mb-2">
-                              <div class="icon-wrapper bg-light rounded-circle me-3">
-                                <i class="fas fa-briefcase text-primary"></i>
-                              </div>
-                              <div>
-                                <small class="text-muted">Experience</small>
-                                <div class="fw-medium">
-                                  <%= matchedService && matchedService.experience ? matchedService.experience : "N/A" %>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="provider-detail d-flex align-items-center mb-2">
-                              <div class="icon-wrapper bg-light rounded-circle me-3">
-                                <i class="fas fa-rupee-sign text-primary"></i>
-                              </div>
-                              <div>
-                                <small class="text-muted">Service Price</small>
-                                <div class="fw-medium">₹<%= matchedService && matchedService.customCost ?
-                                    matchedService.customCost : "N/A" %>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="provider-detail d-flex align-items-center mb-2">
-                              <div class="icon-wrapper bg-light rounded-circle me-3">
-                                <i class="fas fa-map-marker-alt text-primary"></i>
-                              </div>
-                              <div>
-                                <small class="text-muted">Location</small>
-                                <div class="fw-medium">
-                                  <%= provider.address || "Not Available" %>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Book Now Button -->
-                        <div class="card-footer border-0 bg-white pt-0 pb-4">
-                          <form action="/services/<%= serviceId %>/<%= provider._id %>/book" method="get">
-                            <input type="hidden" name="date" value="<%= selectedDate || '' %>">
-                            <input type="hidden" name="time" value="<%= selectedTime || '' %>">
-                            <button class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">
-                              <i class="fas fa-calendar-check me-2"></i>Book Now
-                            </button>
-                          </form>
-                        </div>
+              <!-- No Providers Found -->
+              <% if (!providers || (providers.available.length===0 && providers.unavailable.length===0)) { %>
+                <div class="text-center py-5">
+                  <div class="card border-0 shadow-sm mx-auto p-5" style="max-width: 500px;">
+                    <div class="py-4">
+                      <div class="empty-icon rounded-circle bg-light mx-auto mb-4">
+                        <i class="fas fa-user-slash text-secondary"></i>
+                      </div>
+                      <h3 class="fw-bold mb-3">No Providers Available</h3>
+                      <p class="text-muted mb-4">
+                        <% if (typeof location !=='undefined' && location) { %>
+                          Sorry, there are currently no providers for this service in <strong>
+                            <%= location %>
+                          </strong>.
+                          <% } else { %>
+                            No providers found. Try setting your location using the navbar above.
+                            <% } %>
+                      </p>
+                      <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="/services" class="btn btn-outline-primary rounded-3 px-4">
+                          <i class="fas fa-arrow-left me-2"></i>Back to Services
+                        </a>
+                        <% if (typeof location==='undefined' || !location) { %>
+                          <button onclick="scrollToNavbar()" class="btn btn-primary rounded-3 px-4">
+                            <i class="fas fa-map-marker-alt me-2"></i>Set Location
+                          </button>
+                          <% } %>
                       </div>
                     </div>
-                    <% }); %>
+                  </div>
+                </div>
+                <% } else { %>
 
-                      <!-- Then show unavailable providers with greyed-out style -->
-                      <% providers.unavailable.forEach(provider=> {
-                        let matchedService = null;
-                        provider.servicesOffered.forEach(offer => {
-                        offer.services.forEach(s => {
-                        if (s.service == serviceId) matchedService = s;
-                        });
-                        });
-                        %>
-                        <div class="col">
-                          <div
-                            class="card provider-card unavailable-provider h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                            <!-- Provider Image - grayscale filter applied -->
-                            <div class="position-relative">
-                              <div class="provider-image-wrapper grayscale">
-                                <img
-                                  src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-                                  class="card-img-top" alt="<%= provider.user.name %>">
-                              </div>
+                  <!-- Filter Message -->
+                  <% if (providers.available.length===0 && providers.unavailable.length> 0 && (selectedDate ||
+                    selectedTime)) { %>
+                    <div class="alert alert-info mb-4">
+                      <i class="fas fa-info-circle me-2"></i>
+                      No providers are available at the selected date and time. Below are providers who offer this
+                      service
+                      but aren't available for the requested slot.
+                    </div>
+                    <% } %>
 
-                              <!-- Provider Rating Badge -->
-                              <div class="position-absolute top-0 end-0 m-3">
-                                <div class="badge bg-secondary text-white rounded-pill fw-bold px-3 py-2">
-                                  <i class="fas fa-star me-1"></i> 4.8
+                      <!-- Provider Cards Grid -->
+                      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+                        <!-- Available Providers -->
+                        <% providers.available.forEach(provider=> { %>
+                          <div class="col">
+                            <div class="card provider-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                              <!-- Provider Image -->
+                              <div class="position-relative">
+                                <div class="provider-image-wrapper">
+                                  <img
+                                    src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+                                    class="card-img-top" alt="<%= provider.user.name %>">
                                 </div>
-                              </div>
 
-                              <!-- Unavailable badge -->
-                              <div class="position-absolute top-0 start-0 m-3">
-                                <div class="badge bg-secondary rounded-pill fw-bold px-3 py-2">
-                                  <i class="fas fa-clock me-1"></i> Unavailable
-                                </div>
-                              </div>
-                            </div>
-
-                            <!-- Provider Info - with muted colors -->
-                            <div class="card-body">
-                              <h5 class="card-title text-center fw-bold mb-3 text-muted">
-                                <%= provider.user.name %>
-                              </h5>
-
-                              <!-- Unavailability reason -->
-                              <% if (provider.unavailabilityReason) { %>
-                                <div class="alert alert-secondary mb-3 small">
-                                  <i class="fas fa-info-circle me-2"></i>
-                                  <%= provider.unavailabilityReason %>
-                                </div>
-                                <% } %>
-<% if (provider.availableTimeSlots && provider.availableTimeSlots.length > 0) { %>
-  <div class="mb-3">
-    <h6>Available times on <%= dayOfWeek %>:</h6>
-    <div class="d-flex flex-wrap gap-2 mt-2">
-      <% provider.availableTimeSlots.forEach(slot => { %>
-        <span class="badge bg-light text-primary border">
-          <%= formatTimeSlot(slot.startTime, slot.endTime) %>
-        </span>
-      <% }); %>
-    </div>
-  </div>
-<% } %>
-                                      <!-- Provider details here -->
-                                      <div class="provider-details">
-                                        <!-- Same details as before but with muted styling -->
-                                        <div class="provider-detail d-flex align-items-center mb-2">
-                                          <div class="icon-wrapper bg-light rounded-circle me-3">
-                                            <i class="fas fa-briefcase text-secondary"></i>
-                                          </div>
-                                          <div>
-                                            <small class="text-muted">Experience</small>
-                                            <div class="fw-medium text-muted">
-                                              <%= matchedService && matchedService.experience ?
-                                                matchedService.experience : "N/A" %>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <div class="provider-detail d-flex align-items-center mb-2">
-                                          <div class="icon-wrapper bg-light rounded-circle me-3">
-                                            <i class="fas fa-rupee-sign text-secondary"></i>
-                                          </div>
-                                          <div>
-                                            <small class="text-muted">Service Price</small>
-                                            <div class="fw-medium text-muted">₹<%= matchedService &&
-                                                matchedService.customCost ? matchedService.customCost : "N/A" %>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <div class="provider-detail d-flex align-items-center mb-2">
-                                          <div class="icon-wrapper bg-light rounded-circle me-3">
-                                            <i class="fas fa-map-marker-alt text-secondary"></i>
-                                          </div>
-                                          <div>
-                                            <small class="text-muted">Location</small>
-                                            <div class="fw-medium text-muted">
-                                              <%= provider.address || "Not Available" %>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                            </div>
-                            <!-- Corrected version with single footer -->
-                            <!-- Action buttons -->
-                            <div class="card-footer border-0 bg-white pt-0 pb-4 d-flex flex-column gap-2">
-                              <!-- Show "Check Different Time" button to filter with one of provider's available slots -->
-                              <% if (provider.availableTimeSlots && provider.availableTimeSlots.length> 0) { %>
-                                <!-- Create a form for each available slot -->
-                                <div class="dropdown w-100">
-                                  <button class="btn btn-outline-primary btn-lg w-100 rounded-3 dropdown-toggle"
-                                    type="button" id="availableTimesDropdown<%= provider._id %>"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-calendar-day me-2"></i>Check Available Times
-                                  </button>
-                                  <ul class="dropdown-menu w-100"
-                                    aria-labelledby="availableTimesDropdown<%= provider._id %>">
-                                    <% provider.availableTimeSlots.forEach((slot, index)=> { %>
-                                      <li>
-                                        <form action="/services/<%= serviceId %>/providers" method="get"
-                                          class="dropdown-item">
-                                          <input type="hidden" name="date" value="<%= selectedDate %>">
-                                          <input type="hidden" name="time" value="<%= slot.startTime %>">
-                                          <button type="submit"
-                                            class="btn btn-link text-decoration-none text-start w-100 px-0">
-                                            <i class="fas fa-clock me-2"></i>
-                                            <%= formatTimeSlot(slot.startTime, slot.endTime) %>
-                                          </button>
-                                        </form>
-                                      </li>
-                                      <% }); %>
-                                  </ul>
-                                </div>
-                                <% } %>
-
-                                  <!-- Contact Provider Button -->
-                                  <button class="btn btn-outline-secondary btn-lg w-100 rounded-3 shadow-sm"
-                                    data-bs-toggle="modal" data-bs-target="#contactProviderModal<%= provider._id %>">
-                                    <i class="fas fa-envelope me-2"></i>Contact Provider
-                                  </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Modal for contacting unavailable provider -->
-                        <div class="modal fade" id="contactProviderModal<%= provider._id %>" tabindex="-1"
-                          aria-hidden="true">
-                          <div class="modal-dialog">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title">Contact <%= provider.user.name %>
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                  aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <p>This provider is not available at your selected time. You can:</p>
-                                <ul>
-                                  <li>Try a different date or time</li>
-                                  <li>Send a message to inquire about their availability</li>
-                                </ul>
-                                <form>
-                                  <div class="mb-3">
-                                    <label for="contactMessage<%= provider._id %>" class="form-label">Message</label>
-                                    <textarea class="form-control" id="contactMessage<%= provider._id %>" rows="3"
-                                      placeholder="I'm interested in your service. When would you be available?"></textarea>
+                                <!-- Rating Badge -->
+                                <div class="position-absolute top-0 end-0 m-3">
+                                  <div class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
+                                    <i class="fas fa-star me-1"></i> 4.8
                                   </div>
+                                </div>
+
+                                <!-- Available Badge -->
+                                <div class="position-absolute top-0 start-0 m-3">
+                                  <div class="badge bg-success rounded-pill fw-bold px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Available
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Provider Info -->
+                              <div class="card-body">
+                                <h5 class="card-title text-center fw-bold mb-3">
+                                  <%= provider.user.name %>
+                                </h5>
+
+                                <div class="provider-details">
+                                  <!-- Experience -->
+                                  <div class="provider-detail d-flex align-items-center mb-2">
+                                    <div class="icon-wrapper bg-light rounded-circle me-3">
+                                      <i class="fas fa-briefcase text-primary"></i>
+                                    </div>
+                                    <div>
+                                      <small class="text-muted">Experience</small>
+                                      <div class="fw-medium">
+                                        <%= provider.serviceExperience || "Not specified" %>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Price -->
+                                  <div class="provider-detail d-flex align-items-center mb-2">
+                                    <div class="icon-wrapper bg-light rounded-circle me-3">
+                                      <i class="fas fa-rupee-sign text-primary"></i>
+                                    </div>
+                                    <div>
+                                      <small class="text-muted">Service Price</small>
+                                      <div class="fw-medium">
+                                        <%= provider.formattedPrice || "Price on request" %>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Location -->
+                                  <div class="provider-detail d-flex align-items-center mb-2">
+                                    <div class="icon-wrapper bg-light rounded-circle me-3">
+                                      <i class="fas fa-map-marker-alt text-primary"></i>
+                                    </div>
+                                    <div>
+                                      <small class="text-muted">Location</small>
+                                      <div class="fw-medium">
+                                        <%= provider.address || "Service area available" %>
+                                          <% if (provider.distanceText) { %>
+                                            <br><small class="text-success">
+                                              <i class="fas fa-route me-1"></i>
+                                              <%= provider.distanceText %>
+                                            </small>
+                                            <% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Book Now Button -->
+                              <div class="card-footer border-0 bg-white pt-0 pb-4">
+                                <form action="/services/<%= serviceId %>/<%= provider._id %>/book" method="get">
+                                  <input type="hidden" name="date" value="<%= selectedDate || '' %>">
+                                  <input type="hidden" name="time" value="<%= selectedTime || '' %>">
+                                  <button class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">
+                                    <i class="fas fa-calendar-check me-2"></i>Book Now
+                                  </button>
                                 </form>
                               </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary">Send Message</button>
-                              </div>
                             </div>
                           </div>
-                        </div>
-                        <% }); %>
-                </div>
-                <% } %>
+                          <% }); %>
+
+                            <!-- Unavailable Providers -->
+                            <% providers.unavailable.forEach(provider=> { %>
+                              <div class="col">
+                                <div
+                                  class="card provider-card unavailable-provider h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                                  <!-- Provider Image -->
+                                  <div class="position-relative">
+                                    <div class="provider-image-wrapper grayscale">
+                                      <img
+                                        src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
+                                        class="card-img-top" alt="<%= provider.user.name %>">
+                                    </div>
+
+                                    <!-- Rating Badge -->
+                                    <div class="position-absolute top-0 end-0 m-3">
+                                      <div class="badge bg-secondary text-white rounded-pill fw-bold px-3 py-2">
+                                        <i class="fas fa-star me-1"></i> 4.8
+                                      </div>
+                                    </div>
+
+                                    <!-- Unavailable Badge -->
+                                    <div class="position-absolute top-0 start-0 m-3">
+                                      <div class="badge bg-secondary rounded-pill fw-bold px-3 py-2">
+                                        <i class="fas fa-clock me-1"></i> Unavailable
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Provider Info -->
+                                  <div class="card-body">
+                                    <h5 class="card-title text-center fw-bold mb-3 text-muted">
+                                      <%= provider.user.name %>
+                                    </h5>
+
+                                    <!-- Unavailability Reason -->
+                                    <% if (provider.unavailabilityReason) { %>
+                                      <div class="alert alert-secondary mb-3 small">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <%= provider.unavailabilityReason %>
+                                      </div>
+                                      <% } %>
+
+                                        <!-- Available Time Slots -->
+                                        <% if (provider.availableTimeSlots && provider.availableTimeSlots.length> 0) {
+                                          %>
+                                          <div class="mb-3">
+                                            <h6>Available times on <%= dayOfWeek %>:</h6>
+                                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                              <% provider.availableTimeSlots.forEach(slot=> { %>
+                                                <span class="badge bg-light text-primary border">
+                                                  <%= formatTimeSlot(slot.startTime, slot.endTime) %>
+                                                </span>
+                                                <% }); %>
+                                            </div>
+                                          </div>
+                                          <% } %>
+
+                                            <div class="provider-details">
+                                              <!-- Experience -->
+                                              <div class="provider-detail d-flex align-items-center mb-2">
+                                                <div class="icon-wrapper bg-light rounded-circle me-3">
+                                                  <i class="fas fa-briefcase text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                  <small class="text-muted">Experience</small>
+                                                  <div class="fw-medium text-muted">
+                                                    <%= provider.serviceExperience || "Not specified" %>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              <!-- Price -->
+                                              <div class="provider-detail d-flex align-items-center mb-2">
+                                                <div class="icon-wrapper bg-light rounded-circle me-3">
+                                                  <i class="fas fa-rupee-sign text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                  <small class="text-muted">Service Price</small>
+                                                  <div class="fw-medium text-muted">
+                                                    <%= provider.formattedPrice || "Price on request" %>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              <!-- Location -->
+                                              <div class="provider-detail d-flex align-items-center mb-2">
+                                                <div class="icon-wrapper bg-light rounded-circle me-3">
+                                                  <i class="fas fa-map-marker-alt text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                  <small class="text-muted">Location</small>
+                                                  <div class="fw-medium text-muted">
+                                                    <%= provider.address || "Service area available" %>
+                                                      <% if (provider.distanceText) { %>
+                                                        <br><small class="text-muted">
+                                                          <i class="fas fa-route me-1"></i>
+                                                          <%= provider.distanceText %>
+                                                        </small>
+                                                        <% } %>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                  </div>
+
+                                  <!-- Action Buttons -->
+                                  <div class="card-footer border-0 bg-white pt-0 pb-4 d-flex flex-column gap-2">
+                                    <!-- Available Times Dropdown -->
+                                    <% if (provider.availableTimeSlots && provider.availableTimeSlots.length> 0) { %>
+                                      <div class="dropdown w-100">
+                                        <button class="btn btn-outline-primary btn-lg w-100 rounded-3 dropdown-toggle"
+                                          type="button" id="availableTimesDropdown<%= provider._id %>"
+                                          data-bs-toggle="dropdown" aria-expanded="false">
+                                          <i class="fas fa-calendar-day me-2"></i>Check Available Times
+                                        </button>
+                                        <ul class="dropdown-menu w-100"
+                                          aria-labelledby="availableTimesDropdown<%= provider._id %>">
+                                          <% provider.availableTimeSlots.forEach((slot, index)=> { %>
+                                            <li>
+                                              <form action="/services/<%= serviceId %>/providers" method="get"
+                                                class="dropdown-item">
+                                                <input type="hidden" name="date" value="<%= selectedDate %>">
+                                                <input type="hidden" name="time" value="<%= slot.startTime %>">
+                                                <button type="submit"
+                                                  class="btn btn-link text-decoration-none text-start w-100 px-0">
+                                                  <i class="fas fa-clock me-2"></i>
+                                                  <%= formatTimeSlot(slot.startTime, slot.endTime) %>
+                                                </button>
+                                              </form>
+                                            </li>
+                                            <% }); %>
+                                        </ul>
+                                      </div>
+                                      <% } %>
+
+                                        <!-- Contact Provider Button -->
+                                        <button class="btn btn-outline-secondary btn-lg w-100 rounded-3 shadow-sm"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#contactProviderModal<%= provider._id %>">
+                                          <i class="fas fa-envelope me-2"></i>Contact Provider
+                                        </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Contact Modal -->
+                              <div class="modal fade" id="contactProviderModal<%= provider._id %>" tabindex="-1"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title">Contact <%= provider.user.name %>
+                                      </h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p>This provider is not available at your selected time. You can:</p>
+                                      <ul>
+                                        <li>Try a different date or time</li>
+                                        <li>Send a message to inquire about their availability</li>
+                                      </ul>
+                                      <form>
+                                        <div class="mb-3">
+                                          <label for="contactMessage<%= provider._id %>"
+                                            class="form-label">Message</label>
+                                          <textarea class="form-control" id="contactMessage<%= provider._id %>" rows="3"
+                                            placeholder="I'm interested in your service. When would you be available?"></textarea>
+                                        </div>
+                                      </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                      <button type="button" class="btn btn-primary">Send Message</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <% }); %>
+                      </div>
+                      <% } %>
       </div>
     </div>
+
+    <!-- Enhanced Styles -->
     <style>
-      /* Minimal custom styles to enhance Bootstrap */
       .providers-page {
         min-height: calc(100vh - 76px);
       }
 
-      /* Container padding adjustment */
       .container {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
       }
 
-      /* Page header spacing */
       header.mb-5 {
         margin-bottom: 2.5rem !important;
         padding: 0.5rem 0;
       }
 
-      /* Provider card styling */
+      /* Enhanced Form Styles */
+      .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 0.75rem;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        height: auto;
+        min-height: 48px;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+        transform: translateY(-1px);
+      }
+
+      .input-group {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .input-group:focus-within {
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .input-group-text {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #e9ecef;
+        border-right: none;
+        padding: 0.75rem 1rem;
+        min-width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .input-group .form-control,
+      .input-group .form-select {
+        border-left: none;
+        border-radius: 0 0.75rem 0.75rem 0;
+      }
+
+      .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .input-group:focus-within .input-group-text i {
+        color: white !important;
+      }
+
+      /* Enhanced Button Styles */
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      /* Quick Date Buttons */
+      .quick-date-btn {
+        border-radius: 20px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        border: 1px solid #dee2e6;
+        background: white;
+        transition: all 0.2s ease;
+      }
+
+      .quick-date-btn:hover {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .quick-date-btn.active {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+      }
+
+      /* Form Card Enhancement */
+      .card {
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      /* Date Input Specific Styling */
+      input[type="date"] {
+        position: relative;
+        cursor: pointer;
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      /* Select Dropdown Enhancement */
+      .form-select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+      }
+
+      /* Provider Cards */
       .provider-card {
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        will-change: transform;
         margin-bottom: 0.75rem;
       }
 
@@ -439,12 +630,10 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
       }
 
-      /* Card body improved padding */
       .card-body {
         padding: 1.5rem 1.75rem;
       }
 
-      /* Provider image styling */
       .provider-image-wrapper {
         height: 220px;
         overflow: hidden;
@@ -473,7 +662,6 @@
         transform: scale(1.05);
       }
 
-      /* Provider details improved spacing */
       .provider-details {
         margin-top: 1rem;
       }
@@ -487,7 +675,6 @@
         margin-bottom: 0.5rem !important;
       }
 
-      /* Text inside provider details */
       .provider-detail small {
         margin-bottom: 0.25rem;
         display: block;
@@ -499,7 +686,6 @@
         word-break: break-word;
       }
 
-      /* Icon styling */
       .icon-wrapper {
         width: 40px;
         height: 40px;
@@ -511,29 +697,13 @@
         margin-right: 1rem !important;
       }
 
-      /* Card title spacing */
       .card-title {
         margin-bottom: 1.25rem !important;
         padding: 0 0.5rem;
       }
 
-      /* Card footer spacing */
       .card-footer {
         padding: 0.5rem 1.5rem 1.75rem !important;
-      }
-
-      /* Button spacing */
-      .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        transition: all 0.3s ease;
-        padding: 0.75rem 1.25rem;
-        margin-top: 0.5rem;
-      }
-
-      .btn-primary:hover {
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        transform: translateY(-2px);
       }
 
       .btn-outline-primary {
@@ -547,13 +717,11 @@
         border-color: #667eea;
       }
 
-      /* Rating badge spacing */
       .badge {
         padding: 0.5rem 0.75rem !important;
         margin: 0.75rem !important;
       }
 
-      /* Empty state icon and content */
       .empty-icon {
         width: 80px;
         height: 80px;
@@ -564,84 +732,10 @@
         margin: 0 auto 1.5rem;
       }
 
-      .empty-state-card {
-        padding: 2.5rem !important;
-      }
-
-      .empty-state-card h3 {
-        margin-bottom: 1rem !important;
-      }
-
-      .empty-state-card p {
-        padding: 0 0.75rem;
-        margin-bottom: 1.5rem !important;
-      }
-
-      /* Row spacing */
-      .row {
-        margin-left: -0.75rem;
-        margin-right: -0.75rem;
-      }
-
-      .row>.col {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-      }
-
-      /* Unavailable provider styling */
+      /* Unavailable Provider Styles */
       .unavailable-provider {
         opacity: 0.75;
         transition: opacity 0.3s ease-in-out;
-      }
-
-      .unavailable-provider:hover {
-        opacity: 0.9;
-      }
-
-      /* Apply grayscale to unavailable provider images */
-      .grayscale img {
-        filter: grayscale(90%);
-      }
-
-      /* Disable hover transform for unavailable providers */
-      .unavailable-provider:hover {
-        transform: none;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-      }
-
-      /* Make unavailable provider badges muted */
-      .unavailable-provider .badge {
-        background-color: #6c757d !important;
-        color: white !important;
-      }
-
-      /* Make unavailable provider icons muted */
-      .unavailable-provider .icon-wrapper i {
-        color: #6c757d !important;
-      }
-
-      /* Time slots styling */
-      .time-slots-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-      }
-
-      .dropdown-item {
-        display: block;
-        padding: 8px 16px;
-      }
-
-      .dropdown-item:hover {
-        background-color: #f8f9fa;
-      }
-
-      .dropdown-item .btn-link {
-        padding: 0;
-        text-align: left;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .unavailable-provider:hover {
@@ -658,11 +752,74 @@
         filter: grayscale(50%);
       }
 
-      /* Responsive adjustments */
+      .unavailable-provider .badge {
+        background-color: #6c757d !important;
+        color: white !important;
+      }
+
+      .unavailable-provider .icon-wrapper i {
+        color: #6c757d !important;
+      }
+
+      /* Loading State */
+      .btn-primary.loading {
+        position: relative;
+        color: transparent;
+      }
+
+      .btn-primary.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        border: 2px solid transparent;
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive Styles */
       @media (max-width: 768px) {
         .container {
           padding-left: 1.25rem;
           padding-right: 1.25rem;
+        }
+
+        .col-md-5,
+        .col-md-2 {
+          margin-bottom: 1rem;
+        }
+
+        .quick-date-btn {
+          font-size: 0.8rem;
+          padding: 0.3rem 0.8rem;
+        }
+
+        .form-label {
+          font-size: 0.85rem;
+        }
+
+        .btn-primary {
+          padding: 1rem;
+          font-size: 0.9rem;
+        }
+
+        .input-group {
+          margin-bottom: 0.5rem;
         }
 
         .provider-image-wrapper {
@@ -690,6 +847,15 @@
           padding-right: 1rem;
         }
 
+        .row.mt-3 .d-flex {
+          justify-content: flex-start !important;
+        }
+
+        .quick-date-btn {
+          flex: 1;
+          min-width: calc(50% - 0.25rem);
+        }
+
         .card-body {
           padding: 1.25rem 1rem;
         }
@@ -704,211 +870,224 @@
         }
       }
     </style>
-   <!-- Add this JavaScript at the end of your providers.ejs file -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('date');
-    const timeSelect = document.getElementById('time');
-    
-    // When date changes, update available time options
-    dateInput.addEventListener('change', updateTimeOptions);
-    
-    // Initial update
-    updateTimeOptions();
-    
-// Replace the current updateTimeOptions function with this improved version
-function updateTimeOptions() {
-  const selectedDate = dateInput.value;
-  const now = new Date();
-  const currentDate = now.toISOString().split('T')[0];
-  const isToday = selectedDate === currentDate;
-  
-  // Get all time options
-  const options = Array.from(timeSelect.options);
-  
-  // First, make all options visible
-  options.forEach(option => {
-    if (option.value) {
-      option.disabled = false;
-      option.style.display = '';
-    }
-  });
-  
-  // If it's today, hide past time slots
-  if (isToday) {
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    
-    // Calculate the current time in a comparable format
-    const currentTimeValue = currentHour * 60 + currentMinute;
-    
-    // Show a debugging message
-    console.log(`Current time: ${currentHour}:${currentMinute} (${currentTimeValue} minutes)`);
-    
-    let hasVisibleOptions = false;
-    
-    options.forEach(option => {
-      if (option.value) {
-        const [hours, minutes] = option.value.split(':').map(num => parseInt(num));
-        const optionTimeValue = hours * 60 + minutes;
-        
-        // Hide if this time slot has passed (add 15 min buffer)
-        if (optionTimeValue <= currentTimeValue + 15) {
-          option.disabled = true;
-          option.style.display = 'none';
-          console.log(`Hiding option: ${option.text} (${optionTimeValue} minutes)`);
-        } else {
-          option.disabled = false;
-          option.style.display = '';
-          hasVisibleOptions = true;
-          console.log(`Keeping option: ${option.text} (${optionTimeValue} minutes)`);
-        }
-      }
-    });
-    
-    // Check if selected option is now disabled
-    if (timeSelect.selectedIndex > 0 && timeSelect.options[timeSelect.selectedIndex].disabled) {
-      // Find first enabled option
-      const firstEnabled = options.findIndex(opt => !opt.disabled && opt.value);
-      if (firstEnabled > 0) {
-        timeSelect.selectedIndex = firstEnabled;
-      } else {
-        timeSelect.selectedIndex = 0; // Select placeholder if no times available
-      }
-    }
-    
-    // Calculate adjusted display times
-    const firstAvailableTime = options.find(opt => !opt.disabled && opt.value);
-    const displayStartTime = firstAvailableTime ? firstAvailableTime.text : '7:00 AM';
-    
-    document.querySelector('small.text-muted').textContent = 
-      `Available today: From ${displayStartTime} to 9:00 PM`;
-      
-    if (!hasVisibleOptions) {
-      // If no times are available today, inform the user
-      document.querySelector('small.text-muted').textContent = 
-        `No more slots available today. Please select another date.`;
-    }
-  } else {
-    // For future dates, show all time slots
-    document.querySelector('small.text-muted').textContent = 'Working hours: 7:00 AM - 9:00 PM';
-  }
-}
-    
-   
-    function formatTime(hour, minute) {
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
-    }
-    
-    // Also handle form submission to prevent selecting invalid times
-    const form = document.getElementById('availability-filter');
-    form.addEventListener('submit', function(e) {
-      const selectedTime = timeSelect.value;
-      if (selectedTime) {
-        const [hours, minutes] = selectedTime.split(':').map(num => parseInt(num));
-        
-        // Validate working hours
-        if (hours < 7 || hours >= 21) {
-          e.preventDefault();
-          alert('Please select a time between 7:00 AM and 9:00 PM');
-          return false;
-        }
-        
-        // Validate not in the past if today
-        const selectedDate = dateInput.value;
-        const now = new Date();
-        const currentDate = now.toISOString().split('T')[0];
-        
-        if (selectedDate === currentDate) {
-          const currentHour = now.getHours();
-          const currentMinute = now.getMinutes();
-          
-          if (hours < currentHour || (hours === currentHour && minutes <= currentMinute)) {
-            e.preventDefault();
-            alert('Please select a future time');
-            return false;
-          }
-        }
-      }
-    });
-  });
-</script><!-- Add this at the end of your providers.ejs file -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const useMyLocationBtn = document.getElementById('use-my-location');
-    const locationInput = document.getElementById('location');
-    const latitudeInput = document.getElementById('latitude');
-    const longitudeInput = document.getElementById('longitude');
-    
-    useMyLocationBtn.addEventListener('click', function() {
-      if (navigator.geolocation) {
-        // Show loading state
-        useMyLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        useMyLocationBtn.disabled = true;
-        
-        navigator.geolocation.getCurrentPosition(
-          function(position) {
-            // Success
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            // Set values to form
-            latitudeInput.value = lat;
-            longitudeInput.value = lng;
-            
-            // Reverse geocode to get address
-            reverseGeocode(lat, lng);
-          },
-          function(error) {
-            // Error
-            useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            useMyLocationBtn.disabled = false;
-            
-            let errorMessage = 'Unable to retrieve your location: ';
-            switch(error.code) {
-              case error.PERMISSION_DENIED:
-                errorMessage += 'Location permission denied. Please enable location in your browser settings.';
-                break;
-              case error.POSITION_UNAVAILABLE:
-                errorMessage += 'Location information is unavailable.';
-                break;
-              case error.TIMEOUT:
-                errorMessage += 'The request to get location timed out.';
-                break;
-              default:
-                errorMessage += 'An unknown error occurred.';
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('date');
+        const timeSelect = document.getElementById('time');
+
+        // Date/Time validation
+        dateInput.addEventListener('change', updateTimeOptions);
+        updateTimeOptions();
+
+        function updateTimeOptions() {
+          const selectedDate = dateInput.value;
+          const now = new Date();
+          const currentDate = now.toISOString().split('T')[0];
+          const isToday = selectedDate === currentDate;
+
+          const options = Array.from(timeSelect.options);
+
+          options.forEach(option => {
+            if (option.value) {
+              option.disabled = false;
+              option.style.display = '';
             }
-            
-            alert(errorMessage);
+          });
+
+          if (isToday) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentTimeValue = currentHour * 60 + currentMinute;
+
+            options.forEach(option => {
+              if (option.value) {
+                const [hours, minutes] = option.value.split(':').map(num => parseInt(num));
+                const optionTimeValue = hours * 60 + minutes;
+
+                if (optionTimeValue <= currentTimeValue + 15) {
+                  option.disabled = true;
+                  option.style.display = 'none';
+                } else {
+                  option.disabled = false;
+                  option.style.display = '';
+                }
+              }
+            });
           }
-        );
-      } else {
-        alert('Geolocation is not supported by this browser.');
-      }
-    });
-    
-    function reverseGeocode(lat, lng) {
-      fetch(`/api/location/reverse-geocode?lat=${lat}&lng=${lng}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            locationInput.value = data.address;
-            // Submit form
-            document.getElementById('availability-filter').submit();
-          } else {
-            useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            useMyLocationBtn.disabled = false;
-            alert('Unable to get your address. Please enter it manually.');
-          }
-        })
-        .catch(error => {
-          useMyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-          useMyLocationBtn.disabled = false;
-          console.error('Error geocoding:', error);
-          alert('Unable to get your address. Please enter it manually.');
+        }
+
+        // Quick date button functionality
+        const quickDateBtns = document.querySelectorAll('.quick-date-btn');
+
+        quickDateBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            const days = parseInt(this.dataset.days);
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + days);
+
+            const formattedDate = targetDate.toISOString().split('T')[0];
+            dateInput.value = formattedDate;
+
+            // Update active state
+            quickDateBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Trigger change event
+            dateInput.dispatchEvent(new Event('change'));
+            updateTimeOptions();
+          });
         });
-    }
-  });
-</script>
+
+        // Check if current date matches any quick button
+        function updateQuickButtonStates() {
+          const currentValue = dateInput.value;
+
+          quickDateBtns.forEach(btn => {
+            const days = parseInt(btn.dataset.days);
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + days);
+            const formattedDate = targetDate.toISOString().split('T')[0];
+
+            if (currentValue === formattedDate) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          });
+        }
+
+        // Update quick button states when date input changes
+        dateInput.addEventListener('change', updateQuickButtonStates);
+
+        // Initialize quick button states
+        updateQuickButtonStates();
+
+        // Function to scroll to navbar (for "Set Location" button)
+        window.scrollToNavbar = function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          showToast('Click the location bar in the navigation to set your location', 'info');
+        };
+
+        // Helper function to show toast messages
+        function showToast(message, type) {
+          type = type || 'info';
+          const toast = document.createElement('div');
+          toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: ' +
+            (type === 'info' ? '#667eea' : '#28a745') +
+            '; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transition: opacity 0.3s ease; max-width: 300px;';
+
+          toast.textContent = message;
+          document.body.appendChild(toast);
+
+          // Fade in
+          setTimeout(function () { toast.style.opacity = '1'; }, 100);
+
+          // Auto remove
+          setTimeout(function () {
+            toast.style.opacity = '0';
+            setTimeout(function () {
+              if (toast.parentElement) {
+                toast.remove();
+              }
+            }, 300);
+          }, 4000);
+        }
+
+        // Add loading state to form submission
+        const form = document.getElementById('availability-filter');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', function (e) {
+          const selectedTime = timeSelect.value;
+          if (selectedTime) {
+            const timeParts = selectedTime.split(':');
+            const hours = parseInt(timeParts[0]);
+            const minutes = parseInt(timeParts[1]);
+
+            if (hours < 7 || hours >= 21) {
+              e.preventDefault();
+              alert('Please select a time between 7:00 AM and 9:00 PM');
+              return false;
+            }
+
+            const selectedDate = dateInput.value;
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0];
+
+            if (selectedDate === currentDate) {
+              const currentHour = now.getHours();
+              const currentMinute = now.getMinutes();
+
+              if (hours < currentHour || (hours === currentHour && minutes <= currentMinute)) {
+                e.preventDefault();
+                alert('Please select a future time');
+                return false;
+              }
+            }
+          }
+
+          // Add loading state
+          submitBtn.classList.add('loading');
+          submitBtn.disabled = true;
+
+          // Remove loading state after 3 seconds (fallback)
+          setTimeout(function () {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+          }, 3000);
+        });
+
+        // Auto-apply stored location on providers page load
+        console.log('Providers page loaded - checking for stored location');
+        console.log('Current URL:', window.location.href);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasLocationParams = urlParams.has('location') || urlParams.has('latitude');
+
+        console.log('Has location params:', hasLocationParams);
+        console.log('URL params:', Object.fromEntries(urlParams));
+
+        // If no location parameters in URL, check if we have stored location
+        if (!hasLocationParams) {
+          try {
+            const storedLocation = localStorage.getItem('userLocation');
+            if (storedLocation) {
+              const location = JSON.parse(storedLocation);
+              console.log('Found stored location, applying to providers:', location);
+
+              // Auto-apply the stored location
+              const currentUrl = new URL(window.location);
+              currentUrl.searchParams.set('location', location.city);
+              currentUrl.searchParams.set('latitude', location.coordinates.lat);
+              currentUrl.searchParams.set('longitude', location.coordinates.lng);
+
+              console.log('Auto-applying location, redirecting to:', currentUrl.href);
+
+              // Show a brief loading message
+              const toast = document.createElement('div');
+              toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #667eea; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transition: opacity 0.3s ease;';
+              toast.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Applying your location...';
+              document.body.appendChild(toast);
+
+              setTimeout(function () { toast.style.opacity = '1'; }, 100);
+
+              // Redirect with location parameters after a short delay
+              setTimeout(function () {
+                window.location.href = currentUrl.href;
+              }, 800);
+            } else {
+              console.log('No stored location found');
+            }
+          } catch (e) {
+            console.error('Error applying stored location:', e);
+          }
+        } else {
+          console.log('Location params already present:', {
+            location: urlParams.get('location'),
+            latitude: urlParams.get('latitude'),
+            longitude: urlParams.get('longitude')
+          });
+        }
+      });
+    </script>

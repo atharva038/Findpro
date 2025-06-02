@@ -167,68 +167,81 @@ document.addEventListener("DOMContentLoaded", function () {
             paymentInfoContainer.innerHTML = '';
             actionButtonsContainer.innerHTML = '';
 
-            // Add appropriate action buttons based on booking status
+            // Update around line 163
+
             if (booking.status === 'pending') {
-                // If booking is pending and not cancelled
+                // Booking is pending provider confirmation
                 actionButtonsContainer.innerHTML = `
+                    <button type="button" class="btn btn-outline-warning" disabled>
+                        <i class="fas fa-clock me-2"></i>Awaiting Provider Confirmation
+                    </button>
                     <button type="button" class="btn btn-danger" onclick="cancelBooking('${booking._id}')">
                         <i class="fas fa-times me-2"></i>Cancel Booking
                     </button>
                 `;
 
-                // If advance payment is pending
-                if (!booking.advancePayment || !booking.advancePayment.paid) {
-                    const advanceAmount = (booking.totalCost * 0.1).toFixed(2);
+                // Show advance payment status
+                const advanceAmount = (booking.totalCost * 0.15).toFixed(2);
+                if (booking.advancePayment && booking.advancePayment.paid) {
+                    paymentInfoContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Advance payment of ₹${advanceAmount} (15%) completed successfully. 
+                            Waiting for provider to confirm your booking.
+                        </div>
+                    `;
+                } else {
                     paymentInfoContainer.innerHTML = `
                         <div class="alert alert-warning">
                             <i class="fas fa-info-circle me-2"></i>
-                            Your booking is pending advance payment of ₹${advanceAmount} (10%)
+                            Your booking is pending advance payment of ₹${advanceAmount} (15%)
                         </div>
                         <button class="btn btn-primary payment-action-btn" onclick="makeAdvancePayment('${booking._id}')">
                             <i class="fas fa-credit-card me-2"></i>
-                            Pay Advance (10%)
+                            Pay Advance (15%)
                         </button>
                     `;
                 }
             } else if (booking.status === 'confirmed') {
-                // If booking is confirmed, show remaining payment option
-                const remainingAmount = (booking.totalCost * 0.9).toFixed(2);
+                // Provider has confirmed, show remaining payment option
+                const remainingAmount = (booking.totalCost * 0.85).toFixed(2);
+
+                actionButtonsContainer.innerHTML = `
+                    <button type="button" class="btn btn-outline-info" disabled>
+                        <i class="fas fa-check me-2"></i>Confirmed by Provider
+                    </button>
+                `;
 
                 paymentInfoContainer.innerHTML = `
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        Service has been confirmed. Remaining payment: ₹${remainingAmount} (90%)
+                        Your booking has been confirmed by the provider. 
+                        Remaining payment: ₹${remainingAmount} (85%) - Pay this after work completion
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Note:</strong> Pay the remaining amount only after the service is completed to your satisfaction.
                     </div>
                     <button class="btn btn-success payment-action-btn" onclick="completePayment('${booking._id}')">
                         <i class="fas fa-check-circle me-2"></i>
-                        Complete Payment & Mark as Done
+                        Service Done - Pay Remaining & Complete
                     </button>
                 `;
             } else if (booking.status === 'completed') {
-                // If booking is completed, offer rating option
+                // Service completed
                 actionButtonsContainer.innerHTML = `
                     <button type="button" class="btn btn-outline-primary" onclick="rateService('${booking._id}')">
-                        <i class="fas fa-star me-2"></i>
-                        Rate Service
+                        <i class="fas fa-star me-2"></i>Rate Service
                     </button>
                 `;
 
                 paymentInfoContainer.innerHTML = `
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle me-2"></i>
-                        Payment completed. Thank you for using our service!
-                    </div>
-                `;
-            } else if (booking.status === 'cancelled') {
-                // If booking is cancelled
-                paymentInfoContainer.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        This booking has been cancelled.
+                        Service completed successfully! Full payment of ₹${booking.totalCost} has been processed.
                     </div>
                 `;
             }
-
         } catch (error) {
             console.error('Error fetching booking details:', error);
             alert('Failed to load booking details. Please try again.');

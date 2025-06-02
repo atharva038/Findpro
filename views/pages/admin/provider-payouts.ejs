@@ -1,0 +1,463 @@
+<% layout('/layouts/admin-layout') %>
+    <% locals.title="Provider Payouts" ; locals.currentPath="/admin/provider-payouts" ;
+        locals.breadcrumbs=[{text: "Provider Payouts" , url: "/admin/provider-payouts" , active: true}]; %>
+
+        <div class="admin-section-header">
+            <h2><i class="fas fa-money-bill-wave me-2"></i>Provider Payouts</h2>
+            <div>
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal">
+                    <i class="fas fa-download me-1"></i> Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="admin-card h-100">
+                    <div class="admin-card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="icon-circle bg-primary text-white">
+                                    <i class="fas fa-wallet fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-1">Pending Payouts</h5>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="mb-0 me-2">₹<%= payoutData.pendingAmount.toFixed(2) %>
+                                    </h3>
+                                    <span class="text-muted">across <%= payoutData.providers.length %> providers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="admin-card h-100">
+                    <div class="admin-card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="icon-circle bg-success text-white">
+                                    <i class="fas fa-check-circle fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-1">Processed Payouts</h5>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="mb-0 me-2">₹<%= payoutData.processedAmount.toFixed(2) %>
+                                    </h3>
+                                    <span class="text-muted">total paid to providers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Pending Payouts -->
+            <div class="col-md-12 mb-4">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>Providers with Pending Payouts</h5>
+                    </div>
+                    <div class="admin-card-body p-0">
+                        <% if (payoutData.providers && payoutData.providers.length> 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Provider</th>
+                                            <th>Contact</th>
+                                            <th>Bank Details</th>
+                                            <th>Pending Amount</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% payoutData.providers.forEach(provider=> { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(provider.name) %>&background=4e73df&color=fff"
+                                                            class="rounded-circle me-2" width="40" height="40"
+                                                            alt="Provider">
+                                                        <div>
+                                                            <strong>
+                                                                <%= provider.name %>
+                                                            </strong>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <div><i class="fas fa-envelope me-1 text-muted"></i>
+                                                            <%= provider.email %>
+                                                        </div>
+                                                        <div><i class="fas fa-phone me-1 text-muted"></i>
+                                                            <%= provider.phone %>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <% if (provider.hasBankDetails) { %>
+                                                        <div>
+                                                            <span
+                                                                class="badge <%= provider.bankVerified ? 'bg-success' : 'bg-warning' %>">
+                                                                <i
+                                                                    class="fas <%= provider.bankVerified ? 'fa-check-circle' : 'fa-clock' %> me-1"></i>
+                                                                <%= provider.bankVerified ? 'Verified'
+                                                                    : 'Pending Verification' %>
+                                                            </span>
+                                                            <button class="btn btn-sm btn-link" data-bs-toggle="modal"
+                                                                data-bs-target="#bankDetailsModal<%= provider.id %>">View</button>
+                                                        </div>
+                                                        <% } else { %>
+                                                            <span class="badge bg-danger">
+                                                                <i class="fas fa-times-circle me-1"></i> Not Available
+                                                            </span>
+                                                            <% } %>
+                                                </td>
+                                                <td>
+                                                    <strong class="text-primary">₹<%= provider.pendingAmount.toFixed(2)
+                                                            %></strong>
+                                                </td>
+                                                <td>
+                                                    <% if (provider.hasBankDetails) { %>
+                                                        <button class="btn btn-sm btn-primary process-payout-btn"
+                                                            data-bs-toggle="modal" data-bs-target="#processPayoutModal"
+                                                            data-provider-id="<%= provider.id %>"
+                                                            data-provider-name="<%= provider.name %>"
+                                                            data-amount="<%= provider.pendingAmount %>">
+                                                            <i class="fas fa-money-bill-wave me-1"></i> Process Payout
+                                                        </button>
+                                                        <% if (!provider.bankVerified) { %>
+                                                            <button
+                                                                class="btn btn-sm btn-outline-success verify-bank-btn"
+                                                                data-provider-id="<%= provider.id %>">
+                                                                <i class="fas fa-check me-1"></i> Verify Bank
+                                                            </button>
+                                                            <% } %>
+                                                                <% } else { %>
+                                                                    <button class="btn btn-sm btn-warning" disabled>
+                                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                        Bank Details Required
+                                                                    </button>
+                                                                    <% } %>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Bank Details Modal -->
+                                            <div class="modal fade" id="bankDetailsModal<%= provider.id %>"
+                                                tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Bank Details - <%= provider.name %>
+                                                            </h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Account Holder</label>
+                                                                <p>
+                                                                    <%= provider.accountHolderName || 'N/A' %>
+                                                                </p>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Bank Name</label>
+                                                                <p>
+                                                                    <%= provider.bankName || 'N/A' %>
+                                                                </p>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Account Number</label>
+                                                                <p>
+                                                                    <%= provider.accountNumber || 'N/A' %>
+                                                                </p>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">IFSC Code</label>
+                                                                <p>
+                                                                    <%= provider.ifscCode || 'N/A' %>
+                                                                </p>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Status</label>
+                                                                <p>
+                                                                    <span
+                                                                        class="badge <%= provider.bankVerified ? 'bg-success' : 'bg-warning' %>">
+                                                                        <i
+                                                                            class="fas <%= provider.bankVerified ? 'fa-check-circle' : 'fa-clock' %> me-1"></i>
+                                                                        <%= provider.bankVerified ? 'Verified'
+                                                                            : 'Pending Verification' %>
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <% if (!provider.bankVerified) { %>
+                                                                <button type="button"
+                                                                    class="btn btn-success verify-bank-btn"
+                                                                    data-provider-id="<%= provider.id %>"
+                                                                    data-bs-dismiss="modal">
+                                                                    <i class="fas fa-check me-1"></i> Verify Bank
+                                                                    Details
+                                                                </button>
+                                                                <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <% } else { %>
+                                <div class="text-center py-5">
+                                    <div class="mb-3">
+                                        <i class="fas fa-check-circle text-success fa-3x"></i>
+                                    </div>
+                                    <h5>No pending payouts</h5>
+                                    <p class="text-muted">All provider payouts have been processed</p>
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Payouts -->
+            <div class="col-md-12 mb-4">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Payouts</h5>
+                    </div>
+                    <div class="admin-card-body p-0">
+                        <% if (payoutData.recentPayouts && payoutData.recentPayouts.length> 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Provider</th>
+                                            <th>Service</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% payoutData.recentPayouts.forEach(payout=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= new Date(payout.date).toLocaleDateString() %>
+                                                </td>
+                                                <td>
+                                                    <%= payout.providerName %>
+                                                </td>
+                                                <td>
+                                                    <%= payout.serviceName %>
+                                                </td>
+                                                <td>₹<%= payout.amount.toFixed(2) %>
+                                                </td>
+                                                <td>
+                                                    <% let statusClass='bg-secondary' ; %>
+                                                        <% if (payout.status==='pending' ) statusClass='bg-warning' ; %>
+                                                            <% if (payout.status==='processed' )
+                                                                statusClass='bg-success' ; %>
+                                                                <% if (payout.status==='failed' )
+                                                                    statusClass='bg-danger' ; %>
+                                                                    <% if (payout.status==='bank_details_required' )
+                                                                        statusClass='bg-danger' ; %>
+
+                                                                        <span class="badge <%= statusClass %>">
+                                                                            <%= payout.status.charAt(0).toUpperCase() +
+                                                                                payout.status.slice(1).replace('_', ' '
+                                                                                ) %>
+                                                                        </span>
+                                                </td>
+                                                <td>
+                                                    <%= payout.reference || 'N/A' %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <% } else { %>
+                                <div class="text-center py-5">
+                                    <div class="mb-3">
+                                        <i class="fas fa-history text-muted fa-3x"></i>
+                                    </div>
+                                    <h5>No payout history available</h5>
+                                    <p class="text-muted">Payout records will appear here</p>
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Process Payout Modal -->
+        <div class="modal fade" id="processPayoutModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Process Payout</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="process-payout-form">
+                            <div class="mb-3">
+                                <label class="form-label">Provider Name</label>
+                                <input type="text" class="form-control" id="providerNameDisplay" readonly>
+                                <input type="hidden" id="providerIdInput">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="text" class="form-control" id="payoutAmountDisplay" readonly>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Transaction Reference <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="transactionReference"
+                                    placeholder="e.g., UTR Number, Transaction ID" required>
+                                <div class="form-text">Enter the bank transfer reference number</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" id="payoutNotes" rows="2"
+                                    placeholder="Any additional information"></textarea>
+                            </div>
+                        </div>
+                        <div class="process-payout-success d-none">
+                            <div class="text-center my-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-check-circle text-success fa-5x"></i>
+                                </div>
+                                <h4 class="mb-3">Payout Processed Successfully</h4>
+                                <p class="payout-success-message mb-0"></p>
+                            </div>
+                        </div>
+                        <div class="process-payout-error d-none">
+                            <div class="text-center my-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-times-circle text-danger fa-5x"></i>
+                                </div>
+                                <h4 class="mb-3">Failed to Process Payout</h4>
+                                <p class="payout-error-message mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="process-payout-form-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="confirmPayoutBtn">
+                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                    aria-hidden="true"></span>
+                                Process Payout
+                            </button>
+                        </div>
+                        <div class="process-payout-success-footer d-none">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                        <div class="process-payout-error-footer d-none">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="retryPayoutBtn">Try Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Export Payout Report</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Date Range</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" id="startDate">
+                                <span class="input-group-text">to</span>
+                                <input type="date" class="form-control" id="endDate">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="statusPending" value="pending"
+                                        checked>
+                                    <label class="form-check-label" for="statusPending">Pending</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="statusProcessed"
+                                        value="processed" checked>
+                                    <label class="form-check-label" for="statusProcessed">Processed</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="statusFailed" value="failed"
+                                        checked>
+                                    <label class="form-check-label" for="statusFailed">Failed</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Format</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="exportFormat" id="formatCsv"
+                                        value="csv" checked>
+                                    <label class="form-check-label" for="formatCsv">CSV</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="exportFormat" id="formatPdf"
+                                        value="pdf">
+                                    <label class="form-check-label" for="formatPdf">PDF</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="exportReportBtn">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page-specific styling -->
+        <style>
+            .icon-circle {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .verify-bank-btn:hover {
+                background-color: #198754;
+                color: #fff;
+            }
+        </style>
+
+        <script src="/js/admin/provider-payouts.js"></script>

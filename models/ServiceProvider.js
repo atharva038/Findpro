@@ -136,7 +136,36 @@ const serviceProviderSchema = new mongoose.Schema({
     default: 5
   },
   // Provider can set their overall status
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+
+  bankDetails: {
+    accountNumber: {
+      type: String,
+      trim: true
+    },
+    ifscCode: {
+      type: String,
+      trim: true
+    },
+    accountHolderName: {
+      type: String,
+      trim: true
+    },
+    bankName: {
+      type: String,
+      trim: true
+    },
+    verified: {
+      type: Boolean,
+      default: false
+    }
+  },
+  razorpayContactId: String,
+  razorpayFundAccountId: String,
+  pendingPayouts: {
+    type: Number,
+    default: 0
+  }
 });
 
 module.exports = mongoose.model("ServiceProvider", serviceProviderSchema);

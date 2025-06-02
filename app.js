@@ -13,6 +13,7 @@ const cookieParser = require('cookie-parser');
 const LocalStrategy = require("passport-local");
 
 require("dotenv").config();
+
 const User = require("./models/User.js");
 const authorisationRoutes = require("./routes/auth.js");
 const bookingRoutes = require("./routes/booking.js");

@@ -166,6 +166,50 @@ function updateProviderInfo(formData) {
         });
 }
 
+// Global toast function
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+
+    toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    // Use Bootstrap's toast functionality if available
+    if (typeof bootstrap !== 'undefined') {
+        const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
+        bsToast.show();
+    } else {
+        // Manual fallback
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    container.style.zIndex = '1080';
+    document.body.appendChild(container);
+    return container;
+}
+
 // Main event listener for when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
     // Connect save profile button to the saveProfileChanges function
@@ -830,5 +874,315 @@ document.addEventListener('DOMContentLoaded', function () {
         container.style.zIndex = '1080';
         document.body.appendChild(container);
         return container;
+    }
+});
+// Add this to your providerDashboard.js file (after the existing code)
+
+// Bank details form handling
+document.addEventListener('DOMContentLoaded', function () {
+    const bankDetailsForm = document.getElementById('bankDetailsForm');
+    if (bankDetailsForm) {
+        bankDetailsForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            saveBankDetails();
+        });
+    }
+
+    const saveBankDetailsBtn = document.getElementById('saveBankDetails');
+    if (saveBankDetailsBtn) {
+        saveBankDetailsBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            saveBankDetails();
+        });
+    }
+
+    function saveBankDetails() {
+        const form = document.getElementById('bankDetailsForm');
+        if (!form) return;
+
+        const saveBtn = document.getElementById('saveBankDetails');
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        }
+
+        // Get form data
+        const formData = {
+            accountHolderName: document.getElementById('accountHolderName')?.value,
+            accountNumber: document.getElementById('accountNumber')?.value,
+            ifscCode: document.getElementById('ifscCode')?.value,
+            bankName: document.getElementById('bankName')?.value
+        };
+
+        // Validate form data
+        if (!formData.accountHolderName || !formData.accountNumber || !formData.ifscCode || !formData.bankName) {
+            showToast('error', 'Please fill in all bank details fields');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Bank Details';
+            }
+            return;
+        }
+
+        // Send to server
+        fetch('/profile/bank-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Bank details saved successfully');
+
+                    // Reset the form
+                    document.getElementById('bankDetailsForm').reset();
+
+                    // Update UI to show bank details are saved
+                    const bankStatusElement = document.getElementById('bankDetailsStatus');
+                    if (bankStatusElement) {
+                        bankStatusElement.innerHTML = '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i> Pending Verification</span>';
+                    }
+
+                    // Update form with masked account number if returned
+                    if (data.bankDetails && data.bankDetails.accountNumberMasked) {
+                        const accountNumberInput = document.getElementById('accountNumber');
+                        if (accountNumberInput) {
+                            accountNumberInput.setAttribute('placeholder', data.bankDetails.accountNumberMasked);
+                        }
+                    }
+
+                    // Show pending payouts section if it exists
+                    const pendingPayoutsSection = document.getElementById('pendingPayoutsSection');
+                    if (pendingPayoutsSection) {
+                        pendingPayoutsSection.classList.remove('d-none');
+                        // Fetch updated payout info
+                        fetchPayoutInfo();
+                    }
+
+                    // Hide the form and show a success message
+                    const noBankDetailsSection = document.getElementById('noBankDetailsSection');
+                    if (noBankDetailsSection) {
+                        noBankDetailsSection.classList.add('d-none');
+                        noBankDetailsSection.innerHTML = `
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Bank Details Submitted</h5>
+                        <p>Your bank details have been submitted and are pending verification. You'll be notified once verified.</p>
+                    </div>
+                </div>
+            `;
+                        noBankDetailsSection.className = "alert alert-info";
+                        noBankDetailsSection.classList.remove('d-none');
+                    }
+
+                } else {
+                    throw new Error(data.message || 'Failed to save bank details');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving bank details:', error);
+                showToast('error', error.message || 'Failed to save bank details. Please try again.');
+            })
+            .finally(() => {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Bank Details';
+                }
+            });
+    }
+
+    // Load bank details
+    function loadBankDetails() {
+        const bankDetailsForm = document.getElementById('bankDetailsForm');
+        if (!bankDetailsForm) return;
+
+        fetch('/profile/bank-details')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.hasBankDetails) {
+                    // Update form with existing data
+                    if (document.getElementById('accountHolderName')) {
+                        document.getElementById('accountHolderName').value = data.bankDetails.accountHolderName || '';
+                    }
+                    if (document.getElementById('bankName')) {
+                        document.getElementById('bankName').value = data.bankDetails.bankName || '';
+                    }
+                    if (document.getElementById('ifscCode')) {
+                        document.getElementById('ifscCode').value = data.bankDetails.ifscCode || '';
+                    }
+
+                    // For account number, just update placeholder with masked version
+                    if (document.getElementById('accountNumber')) {
+                        document.getElementById('accountNumber').placeholder = data.bankDetails.accountNumberMasked || '';
+                        document.getElementById('accountNumber').setAttribute('data-has-value', 'true');
+                    }
+
+                    // Update UI to show bank details are saved
+                    const bankStatusElement = document.getElementById('bankDetailsStatus');
+                    if (bankStatusElement) {
+                        const verifiedStatus = data.bankDetails.verified ?
+                            '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Verified</span>' :
+                            '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i> Pending Verification</span>';
+
+                        bankStatusElement.innerHTML = verifiedStatus;
+                    }
+
+                    // If bank details are pending verification, show a message
+                    if (!data.bankDetails.verified) {
+                        const noBankDetailsSection = document.getElementById('noBankDetailsSection');
+                        if (noBankDetailsSection) {
+                            noBankDetailsSection.innerHTML = `
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5>Bank Details Pending Verification</h5>
+                            <p>Your bank details have been submitted and are pending verification by our team. This typically takes 1-2 business days.</p>
+                        </div>
+                    </div>
+                `;
+                            noBankDetailsSection.className = "alert alert-warning";
+                            noBankDetailsSection.classList.remove('d-none');
+                        }
+                    } else {
+                        // Bank details are verified
+                        const noBankDetailsSection = document.getElementById('noBankDetailsSection');
+                        if (noBankDetailsSection) {
+                            noBankDetailsSection.classList.add('d-none');
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading bank details:', error);
+            });
+    }
+
+    // Load payout information
+    function fetchPayoutInfo() {
+        const payoutInfoSection = document.getElementById('pendingPayoutsAmount');
+        if (!payoutInfoSection) return;
+
+        fetch('/profile/payout-info')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update pending payout amount
+                    if (payoutInfoSection) {
+                        payoutInfoSection.textContent = `₹${data.pendingPayouts.toFixed(2)}`;
+                    }
+
+                    // Show appropriate section based on bank details
+                    const noBankDetailsSection = document.getElementById('noBankDetailsSection');
+                    const pendingPayoutsSection = document.getElementById('pendingPayoutsSection');
+
+                    if (data.hasBankDetails) {
+                        if (noBankDetailsSection) noBankDetailsSection.classList.add('d-none');
+                        if (pendingPayoutsSection) pendingPayoutsSection.classList.remove('d-none');
+                    } else {
+                        if (noBankDetailsSection) noBankDetailsSection.classList.remove('d-none');
+                        if (pendingPayoutsSection) pendingPayoutsSection.classList.add('d-none');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching payout info:', error);
+            });
+    }
+
+    // Initialize
+    loadBankDetails();
+    fetchPayoutInfo();
+
+    // IFSC code validation
+    const ifscCodeInput = document.getElementById('ifscCode');
+    if (ifscCodeInput) {
+        ifscCodeInput.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
+
+            // Simple IFSC validation: 4 letters + 7 alphanumeric characters
+            const isValid = /^[A-Z]{4}0[A-Z0-9]{6}$/.test(this.value);
+            if (this.value && !isValid) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling || document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.textContent = 'Please enter a valid IFSC code (e.g., HDFC0001234)';
+                if (!this.nextElementSibling) {
+                    this.parentNode.appendChild(feedback);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                if (this.nextElementSibling && this.nextElementSibling.className === 'invalid-feedback') {
+                    this.nextElementSibling.remove();
+                }
+            }
+        });
+    }
+
+    // Add payout status section handler
+    const viewPayoutHistoryBtn = document.getElementById('viewPayoutHistory');
+    if (viewPayoutHistoryBtn) {
+        viewPayoutHistoryBtn.addEventListener('click', function () {
+            const payoutHistoryModal = document.getElementById('payoutHistoryModal');
+            if (payoutHistoryModal && typeof bootstrap !== 'undefined') {
+                const modal = new bootstrap.Modal(payoutHistoryModal);
+
+                // Load payout history before showing modal
+                fetchPayoutHistory();
+                modal.show();
+            }
+        });
+    }
+
+    function fetchPayoutHistory() {
+        const payoutHistoryTable = document.querySelector('#payoutHistoryModal .modal-body table tbody');
+        if (!payoutHistoryTable) return;
+
+        payoutHistoryTable.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
+
+        fetch('/payment/provider-payout/' + document.getElementById('providerId')?.value)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.recentPayouts && data.recentPayouts.length > 0) {
+                        payoutHistoryTable.innerHTML = '';
+                        data.recentPayouts.forEach(payout => {
+                            const row = document.createElement('tr');
+                            const date = new Date(payout.date);
+
+                            // Status badge class
+                            let statusBadgeClass = 'bg-secondary';
+                            if (payout.status === 'pending') statusBadgeClass = 'bg-warning';
+                            if (payout.status === 'processed') statusBadgeClass = 'bg-success';
+                            if (payout.status === 'bank_details_required') statusBadgeClass = 'bg-danger';
+
+                            row.innerHTML = `
+                            <td>${date.toLocaleDateString()}</td>
+                            <td>₹${payout.amount.toFixed(2)}</td>
+                            <td><span class="badge ${statusBadgeClass}">${payout.status}</span></td>
+                            <td>${payout.bookingId}</td>
+                        `;
+                            payoutHistoryTable.appendChild(row);
+                        });
+                    } else {
+                        payoutHistoryTable.innerHTML = '<tr><td colspan="4" class="text-center">No payout history found</td></tr>';
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to load payout history');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading payout history:', error);
+                payoutHistoryTable.innerHTML = `<tr><td colspan="4" class="text-center text-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>Error loading payout history
+            </td></tr>`;
+            });
     }
 });

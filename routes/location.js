@@ -57,22 +57,44 @@ router.get('/reverse-geocode', async (req, res) => {
         const response = await client.reverseGeocode({
             params: {
                 latlng: { lat: parseFloat(lat), lng: parseFloat(lng) },
-                key: process.env.GOOGLE_MAPS_API_KEY,
-                language: 'en',
-                region: 'in'
+                key: process.env.GOOGLE_MAPS_API_KEY
             }
         });
 
-        res.json({
-            status: 'success',
-            data: response.data
-        });
+        if (response.data.results && response.data.results.length > 0) {
+            const result = response.data.results[0];
+            const addressComponents = result.address_components;
+
+            // Extract city name
+            let city = '';
+            for (const component of addressComponents) {
+                if (component.types.includes('locality')) {
+                    city = component.long_name;
+                    break;
+                } else if (component.types.includes('administrative_area_level_2')) {
+                    city = component.long_name;
+                    break;
+                }
+            }
+
+            res.json({
+                success: true,
+                address: city || result.formatted_address.split(',')[0],
+                fullAddress: result.formatted_address,
+                data: response.data
+            });
+        } else {
+            res.json({
+                success: false,
+                message: 'No address found for the given coordinates'
+            });
+        }
 
     } catch (error) {
-        console.error('Error reverse geocoding:', error);
+        console.error('Error in reverse geocoding:', error);
         res.status(500).json({
-            status: 'error',
-            message: 'Failed to reverse geocode location',
+            success: false,
+            message: 'Failed to get address',
             error: error.message
         });
     }
@@ -218,6 +240,39 @@ router.get('/current-location', async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: 'Failed to fetch current location details',
+            error: error.message
+        });
+    }
+});
+router.get('/place-details', async (req, res) => {
+    try {
+        const { placeId } = req.query;
+
+        if (!placeId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Place ID is required'
+            });
+        }
+
+        const response = await client.placeDetails({
+            params: {
+                place_id: placeId,
+                key: process.env.GOOGLE_MAPS_API_KEY,
+                fields: ['formatted_address', 'geometry', 'name', 'place_id']
+            }
+        });
+
+        res.json({
+            status: 'success',
+            data: response.data
+        });
+
+    } catch (error) {
+        console.error('Error fetching place details:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to fetch place details',
             error: error.message
         });
     }

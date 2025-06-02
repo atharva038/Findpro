@@ -46,9 +46,13 @@
                   <%= service.name %>
                 </h3>
                 <div class="provider-details">
-                  <img class="provider-avatar"
-                    src="<%= provider.user.profileImage || 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>"
-                    alt="Provider">
+                  <img class="provider-avatar" src="<%= (provider.user.profileImage && 
+           provider.user.profileImage !== 'data:;base64,=' && 
+           provider.user.profileImage.trim() !== '' && 
+           !provider.user.profileImage.includes('data:;base64,=')) 
+           ? provider.user.profileImage 
+           : 'https://cdn-icons-png.flaticon.com/512/4202/4202841.png' %>" alt="Provider"
+                    onerror="this.src='https://cdn-icons-png.flaticon.com/512/4202/4202841.png'">
                   <div>
                     <p class="provider-name">
                       <%= provider.user.name %>
@@ -141,18 +145,41 @@
               </div>
 
               <div class="payment-row highlight">
-                <span>Booking Amount (10%)</span>
-                <span>₹<%= Math.round(serviceDetails.customCost * 0.1) %></span>
+                <span>Booking Deposit (15%)</span>
+                <span>₹<%= Math.round(serviceDetails.customCost * 0.15) %></span>
               </div>
 
               <div class="payment-row muted">
-                <span>Remaining Payment (on service completion)</span>
-                <span>₹<%= Math.round(serviceDetails.customCost * 0.9) %></span>
+                <span>Remaining Payment (85% on completion)</span>
+                <span>₹<%= Math.round(serviceDetails.customCost * 0.85) %></span>
               </div>
 
               <div class="payment-row total">
                 <span>Total Service Cost</span>
                 <span>₹<%= serviceDetails.customCost %></span>
+              </div>
+            </div>
+
+            <!-- Automated Payment Flow Info -->
+            <div class="automation-info-card">
+              <h6><i class="fas fa-robot me-2"></i>Automated Payment Flow</h6>
+              <div class="automation-steps">
+                <div class="automation-step">
+                  <i class="fas fa-check-circle text-primary"></i>
+                  <span>Deposit goes directly to platform account</span>
+                </div>
+                <div class="automation-step">
+                  <i class="fas fa-clock text-warning"></i>
+                  <span>Funds held until service completion</span>
+                </div>
+                <div class="automation-step">
+                  <i class="fas fa-exchange-alt text-success"></i>
+                  <span>Remaining payment auto-split after completion</span>
+                </div>
+                <div class="automation-step">
+                  <i class="fas fa-piggy-bank text-info"></i>
+                  <span>10% platform commission, 90% to provider</span>
+                </div>
               </div>
             </div>
 
@@ -167,13 +194,17 @@
                 <i class="fas fa-wallet"></i>
               </div>
             </div>
+
+            <!-- Payment Flow Information -->
+            <div id="payment-flow-info" class="payment-flow-container"></div>
           </div>
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <button type="button" id="rzp-button" class="btn-pay">
-              <span class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
-              Pay ₹<%= Math.round(serviceDetails.customCost * 0.1) %> Now
+            <button type="button" id="rzp-button" class="btn-pay" disabled>
+              <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+              <span class="button-text">Pay <span id="payment-amount">₹<%= Math.round(serviceDetails.customCost * 0.15)
+                    %></span> Now</span>
             </button>
             <br>
             <a href="javascript:history.back()" class="btn-back">
@@ -182,33 +213,39 @@
           </div>
 
           <div class="secure-payment">
-            <i class="fas fa-lock me-2"></i> Secure payment processed by Razorpay
+            <i class="fas fa-lock me-2"></i> Secure automated payment processed by Razorpay
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Hidden inputs for automated payment system -->
+  <input type="hidden" id="payment-type" value="advance" />
+
   <input type="hidden" id="booking-data" value='<%= JSON.stringify({
       date: bookingData.date,
       detailedAddress: bookingData.detailedAddress,
-      notes: bookingData.notes || ""
+      notes: bookingData.notes || "",
+      bookingId: null
   }) %>' />
 
   <input type="hidden" id="user-data" value='<%= JSON.stringify({
       name: user.name,
       email: user.username,
       phone: user.phone || "",
-      razorpayKeyId: process.env.RAZORPAY_KEY_ID
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+      platformAccountId: process.env.PLATFORM_ACCOUNT_ID || "platform_default_account"
   }) %>' />
 
   <input type="hidden" id="service-data" value='<%= JSON.stringify({
       serviceId: service._id,
       providerId: provider._id,
-      customCost: serviceDetails.customCost
+      customCost: serviceDetails.customCost,
+      priceRange: serviceDetails.priceRange || null
   }) %>' />
 
-  <!-- Add these script tags at the bottom of the file -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="/js/payment.js"></script>
@@ -530,6 +567,73 @@
       border-bottom: none;
     }
 
+    /* Automation Info Styles */
+    .automation-info-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #dee2e6;
+    }
+
+    .automation-info-card h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .automation-steps {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .automation-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+
+    .automation-step i {
+      font-size: 1rem;
+    }
+
+    /* Payment Flow Info */
+    .payment-flow-container {
+      margin-top: 1rem;
+    }
+
+    .automation-info {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .automation-info h6 {
+      color: #495057;
+      margin-bottom: 0.75rem;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .flow-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .automation-success {
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+
     .payment-methods {
       background-color: #fff;
       border-radius: 10px;
@@ -652,6 +756,14 @@
         height: 35px;
         font-size: 0.9rem;
       }
+
+      .automation-steps {
+        gap: 0.5rem;
+      }
+
+      .automation-step {
+        font-size: 0.85rem;
+      }
     }
 
     @media (max-width: 576px) {
@@ -679,6 +791,10 @@
         width: 80px;
         height: 80px;
       }
+
+      .automation-info-card {
+        padding: 1rem;
+      }
     }
   </style>
 
@@ -686,8 +802,18 @@
     // Enable the payment button after the page loads
     document.addEventListener('DOMContentLoaded', function () {
       const rzpButton = document.getElementById('rzp-button');
+
+      // Show loading state initially
+      rzpButton.disabled = true;
+      rzpButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Setting up automated payment...';
+
+      // Enable button after payment system is initialized
       setTimeout(() => {
-        rzpButton.removeAttribute('disabled');
-      }, 1000);
+        const serviceData = JSON.parse(document.getElementById('service-data').value);
+        const depositAmount = Math.round(serviceData.customCost * 0.15);
+
+        rzpButton.disabled = false;
+        rzpButton.innerHTML = `Pay ₹${depositAmount} Now`;
+      }, 2000);
     });
   </script>

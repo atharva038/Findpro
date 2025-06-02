@@ -1,0 +1,187 @@
+<section id="banking" class="dashboard-section">
+    <!-- Add this right after the opening section tag -->
+    <input type="hidden" id="providerId" value="<%= provider._id %>">
+    <div class="section-header">
+        <h2><i class="fas fa-university me-2"></i>Banking & Payments</h2>
+    </div>
+
+    <div class="content-card">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="info-card bg-primary-light">
+                    <div class="info-card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-primary text-white me-3">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Pending Payouts</h6>
+                                <h4 class="mb-0">₹<span id="pendingPayoutsAmount">0.00</span></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-card bg-success-light">
+                    <div class="info-card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-success text-white me-3">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Bank Status</h6>
+                                <h5 class="mb-0" id="bankDetailsStatus">
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-exclamation-circle me-1"></i> No Bank Details
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Details Required Message -->
+        <div id="noBankDetailsSection" class="alert alert-warning">
+            <div class="d-flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle fa-2x"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h5>Add Your Bank Account Details</h5>
+                    <p>To receive payments for your services, please add your bank account information. We need this to
+                        transfer your earnings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Payouts Section -->
+        <div id="pendingPayoutsSection" class="d-none">
+            <div class="alert alert-info mb-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Payout Information</h5>
+                        <p>Your payouts are processed within 7 business days after completion of service. You can view
+                            your payout history below.</p>
+                        <button class="btn btn-primary btn-sm" id="viewPayoutHistory">
+                            <i class="fas fa-history me-1"></i> View Payout History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Details Form -->
+        <div class="bank-details-section mt-4">
+            <h4>Bank Account Details</h4>
+            <form id="bankDetailsForm" class="mt-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="accountHolderName" class="form-label">Account Holder Name <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="accountHolderName" name="accountHolderName"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="bankName" class="form-label">Bank Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="bankName" name="bankName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="accountNumber" class="form-label">Account Number <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="accountNumber" name="accountNumber" required>
+                        <div class="form-text">This will be securely stored and used for payments only</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ifscCode" class="form-label">IFSC Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="ifscCode" name="ifscCode" required>
+                        <div class="form-text">e.g., HDFC0001234</div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="saveBankDetails">
+                            <i class="fas fa-save me-2"></i>Save Bank Details
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payout History Modal -->
+    <div class="modal fade" id="payoutHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Payout History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Booking ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payoutHistoryTable">
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .info-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+        transition: transform 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+    }
+
+    .bg-primary-light {
+        background-color: rgba(78, 115, 223, 0.1);
+    }
+
+    .bg-success-light {
+        background-color: rgba(28, 200, 138, 0.1);
+    }
+
+    .icon-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>

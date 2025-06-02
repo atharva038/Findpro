@@ -7,6 +7,17 @@
     <span class="brand-text">KnockNFix</span>
   </a>
 
+  <!-- Location Bar (New Addition) -->
+  <div class="location-bar d-none d-lg-flex">
+    <div class="location-input-container">
+      <i class="fas fa-map-marker-alt location-icon"></i>
+      <input type="text" id="navbar-location" class="location-input" placeholder="Detecting location..." readonly>
+      <button type="button" id="change-location-btn" class="change-location-btn">
+        <i class="fas fa-edit"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- Toggle Button -->
   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
     aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +28,18 @@
 
   <!-- Navbar Content -->
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <!-- Mobile Location Bar -->
+    <div class="mobile-location-bar d-lg-none">
+      <div class="location-input-container mobile">
+        <i class="fas fa-map-marker-alt location-icon"></i>
+        <input type="text" id="mobile-navbar-location" class="location-input" placeholder="Detecting location..."
+          readonly>
+        <button type="button" id="mobile-change-location-btn" class="change-location-btn">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+    </div>
+
     <!-- Main Navigation Links -->
     <ul class="navbar-nav mx-auto">
       <li class="nav-item">
@@ -67,6 +90,39 @@
   </div>
 </nav>
 
+<!-- Location Change Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="locationModalLabel">
+          <i class="fas fa-map-marker-alt me-2"></i>Change Location
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="location-search-container">
+          <label for="location-search" class="form-label">Search for your city or area</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control" id="location-search" placeholder="Enter city, area, or pincode">
+            <button class="btn btn-outline-secondary" type="button" id="detect-current-location">
+              <i class="fas fa-location-arrow"></i>
+            </button>
+          </div>
+          <div id="location-suggestions" class="location-suggestions"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="save-location-btn">Save Location</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
   /* Completely rewritten navbar styles without container dependency */
 
@@ -76,10 +132,8 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    height: 64px;
-    /* 4rem in pixels for better consistency */
+    height: 70px;
     padding: 0 16px;
-    /* Side padding instead of container */
     display: flex;
     align-items: center;
     width: 100%;
@@ -98,7 +152,6 @@
     padding: 0;
     margin-right: 1rem;
     flex-shrink: 0;
-    /* Prevent shrinking */
   }
 
   .logo-container {
@@ -109,8 +162,8 @@
   }
 
   .logo-img {
-    width: 40px;
-    height: 40px;
+    width: 55px;
+    height: 55px;
     object-fit: contain;
     border-radius: 8px;
   }
@@ -140,9 +193,7 @@
     background: rgba(102, 126, 234, 0.1);
     transition: all 0.3s ease;
     margin-left: auto;
-    /* Important: Push to right side */
     order: 2;
-    /* Order for flex layout */
   }
 
   .toggler-icon {
@@ -164,7 +215,6 @@
   .navbar-collapse {
     flex-grow: 1;
     order: 3;
-    /* Order for flex layout - after toggler */
     display: flex;
   }
 
@@ -174,7 +224,6 @@
     align-items: center;
     margin: 0;
     padding: 0;
-
   }
 
   .nav-item {
@@ -194,7 +243,6 @@
     align-items: center;
     gap: 0.5rem;
     height: 40px;
-    /* Fixed height for consistency */
   }
 
   .nav-link:hover {
@@ -240,7 +288,6 @@
     align-items: center;
     gap: 0.75rem;
     margin-left: auto;
-    /* Push to right side */
   }
 
   .login-link {
@@ -294,10 +341,160 @@
     color: #c53030;
   }
 
+  /* Location Bar Styles */
+  .location-bar {
+    margin-left: 2rem;
+    margin-right: auto;
+  }
+
+  .location-input-container {
+    display: flex;
+    align-items: center;
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    min-width: 280px;
+    transition: all 0.3s ease;
+  }
+
+  .location-input-container:hover {
+    background: rgba(102, 126, 234, 0.08);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+
+  .location-input-container.mobile {
+    min-width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .location-icon {
+    color: #667eea;
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .location-input {
+    border: none;
+    background: transparent;
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 0.9rem;
+    flex: 1;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .location-input::placeholder {
+    color: #a0aec0;
+    font-style: italic;
+  }
+
+  .change-location-btn {
+    background: none;
+    border: none;
+    color: #667eea;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .change-location-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.1);
+  }
+
+  /* Mobile location bar */
+  .mobile-location-bar {
+    width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Location modal styles */
+  .location-search-container {
+    position: relative;
+  }
+
+  .location-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+  }
+
+  .location-suggestion {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f7fafc;
+    transition: background-color 0.2s ease;
+  }
+
+  .location-suggestion:hover {
+    background-color: #f7fafc;
+  }
+
+  .location-suggestion:last-child {
+    border-bottom: none;
+  }
+
+  .location-suggestion .main-text {
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+  }
+
+  .location-suggestion .sub-text {
+    font-size: 0.85rem;
+    color: #718096;
+  }
+
+  /* Location input states */
+  .location-input-container.loading {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.3);
+  }
+
+  .location-input-container.success {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: rgba(40, 167, 69, 0.3);
+  }
+
+  .location-input-container.error {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+  }
+
+  .location-input.loading {
+    color: #856404;
+  }
+
+  .location-input.success {
+    color: #155724;
+  }
+
+  .location-input.error {
+    color: #721c24;
+  }
+
   /* Responsive styles */
   @media (min-width: 992px) {
-
-    /* Desktop specific */
     .navbar-collapse {
       justify-content: space-between;
       height: 64px;
@@ -326,8 +523,6 @@
   }
 
   @media (max-width: 991.98px) {
-
-    /* Mobile and tablet */
     .navbar {
       padding: 0 12px;
       justify-content: space-between;
@@ -335,7 +530,6 @@
 
     .navbar-brand {
       z-index: 2;
-      /* Above the dropdown */
     }
 
     .logo-img {
@@ -347,7 +541,6 @@
       font-size: 1.1rem;
     }
 
-    /* Full width dropdown on mobile */
     .navbar-collapse {
       position: absolute;
       top: 64px;
@@ -365,12 +558,10 @@
       z-index: 1000;
     }
 
-    /* When not expanded, hide completely */
     .navbar-collapse:not(.show):not(.collapsing) {
       display: none;
     }
 
-    /* Stacked nav items */
     .navbar-nav {
       flex-direction: column;
       width: 100%;
@@ -388,13 +579,11 @@
       justify-content: flex-start;
     }
 
-    /* Remove underline effect on mobile */
     .nav-link:hover::before,
     .nav-link.active::before {
       width: 0;
     }
 
-    /* Auth links stacking */
     .auth-links {
       flex-direction: column;
       width: 100%;
@@ -414,7 +603,6 @@
       padding: 0.75rem 1rem;
     }
 
-    /* No animation on mobile */
     .signup-btn:hover {
       transform: none;
     }
@@ -424,7 +612,6 @@
     }
   }
 
-  /* Small mobile devices */
   @media (max-width: 576px) {
     .navbar {
       padding: 0 8px;
@@ -446,84 +633,717 @@
     }
   }
 
-  /* Home page transparent navbar */
   body.home-page .navbar:not(.scrolled) {
     background-color: rgba(255, 255, 255, 0.8);
   }
 </style>
 
+<!-- Update the initializeLocationDisplay function in the navbar script -->
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Handle scrolling effects
-    window.addEventListener('scroll', function () {
-      const navbar = document.querySelector('.navbar');
-      if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
+    console.log('DOM loaded - initializing navbar');
+
+    // Initialize location functionality
+    initializeLocationBar();
+
+    function initializeLocationBar() {
+      console.log('Initializing location bar');
+
+      const locationInput = document.getElementById('navbar-location');
+      const mobileLocationInput = document.getElementById('mobile-navbar-location');
+      const changeLocationBtn = document.getElementById('change-location-btn');
+      const mobileChangeLocationBtn = document.getElementById('mobile-change-location-btn');
+
+      // Check if location modal exists before creating instance
+      const locationModalElement = document.getElementById('locationModal');
+      const locationModal = locationModalElement ? new bootstrap.Modal(locationModalElement) : null;
+
+      const locationSearch = document.getElementById('location-search');
+      const locationSuggestions = document.getElementById('location-suggestions');
+      const detectLocationBtn = document.getElementById('detect-current-location');
+      const saveLocationBtn = document.getElementById('save-location-btn');
+
+      let currentLocation = null;
+      let selectedLocation = null;
+      let searchTimeout = null;
+
+      console.log('Elements found:', {
+        locationInput: !!locationInput,
+        mobileLocationInput: !!mobileLocationInput,
+        changeLocationBtn: !!changeLocationBtn,
+        mobileChangeLocationBtn: !!mobileChangeLocationBtn,
+        locationModal: !!locationModal,
+        locationSearch: !!locationSearch,
+        detectLocationBtn: !!detectLocationBtn,
+        saveLocationBtn: !!saveLocationBtn
+      });
+
+      // Initialize location display and check for first visit
+      initializeLocationDisplay();
+
+      // Event listeners
+      if (changeLocationBtn && locationModal) {
+        changeLocationBtn.addEventListener('click', function () {
+          console.log('Desktop change location clicked');
+          locationModal.show();
+        });
       }
-    });
 
-    // Add active class to current page link
-    const currentLocation = window.location.pathname;
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-      const linkPath = link.getAttribute('href');
-      if (linkPath === '/' && currentLocation === '/') {
-        link.classList.add('active');
-      } else if (linkPath !== '/' && currentLocation.startsWith(linkPath)) {
-        link.classList.add('active');
+      if (mobileChangeLocationBtn && locationModal) {
+        mobileChangeLocationBtn.addEventListener('click', function () {
+          console.log('Mobile change location clicked');
+          locationModal.show();
+        });
       }
-    });
 
-    // Mobile menu toggle behavior
-    const navbarToggler = document.querySelector('.navbar-toggler');
-    const navbarCollapse = document.querySelector('.navbar-collapse');
+      // Make location inputs clickable to open modal
+      if (locationInput) {
+        locationInput.addEventListener('click', function () {
+          console.log('Desktop location input clicked');
+          if (locationModal) {
+            locationModal.show();
+          }
+        });
+      }
 
-    if (navbarToggler && navbarCollapse) {
-      // Toggle icon between bars and times
-      navbarToggler.addEventListener('click', function () {
-        const togglerIcon = this.querySelector('i');
-        if (togglerIcon) {
-          if (togglerIcon.classList.contains('fa-bars')) {
-            togglerIcon.classList.remove('fa-bars');
-            togglerIcon.classList.add('fa-times');
+      if (mobileLocationInput) {
+        mobileLocationInput.addEventListener('click', function () {
+          console.log('Mobile location input clicked');
+          if (locationModal) {
+            locationModal.show();
+          }
+        });
+      }
+
+      if (locationSearch) {
+        locationSearch.addEventListener('input', function () {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(function () { searchLocations(); }, 300);
+        });
+      }
+
+      if (detectLocationBtn) {
+        detectLocationBtn.addEventListener('click', function () {
+          console.log('Detect location button clicked');
+          detectUserLocation();
+        });
+      }
+
+      if (saveLocationBtn) {
+        saveLocationBtn.addEventListener('click', function () {
+          console.log('Save location button clicked');
+          saveSelectedLocation();
+        });
+      }
+
+      // Check if this is user's first visit to the website
+      function isFirstVisit() {
+        const hasVisited = localStorage.getItem('hasVisitedBefore');
+        const hasLocation = localStorage.getItem('userLocation');
+        return !hasVisited || !hasLocation;
+      }
+
+      // Mark that user has visited the website
+      function markAsVisited() {
+        localStorage.setItem('hasVisitedBefore', 'true');
+        localStorage.setItem('firstVisitDate', new Date().toISOString());
+      }
+
+      // NEW: Get location from URL parameters
+      function getLocationFromURL() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const location = urlParams.get('location');
+          const latitude = urlParams.get('latitude');
+          const longitude = urlParams.get('longitude');
+
+          if (location && latitude && longitude) {
+            return {
+              city: location,
+              fullAddress: location,
+              coordinates: {
+                lat: parseFloat(latitude),
+                lng: parseFloat(longitude)
+              },
+              fromURL: true,
+              setAt: new Date().toISOString()
+            };
+          }
+        } catch (e) {
+          console.error('Error getting location from URL:', e);
+        }
+        return null;
+      }
+
+      // UPDATED: Initialize location display and handle first visit
+      function initializeLocationDisplay() {
+        console.log('Initializing location display');
+
+        // FIRST: Check if location is in URL parameters (highest priority)
+        const urlLocation = getLocationFromURL();
+        if (urlLocation) {
+          console.log('Location found in URL parameters:', urlLocation.city);
+          currentLocation = urlLocation;
+          updateLocationDisplay(urlLocation.city, 'success');
+
+          // Also store this location for future use (but don't override manual settings)
+          const storedLocation = getStoredLocation();
+          if (!storedLocation || !storedLocation.manuallySet) {
+            storeLocationInStorage(urlLocation);
+          }
+          return;
+        }
+
+        // SECOND: Check stored location
+        const storedLocation = getStoredLocation();
+        if (storedLocation) {
+          currentLocation = storedLocation;
+          updateLocationDisplay(storedLocation.city, 'success');
+          console.log('Using stored location:', storedLocation.city);
+          return;
+        }
+
+        // THIRD: Handle first visit auto-detection
+        if (isFirstVisit()) {
+          console.log('First visit detected - will ask for location permission');
+          updateLocationDisplay('Detecting location...', 'loading');
+          markAsVisited();
+
+          setTimeout(function () {
+            detectUserLocationFirstTime();
+          }, 1500);
+        } else {
+          console.log('Returning user without stored location');
+          updateLocationDisplay('Select location', 'normal');
+        }
+      }
+
+      // Special location detection for first-time visitors
+      function detectUserLocationFirstTime() {
+        console.log('Attempting to detect location for first-time visitor');
+
+        if (!navigator.geolocation) {
+          console.log('Geolocation not supported');
+          updateLocationDisplay('Select location', 'normal');
+          return;
+        }
+
+        const options = {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        };
+
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            console.log('Location permission granted on first visit');
+            processLocationCoordinates(position);
+          },
+          function (error) {
+            console.log('Location permission denied or failed on first visit:', error.message);
+            updateLocationDisplay('Select location', 'normal');
+            showLocationBenefitsToast();
+          },
+          options
+        );
+      }
+
+      // Regular location detection (for manual requests)
+      function detectUserLocation() {
+        console.log('Manual location detection requested');
+        updateLocationDisplay('Detecting location...', 'loading');
+
+        if (!navigator.geolocation) {
+          console.log('Geolocation not supported');
+          updateLocationDisplay('Location not supported', 'error');
+          return;
+        }
+
+        const options = {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 600000
+        };
+
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            console.log('Manual location detection successful');
+            processLocationCoordinates(position);
+          },
+          function (error) {
+            console.error('Manual geolocation failed:', error);
+
+            let errorMessage = 'Location unavailable';
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                errorMessage = 'Location permission denied';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMessage = 'Location unavailable';
+                break;
+              case error.TIMEOUT:
+                errorMessage = 'Location detection timed out';
+                break;
+            }
+
+            updateLocationDisplay(errorMessage, 'error');
+
+            setTimeout(function () {
+              updateLocationDisplay('Select location', 'normal');
+            }, 3000);
+          },
+          options
+        );
+      }
+
+      // Process coordinates and get address (shared function)
+      function processLocationCoordinates(position) {
+        console.log('Processing coordinates:', position.coords);
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // For now, let's create a fallback location
+        const cityName = 'Location (' + lat.toFixed(2) + ', ' + lng.toFixed(2) + ')';
+
+        currentLocation = {
+          city: cityName,
+          fullAddress: 'Coordinates: ' + lat.toFixed(4) + ', ' + lng.toFixed(4),
+          coordinates: { lat: lat, lng: lng },
+          detectedAt: new Date().toISOString(),
+          autoDetected: true
+        };
+
+        updateLocationDisplay(cityName, 'success');
+        storeLocationInStorage(currentLocation);
+
+        console.log('Location successfully detected:', cityName);
+
+        // Try to get proper address from reverse geocoding
+        fetch('/api/location/reverse-geocode?lat=' + lat + '&lng=' + lng)
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('HTTP error! status: ' + response.status);
+            }
+            return response.json();
+          })
+          .then(function (data) {
+            console.log('Reverse geocoding response:', data);
+
+            if (data.success && data.address) {
+              currentLocation.city = data.address;
+              currentLocation.fullAddress = data.fullAddress || data.address;
+              updateLocationDisplay(data.address, 'success');
+              storeLocationInStorage(currentLocation);
+            } else if (data.data && data.data.results && data.data.results[0]) {
+              const address = data.data.results[0];
+              const city = extractCityFromAddress(address);
+
+              currentLocation.city = city;
+              currentLocation.fullAddress = address.formatted_address;
+              updateLocationDisplay(city, 'success');
+              storeLocationInStorage(currentLocation);
+            }
+
+            // Update providers if on services page
+            if (window.location.pathname.includes('/services')) {
+              updateProvidersForLocation(currentLocation);
+            }
+          })
+          .catch(function (error) {
+            console.error('Reverse geocoding failed:', error);
+            // Keep the coordinates-based location
+          });
+      }
+
+      // Show subtle notification about location benefits
+      function showLocationBenefitsToast() {
+        const hasSeenToast = localStorage.getItem('hasSeenLocationToast');
+        if (hasSeenToast) return;
+
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 25px; font-size: 14px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); z-index: 9999; opacity: 0; transition: opacity 0.3s ease; max-width: 90%; text-align: center;';
+
+        toast.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i>Enable location to find nearby service providers<button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; margin-left: 10px; cursor: pointer;"><i class="fas fa-times"></i></button>';
+
+        document.body.appendChild(toast);
+
+        setTimeout(function () {
+          toast.style.opacity = '1';
+        }, 100);
+
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          setTimeout(function () {
+            if (toast.parentElement) {
+              toast.remove();
+            }
+          }, 300);
+        }, 5000);
+
+        localStorage.setItem('hasSeenLocationToast', 'true');
+      }
+
+      // Search for locations
+      function searchLocations() {
+        const query = locationSearch ? locationSearch.value.trim() : '';
+
+        if (query.length < 3) {
+          if (locationSuggestions) locationSuggestions.style.display = 'none';
+          return;
+        }
+
+        console.log('Searching for locations:', query);
+
+        fetch('/api/location/suggestions?query=' + encodeURIComponent(query))
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            console.log('Location search response:', data);
+
+            if (data.status === 'success' && data.data.predictions) {
+              displayLocationSuggestions(data.data.predictions);
+            } else if (data.predictions) {
+              displayLocationSuggestions(data.predictions);
+            } else {
+              // Fallback suggestion
+              displayLocationSuggestions([{
+                place_id: 'manual_' + Date.now(),
+                description: query + ', India',
+                structured_formatting: {
+                  main_text: query,
+                  secondary_text: 'India'
+                }
+              }]);
+            }
+          })
+          .catch(function (error) {
+            console.error('Location search failed:', error);
+            displayLocationSuggestions([{
+              place_id: 'manual_' + Date.now(),
+              description: query + ', India',
+              structured_formatting: {
+                main_text: query,
+                secondary_text: 'India'
+              }
+            }]);
+          });
+      }
+
+      // Display location suggestions
+      function displayLocationSuggestions(predictions) {
+        if (!locationSuggestions) return;
+
+        locationSuggestions.innerHTML = '';
+
+        if (predictions.length === 0) {
+          locationSuggestions.style.display = 'none';
+          return;
+        }
+
+        predictions.forEach(function (prediction) {
+          const div = document.createElement('div');
+          div.className = 'location-suggestion';
+          div.innerHTML = '<div class="main-text">' +
+            (prediction.structured_formatting ? prediction.structured_formatting.main_text : prediction.description) +
+            '</div><div class="sub-text">' +
+            (prediction.structured_formatting ? prediction.structured_formatting.secondary_text || '' : '') +
+            '</div>';
+
+          div.addEventListener('click', function () {
+            selectLocationSuggestion(prediction);
+          });
+          locationSuggestions.appendChild(div);
+        });
+
+        locationSuggestions.style.display = 'block';
+      }
+
+      // Select a location suggestion
+      function selectLocationSuggestion(prediction) {
+        console.log('Location suggestion selected:', prediction);
+
+        if (locationSearch) locationSearch.value = prediction.description;
+        if (locationSuggestions) locationSuggestions.style.display = 'none';
+
+        selectedLocation = {
+          placeId: prediction.place_id,
+          description: prediction.description,
+          city: prediction.structured_formatting ?
+            prediction.structured_formatting.main_text :
+            prediction.description.split(',')[0]
+        };
+
+        console.log('Selected location:', selectedLocation);
+      }
+
+      // Save selected location
+      function saveSelectedLocation() {
+        if (!selectedLocation) {
+          alert('Please select a location first');
+          return;
+        }
+
+        console.log('Saving selected location:', selectedLocation);
+
+        if (selectedLocation.placeId.startsWith('manual_')) {
+          currentLocation = {
+            city: selectedLocation.city,
+            fullAddress: selectedLocation.description,
+            coordinates: { lat: 28.6139, lng: 77.2090 },
+            manuallySet: true,
+            setAt: new Date().toISOString()
+          };
+
+          updateLocationDisplay(currentLocation.city, 'success');
+          storeLocationInStorage(currentLocation);
+          if (locationModal) locationModal.hide();
+
+          console.log('Manual location saved:', currentLocation);
+          updateProvidersForLocation(currentLocation);
+          showLocationSuccessToast(currentLocation.city);
+        } else {
+          // Try to get details for the place
+          fetch('/api/location/place-details?placeId=' + selectedLocation.placeId)
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              console.log('Place details response:', data);
+
+              if (data.status === 'success' && data.data.result && data.data.result.geometry) {
+                const location = data.data.result;
+                currentLocation = {
+                  city: selectedLocation.city,
+                  fullAddress: location.formatted_address,
+                  coordinates: {
+                    lat: location.geometry.location.lat,
+                    lng: location.geometry.location.lng
+                  },
+                  manuallySet: true,
+                  setAt: new Date().toISOString()
+                };
+              } else {
+                // Fallback
+                currentLocation = {
+                  city: selectedLocation.city,
+                  fullAddress: selectedLocation.description,
+                  coordinates: { lat: 28.6139, lng: 77.2090 },
+                  manuallySet: true,
+                  setAt: new Date().toISOString()
+                };
+              }
+
+              updateLocationDisplay(currentLocation.city, 'success');
+              storeLocationInStorage(currentLocation);
+              if (locationModal) locationModal.hide();
+
+              console.log('Location saved:', currentLocation);
+              updateProvidersForLocation(currentLocation);
+              showLocationSuccessToast(currentLocation.city);
+            })
+            .catch(function (error) {
+              console.error('Failed to get place details:', error);
+
+              // Fallback
+              currentLocation = {
+                city: selectedLocation.city,
+                fullAddress: selectedLocation.description,
+                coordinates: { lat: 28.6139, lng: 77.2090 },
+                manuallySet: true,
+                setAt: new Date().toISOString()
+              };
+
+              updateLocationDisplay(currentLocation.city, 'success');
+              storeLocationInStorage(currentLocation);
+              if (locationModal) locationModal.hide();
+
+              updateProvidersForLocation(currentLocation);
+              showLocationSuccessToast(currentLocation.city);
+            });
+        }
+      }
+
+      // Show success message
+      function showLocationSuccessToast(cityName) {
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; opacity: 0; transition: opacity 0.3s ease; max-width: 300px;';
+
+        toast.innerHTML = '<i class="fas fa-check-circle me-2"></i>Location updated to ' + cityName;
+
+        document.body.appendChild(toast);
+
+        setTimeout(function () { toast.style.opacity = '1'; }, 100);
+
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          setTimeout(function () {
+            if (toast.parentElement) {
+              toast.remove();
+            }
+          }, 300);
+        }, 3000);
+      }
+
+      // Update location display
+      function updateLocationDisplay(text, state) {
+        state = state || 'normal';
+        const inputs = [locationInput, mobileLocationInput].filter(Boolean);
+        const containers = document.querySelectorAll('.location-input-container');
+
+        inputs.forEach(function (input) {
+          input.value = text;
+          input.className = 'location-input ' + state;
+        });
+
+        containers.forEach(function (container) {
+          container.className = 'location-input-container ' + state;
+        });
+
+        console.log('Location display updated:', text, state);
+      }
+
+      // Extract city from address components
+      function extractCityFromAddress(address) {
+        if (address.address_components) {
+          for (let i = 0; i < address.address_components.length; i++) {
+            const component = address.address_components[i];
+            if (component.types.includes('locality')) {
+              return component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_2')) {
+              return component.long_name;
+            }
+          }
+        }
+        return address.formatted_address.split(',')[0];
+      }
+
+      // Storage functions
+      function storeLocationInStorage(location) {
+        try {
+          localStorage.setItem('userLocation', JSON.stringify(location));
+          localStorage.setItem('userLocationTimestamp', new Date().toISOString());
+          console.log('Location stored in localStorage');
+        } catch (e) {
+          console.warn('Could not store location in localStorage:', e);
+        }
+      }
+
+      function getStoredLocation() {
+        try {
+          const stored = localStorage.getItem('userLocation');
+          const timestamp = localStorage.getItem('userLocationTimestamp');
+
+          if (!stored) return null;
+
+          const location = JSON.parse(stored);
+
+          // If manually set, don't expire
+          if (location.manuallySet) return location;
+
+          // For auto-detected locations, check age
+          if (timestamp) {
+            const storedDate = new Date(timestamp);
+            const now = new Date();
+            const hoursDiff = (now - storedDate) / (1000 * 60 * 60);
+
+            // Auto-detected locations expire after 7 days
+            if (hoursDiff > 168) {
+              localStorage.removeItem('userLocation');
+              localStorage.removeItem('userLocationTimestamp');
+              return null;
+            }
+          }
+
+          return location;
+        } catch (e) {
+          console.warn('Could not retrieve location from localStorage:', e);
+          return null;
+        }
+      }
+
+      function updateProvidersForLocation(location) {
+        try {
+          const currentPath = window.location.pathname;
+          console.log('Current path:', currentPath);
+          console.log('Location to update providers with:', location);
+
+          // Check if we're on a providers page
+          if (currentPath.includes('/services/') && currentPath.includes('/providers')) {
+            const url = new URL(window.location);
+
+            // Set location parameters
+            url.searchParams.set('location', location.city);
+            url.searchParams.set('latitude', location.coordinates.lat);
+            url.searchParams.set('longitude', location.coordinates.lng);
+
+            console.log('Providers page - updating URL to:', url.href);
+
+            // Force reload with new location parameters
+            window.location.href = url.href;
+          } else if (currentPath.includes('/services')) {
+            console.log('On services page, location stored for future use');
+
+            // Show a notification that location has been updated
+            showLocationSuccessToast(location.city + ' - Will be used when viewing providers');
           } else {
-            togglerIcon.classList.remove('fa-times');
-            togglerIcon.classList.add('fa-bars');
+            console.log('Not on services page, location stored for future use');
+
+            // Show a general notification
+            showLocationSuccessToast(location.city);
+          }
+        } catch (e) {
+          console.error('Error updating URL for location:', e);
+        }
+      }
+    }
+
+    // Existing navbar code
+    handleNavbarScrolling();
+    handleMobileMenu();
+
+    function handleNavbarScrolling() {
+      window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+          if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
           }
         }
       });
+    }
 
-      // Close menu when clicking outside
-      document.addEventListener('click', function (e) {
-        if (navbarCollapse.classList.contains('show') &&
-          !navbarToggler.contains(e.target) &&
-          !navbarCollapse.contains(e.target)) {
+    function handleMobileMenu() {
+      const navbarToggler = document.querySelector('.navbar-toggler');
+      const navbarCollapse = document.querySelector('.navbar-collapse');
 
-          // Use Bootstrap's collapse API
-          const bsCollapse = new bootstrap.Collapse(navbarCollapse);
-          bsCollapse.hide();
-
-          // Reset icon
-          const togglerIcon = navbarToggler.querySelector('i');
+      if (navbarToggler && navbarCollapse) {
+        navbarToggler.addEventListener('click', function () {
+          const togglerIcon = this.querySelector('i');
           if (togglerIcon) {
-            togglerIcon.classList.remove('fa-times');
-            togglerIcon.classList.add('fa-bars');
+            if (togglerIcon.classList.contains('fa-bars')) {
+              togglerIcon.classList.remove('fa-bars');
+              togglerIcon.classList.add('fa-times');
+            } else {
+              togglerIcon.classList.remove('fa-times');
+              togglerIcon.classList.add('fa-bars');
+            }
           }
-        }
-      });
+        });
 
-      // Close menu when clicking a link
-      const mobileNavLinks = navbarCollapse.querySelectorAll('.nav-link');
-      mobileNavLinks.forEach(link => {
-        link.addEventListener('click', function () {
-          if (window.innerWidth < 992) {
-            // Use Bootstrap's collapse API
+        document.addEventListener('click', function (e) {
+          if (navbarCollapse.classList.contains('show') &&
+            !navbarToggler.contains(e.target) &&
+            !navbarCollapse.contains(e.target)) {
+
             const bsCollapse = new bootstrap.Collapse(navbarCollapse);
             bsCollapse.hide();
 
-            // Reset icon
             const togglerIcon = navbarToggler.querySelector('i');
             if (togglerIcon) {
               togglerIcon.classList.remove('fa-times');
@@ -531,7 +1351,7 @@
             }
           }
         });
-      });
+      }
     }
   });
 </script>

@@ -5,12 +5,12 @@ const { cloudinary, storage } = require('../config/cloudinary');
 const upload = multer({ storage });
 const User = require('../models/User');
 const { isLoggedIn } = require('../middleware');
-const Provider = require('../models/ServiceProvider');
+const ServiceProvider = require('../models/ServiceProvider');
+const { createContact, isInitialized } = require('../config/razorpay');
 
 
 router.post('/update', isLoggedIn, upload.single('profileImage'), async (req, res) => {
     try {
-
         console.log('Profile update request received');
         console.log('Request body:', req.body);
         console.log('File received:', req.file ? 'Yes' : 'No');
@@ -79,6 +79,7 @@ router.post('/update', isLoggedIn, upload.single('profileImage'), async (req, re
         });
     }
 });
+
 router.post('/travel-fee', isLoggedIn, async (req, res) => {
     try {
         const { enabled, amount } = req.body;
@@ -92,7 +93,7 @@ router.post('/travel-fee', isLoggedIn, async (req, res) => {
         }
 
         // Find provider associated with current user
-        const provider = await Provider.findOne({ user: req.user._id });
+        const provider = await ServiceProvider.findOne({ user: req.user._id });
 
         if (!provider) {
             return res.status(404).json({
@@ -118,6 +119,165 @@ router.post('/travel-fee', isLoggedIn, async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to update travel fee settings'
+        });
+    }
+});
+
+
+// Enhanced bank details route
+router.post('/bank-details', isLoggedIn, async (req, res) => {
+    try {
+        const provider = await ServiceProvider.findOne({ user: req.user._id }).populate('user');
+
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider profile not found'
+            });
+        }
+
+        const { accountHolderName, accountNumber, ifscCode, bankName } = req.body;
+
+        // Validate fields
+        if (!accountHolderName || !accountNumber || !ifscCode || !bankName) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        // Format IFSC code
+        const formattedIFSC = ifscCode.toUpperCase();
+
+        // Create Razorpay contact
+        try {
+            if (isInitialized()) {
+                const contactData = {
+                    name: provider.user.name,
+                    email: provider.user.email,
+                    contact: provider.user.phone,
+                    type: 'vendor',
+                    reference_id: provider._id.toString()
+                };
+
+                console.log("Creating Razorpay contact:", contactData);
+
+                const contact = await createContact(contactData);
+
+                if (contact && contact.id) {
+                    console.log("Razorpay contact created:", contact.id);
+                    // Update provider with contact ID
+                    provider.razorpayContactId = contact.id;
+                } else {
+                    console.log("Contact creation returned without ID");
+                }
+            } else {
+                console.log("Skipping Razorpay integration - not initialized");
+            }
+        } catch (razorpayError) {
+            console.error("Failed to create Razorpay contact:", razorpayError);
+            // Continue without failing - we'll just store the bank details locally
+        }
+
+        // Save bank details regardless of Razorpay status
+        provider.bankDetails = {
+            accountHolderName,
+            accountNumber,
+            ifscCode: formattedIFSC,
+            bankName,
+            verified: false,
+            updatedAt: new Date()
+        };
+
+        await provider.save();
+
+        // Mask account number for response
+        const maskedNumber = '•••••' + accountNumber.slice(-4);
+
+        // Return success response
+        return res.json({
+            success: true,
+            message: 'Bank details saved successfully',
+            bankDetails: {
+                accountHolderName,
+                bankName,
+                ifscCode: formattedIFSC,
+                accountNumberMasked: maskedNumber,
+                verified: false
+            }
+        });
+    } catch (error) {
+        console.error('Error saving bank details:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to save bank details'
+        });
+    }
+});
+
+// Get bank details
+router.get('/bank-details', isLoggedIn, async (req, res) => {
+    try {
+        const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider profile not found'
+            });
+        }
+
+        // Return bank details if they exist
+        if (provider.bankDetails && provider.bankDetails.accountNumber) {
+            res.json({
+                success: true,
+                hasBankDetails: true,
+                bankDetails: {
+                    accountHolderName: provider.bankDetails.accountHolderName,
+                    bankName: provider.bankDetails.bankName,
+                    ifscCode: provider.bankDetails.ifscCode,
+                    accountNumberMasked: '•••••' + provider.bankDetails.accountNumber.slice(-4),
+                    verified: provider.bankDetails.verified
+                }
+            });
+        } else {
+            res.json({
+                success: true,
+                hasBankDetails: false
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching bank details:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch bank details'
+        });
+    }
+});
+
+// Get payout information
+router.get('/payout-info', isLoggedIn, async (req, res) => {
+    try {
+        const provider = await ServiceProvider.findOne({ user: req.user._id });
+
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider profile not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            pendingPayouts: provider.pendingPayouts || 0,
+            hasBankDetails: !!(provider.bankDetails && provider.bankDetails.accountNumber),
+            bankDetailsVerified: !!(provider.bankDetails && provider.bankDetails.verified)
+        });
+    } catch (error) {
+        console.error('Error fetching payout information:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch payout information'
         });
     }
 });
