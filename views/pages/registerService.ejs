@@ -1,102 +1,290 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-  <div class="wrapper">
-    <div class="shadow-lg border-0 mb-3 mt-3 login-container">
-      <p class="offset-3 col-6 mt-2" style="color: rgba(137, 135, 135, 0.775)">
-        Please enter your details
-      </p>
-      <h2 class="col-6 offset-3 mb-5 login-heading">
-        Register for a new service
-      </h2>
+<div class="wrapper bg-light py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-lg">
+          <div class="card-body p-5">
+            <!-- Header -->
+            <div class="text-center mb-4">
+              <h2 class="fw-bold text-primary">Register New Service</h2>
+              <p class="text-muted">Add services to your provider profile</p>
+            </div>
 
-      <form action="/dashboard/registerService" method="post" class="needs-validation" novalidate>
-        <!-- Select Category -->
-        <div class="form-group mb-3">
-          <label for="serviceCategories" class="form-label">
-            <i class="fas fa-folder me-2"></i>Service Category
-          </label>
-          <select name="serviceCategories" class="form-control custom-width" id="serviceCategories"
-            onchange="updateServices()" required>
-            <option value="">Select a Category</option>
-            <% categories.forEach(category=> { %>
-              <option value="<%= category._id %>">
-                <%= category.name %>
-              </option>
-              <% }); %>
-          </select>
-        </div>
-        <!-- Select Services -->
-        <div class="form-group mb-3">
-          <label for="services" class="form-label">
-            <i class="fas fa-tools me-2"></i>Select Services
-          </label>
-          <select name="services" class="form-control custom-width" id="services" required>
-            <option value="">First select a category</option>
-          </select>
-        </div>
-        <!-- Price -->
+            <!-- Service Form Container -->
+            <div id="serviceForms">
+              <!-- Category Selection -->
+              <div class="form-group mb-4">
+                <label for="serviceCategories" class="form-label fw-semibold">
+                  <i class="fas fa-folder text-primary me-2"></i>Service Category
+                </label>
+                <select name="serviceCategories" class="form-select form-select-lg shadow-sm" id="serviceCategories" required>
+                  <option value="">Select a Category</option>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>"><%= category.name %></option>
+                  <% }); %>
+                </select>
+              </div>
 
-        <div class="form-group mb-3">
-          <label for="cost" class="form-label">Cost</label>
-          <input type="number" name="cost" class="form-control custom-width" />
-        </div>
+              <!-- Initial Service Form -->
+              <form id="serviceForm-1" class="service-form needs-validation" novalidate>
+                <div class="form-group mb-4">
+                  <label for="services" class="form-label fw-semibold">
+                    <i class="fas fa-tools text-primary me-2"></i>Select Service
+                  </label>
+                  <select name="services" class="form-select form-select-lg shadow-sm" id="services" required>
+                    <option value="">First select a category</option>
+                  </select>
+                </div>
 
-        <!-- experience -->
-        <div class="form-group mb-3">
-          <label for="experience" class="form-label">experience</label>
-          <input type="text" name="experience" class="form-control custom-width" />
-        </div>
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <label for="cost" class="form-label fw-semibold">
+                      <i class="fas fa-rupee-sign text-primary me-2"></i>Cost
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">₹</span>
+                      <input type="number" name="cost" class="form-control form-control-lg shadow-sm" required />
+                    </div>
+                  </div>
 
-        <div class="d-grid gap-2">
-          <button class="btn btn-success mb-3 mt-3" type="submit">
-            Register
-          </button>
+                  <div class="col-md-6 mb-4">
+                    <label for="experience" class="form-label fw-semibold">
+                      <i class="fas fa-star text-primary me-2"></i>Experience
+                    </label>
+                    <div class="input-group">
+                      <input type="text" name="experience" class="form-control form-control-lg shadow-sm" required />
+                      <span class="input-group-text">years</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-grid">
+                  <button class="btn btn-primary btn-lg" type="submit">
+                    <i class="fas fa-plus-circle me-2"></i>Add Service
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Add More Services Button -->
+            <div class="d-grid gap-2 mt-4">
+              <button type="button" id="addMoreBtn" class="btn btn-outline-primary btn-lg d-none">
+                <i class="fas fa-plus-circle me-2"></i>Add Another Service
+              </button>
+            </div>
+
+            <!-- Done Button -->
+            <div class="d-grid gap-2 mt-4">
+              <a href="/dashboard" class="btn btn-success btn-lg">
+                <i class="fas fa-check-circle me-2"></i>Done
+              </a>
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Store all services in a JavaScript object
-    const allServices = <%- JSON.stringify(services || []) %>;
+<script>
+  const allServices = <%- JSON.stringify(services || []) %>;
+  let selectedCategory = '';
+  let formCount = 1;
 
-    function updateServices() {
-      const categoryId = document.getElementById("serviceCategories").value;
-      const servicesSelect = document.getElementById("services");
+  document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('serviceCategories');
+    const serviceForms = document.getElementById('serviceForms');
+    const addMoreBtn = document.getElementById('addMoreBtn');
+    
+    // Handle category selection
+    categorySelect.addEventListener('change', function() {
+        selectedCategory = this.value;
+        updateServicesDropdown(document.getElementById('services'));
+        categorySelect.disabled = true;
+        addMoreBtn.classList.remove('d-none'); // Always show add more button
+    });
 
-      // Clear previous options
-      servicesSelect.innerHTML = '<option value="">Select a service</option>';
+    // Remove service count info div if it exists
+    const serviceCountInfo = document.getElementById('serviceCountInfo');
+    if (serviceCountInfo) {
+        serviceCountInfo.remove();
+    }
 
-      if (!categoryId) return;
-      // Filter services for selected category
-      const categoryServices = allServices.filter(
-        (service) => service.category && service.category._id &&
-          service.category._id.toString() === categoryId
-      );
-      // Add filtered services to select element
-      categoryServices.forEach((service) => {
-        const option = document.createElement("option");
-        option.value = service._id;
-        option.textContent = service.name;
-        servicesSelect.appendChild(option);
+    // Handle Add More Services button
+    addMoreBtn.addEventListener('click', function() {
+        formCount++;
+        const newForm = createServiceForm(formCount);
+        serviceForms.appendChild(newForm);
+        initializeForm(newForm);
+    });
+
+    // Initialize first form
+    initializeForm(document.getElementById('serviceForm-1'));
+
+    function updateServicesDropdown(select) {
+        select.innerHTML = '<option value="">Select a service</option>';
+        if (!selectedCategory) return;
+
+        const categoryServices = allServices.filter(
+            service => service.category && 
+            service.category._id === selectedCategory
+        );
+
+        categoryServices.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service._id;
+            option.textContent = service.name;
+            select.appendChild(option);
+        });
+    }
+
+    function createServiceForm(index) {
+      const form = document.createElement('form');
+      form.id = `serviceForm-${index}`;
+      form.className = 'service-form needs-validation mt-4';
+      form.noValidate = true;
+
+      form.innerHTML = `
+        <div class="form-group mb-4">
+          <label for="services-${index}" class="form-label fw-semibold">
+            <i class="fas fa-tools text-primary me-2"></i>Select Service
+          </label>
+          <select name="services" class="form-select form-select-lg shadow-sm" id="services-${index}" required>
+            <option value="">Select a service</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <label for="cost-${index}" class="form-label fw-semibold">
+              <i class="fas fa-rupee-sign text-primary me-2"></i>Cost
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">₹</span>
+              <input type="number" name="cost" class="form-control form-control-lg shadow-sm" required />
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <label for="experience-${index}" class="form-label fw-semibold">
+              <i class="fas fa-star text-primary me-2"></i>Experience
+            </label>
+            <div class="input-group">
+              <input type="text" name="experience" class="form-control form-control-lg shadow-sm" required />
+              <span class="input-group-text">years</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <button class="btn btn-primary btn-lg" type="submit">
+            <i class="fas fa-plus-circle me-2"></i>Add Service
+          </button>
+        </div>
+      `;
+
+      return form;
+    }
+
+    function initializeForm(form) {
+      const servicesSelect = form.querySelector('select[name="services"]');
+      updateServicesDropdown(servicesSelect);
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await submitForm(this);
       });
     }
 
-    // Add form validation
-    (function () {
-      "use strict";
-      const form = document.querySelector(".needs-validation");
+    async function submitForm(form) {
+        try {
+            const formData = new FormData(form);
+            
+            const payload = {
+                serviceCategories: selectedCategory,
+                services: formData.get('services'),
+                cost: formData.get('cost'),
+                experience: formData.get('experience')
+            };
 
-      form.addEventListener(
-        "submit",
-        function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-          form.classList.add("was-validated");
-        },
-        false
-      );
-    })();
-  </script>
+            // Validate fields
+            if (!payload.serviceCategories || !payload.services || !payload.cost || !payload.experience) {
+                showAlert(form, 'danger', 'Please fill all required fields');
+                return false;
+            }
+
+            const response = await fetch('/dashboard/registerService', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert(form, 'success', 'Service added successfully!');
+                
+                // Only disable the current form's inputs and button
+                form.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+                
+                // Keep the Add More button visible and enabled
+                const addMoreBtn = document.getElementById('addMoreBtn');
+                if (addMoreBtn) {
+                    addMoreBtn.classList.remove('d-none');
+                    addMoreBtn.disabled = false;
+                }
+                
+                // Remove the used service from dropdowns in other forms
+                const serviceId = formData.get('services');
+                document.querySelectorAll('select[name="services"]').forEach(select => {
+                    if (!select.disabled) {  // Only remove from enabled dropdowns
+                        const option = select.querySelector(`option[value="${serviceId}"]`);
+                        if (option) option.remove();
+                    }
+                });
+                
+                return true;
+            } else {
+                showAlert(form, 'danger', result.message || 'Failed to add service');
+                return false;
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showAlert(form, 'danger', 'Failed to add service. Please try again.');
+            return false;
+        }
+    }
+
+    function showAlert(form, type, message) {
+        // Remove existing alerts
+        const existingAlert = form.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        form.insertBefore(alert, form.firstChild);
+
+        // Auto-dismiss success alert after 3 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 150);
+            }, 3000);
+        }
+    }
+  });
+</script>

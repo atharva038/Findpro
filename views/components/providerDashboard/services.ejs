@@ -1,9 +1,16 @@
 <section id="services" class="dashboard-section">
   <div class="section-header">
     <h2><i class="fas fa-tools me-2"></i>My Services</h2>
+    <% 
+    const hasFullCategories = provider.servicesOffered.every(group => 
+      group.services && group.services.length >= 5
+    );
+    if (!hasFullCategories) { 
+  %>
     <a href="/dashboard/registerService" class="btn btn-primary">
       <i class="fas fa-plus-circle me-2"></i>Add New Service
     </a>
+      <% } %>
   </div>
 
   <% if (provider && provider.servicesOffered && provider.servicesOffered.length
@@ -41,6 +48,7 @@
           data-bs-parent="#servicesAccordion"
         >
           <div class="accordion-body p-0">
+            
             <div class="services-grid">
               <% if (categoryGroup.services && categoryGroup.services.length >
               0) { %> <% categoryGroup.services.forEach(function(serviceItem) {
@@ -324,6 +332,18 @@
       grid-template-columns: 1fr;
     }
   }
+
+
+   .alert {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  
+
 </style>
 
 <script>
@@ -478,4 +498,67 @@
       });
     });
   });
+
+      function updateServiceCountBadges() {
+      // document.querySelectorAll('.category-group').forEach(group => {
+      //   const services = group.querySelectorAll('.service-card');
+      //   const countBadge = group.querySelector('.service-count');
+        
+      //   if (countBadge) {
+      //     const count = services.length;
+      //     countBadge.textContent = count;
+          
+      //     if (count >= 5) {
+      //       countBadge.classList.add('limit-reached');
+      //     } else {
+      //       countBadge.classList.remove('limit-reached');
+      //     }
+      //   }
+      // });
+    }
+
+    // Call initially and after any service changes
+    updateServiceCountBadges();
+
+    // Update add service button visibility
+    function updateAddServiceButton(categoryId) {
+      // const addButtons = document.querySelectorAll(`a[href*="/dashboard/registerService"][href*="${categoryId}"]`);
+      // const category = document.querySelector(`[data-category="${categoryId}"]`);
+      
+      // if (category) {
+      //   const serviceCount = category.querySelectorAll('.service-card').length;
+      //   addButtons.forEach(button => {
+      //     if (serviceCount >= 5) {
+      //       button.style.display = 'none';
+      //     } else {
+      //       button.style.display = 'inline-flex';
+      //     }
+      //   });
+      // }
+    }
+
+    // Call after service deletion
+    confirmDeleteBtn.addEventListener("click", async function () {
+    try {
+        const response = await fetch(`/dashboard/service/delete/${serviceIdToDelete}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ categoryId: categoryIdToDelete }),
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.message || "Failed to delete service");
+        }
+    } catch (error) {
+        console.error("Error deleting service:", error);
+        alert("An error occurred while deleting service");
+    } finally {
+        deleteModal.hide();
+    }
+});
 </script>

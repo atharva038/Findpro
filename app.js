@@ -29,6 +29,7 @@ const addRoutes = require("./routes/admin/add.js");
 const feedbackRoutes = require('./routes/feedback.js');
 const chatRoutes = require('./routes/chat.js');
 const complaintsRoutes = require('./routes/complaints.js');
+const serviceApiRoutes = require('./routes/api/service');
 // Database connection
 
 // Update the database connection section
@@ -151,8 +152,7 @@ function setCurrentProvider(req, res, next) {
     res.locals.currProvider = req.user;
   }
   if (req.isAuthenticated() && req.user.role === "customer") {
-    // If the logged-in user is a provider, set res.locals.currProvider
-    res.locals.currCustomer = req.user;
+    // If the logged-in user is a provider, set res.locals.currCustomer = req.user;
   }
   next();
 }
@@ -195,6 +195,35 @@ passport.use(new LocalStrategy(
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// Add this before your routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Add before your routes
+app.use('/dashboard/*', (req, res, next) => {
+    if (!req.isAuthenticated()) {
+        if (req.xhr || req.headers.accept?.includes('json')) {
+            return res.status(401).json({
+                success: false,
+                message: "Session expired"
+            });
+        }
+        return res.redirect('/login');
+    }
+    next();
+});
+
+// Add error logging middleware
+app.use((err, req, res, next) => {
+  console.error('Express error:', err);
+  if (!res.headersSent) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
 //Routes
 
 app.get("/", (req, res) => {
@@ -218,13 +247,24 @@ app.use("/dashboard", dashboardRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/booking', bookingRoutes);
-app.use('/payment', paymentRoutes);
-app.use('/profile', profileRoutes);
-app.use('/feedback', feedbackRoutes);
-app.use('/api/bookings', bookingApiRoutes);
-app.use('/complaints', complaintsRoutes);
-app.use('/', chatRoutes);
-app.use('/', addRoutes);
+
+
+
+
+
+
+
+
+
+app.use('/api', serviceApiRoutes);app.use('/', addRoutes);app.use('/', chatRoutes);app.use('/complaints', complaintsRoutes);app.use('/api/bookings', bookingApiRoutes);app.use('/feedback', feedbackRoutes);app.use('/profile', profileRoutes);app.use('/payment', paymentRoutes);// Add error logging middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error'
+  });
+});
+
 // Listen on port
 app.listen(3000, () => {
   console.log("Server started on port 3000");
