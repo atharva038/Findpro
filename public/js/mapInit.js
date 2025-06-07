@@ -39,7 +39,7 @@ window.waitForGoogleMaps = function (callback) {
     }
 };
 
-// Function to load Google Maps API if it's not already loaded
+// Update the loadGoogleMapsAPI function
 window.loadGoogleMapsAPI = function (apiKey, mapId) {
     // Save these globally
     window.googleMapsApiKey = apiKey;
@@ -51,17 +51,21 @@ window.loadGoogleMapsAPI = function (apiKey, mapId) {
         return;
     }
 
-    // Create the script element with recommended loading pattern
+    // Create the script element with optimized loading pattern
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=initGoogleMapsAPI&loading=async`;
     script.async = true;
     script.defer = true;
 
+    // Add error handling
+    script.onerror = function () {
+        console.error('Failed to load Google Maps API');
+    };
+
     // Add to document
     document.head.appendChild(script);
-    console.log('Google Maps API script added to document head');
+    console.log('Google Maps API script added to document head with async loading');
 };
-
 // Helper function to create a map with proper settings for Advanced Markers
 window.createAdvancedMap = function (element, options = {}) {
     // Make sure we have required options

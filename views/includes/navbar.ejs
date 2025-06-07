@@ -638,7 +638,8 @@
   }
 </style>
 
-<!-- Update the initializeLocationDisplay function in the navbar script -->
+<!-- Load axios from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -750,7 +751,7 @@
         localStorage.setItem('firstVisitDate', new Date().toISOString());
       }
 
-      // NEW: Get location from URL parameters
+      // Get location from URL parameters
       function getLocationFromURL() {
         try {
           const urlParams = new URLSearchParams(window.location.search);
@@ -776,7 +777,7 @@
         return null;
       }
 
-      // UPDATED: Initialize location display and handle first visit
+      // Initialize location display and handle first visit
       function initializeLocationDisplay() {
         console.log('Initializing location display');
 
@@ -791,6 +792,7 @@
           const storedLocation = getStoredLocation();
           if (!storedLocation || !storedLocation.manuallySet) {
             storeLocationInStorage(urlLocation);
+            updateServerLocation(urlLocation);
           }
           return;
         }
@@ -801,6 +803,8 @@
           currentLocation = storedLocation;
           updateLocationDisplay(storedLocation.city, 'success');
           console.log('Using stored location:', storedLocation.city);
+          // Update server with stored location
+          updateServerLocation(storedLocation);
           return;
         }
 
@@ -904,7 +908,14 @@
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        // For now, let's create a fallback location
+        // Store coordinates globally for use in service searches
+        window.userLocation = {
+          latitude: lat,
+          longitude: lng,
+          timestamp: Date.now()
+        };
+
+        // Create initial location with coordinates
         const cityName = 'Location (' + lat.toFixed(2) + ', ' + lng.toFixed(2) + ')';
 
         currentLocation = {
@@ -917,33 +928,36 @@
 
         updateLocationDisplay(cityName, 'success');
         storeLocationInStorage(currentLocation);
+        updateServerLocation(currentLocation);
 
         console.log('Location successfully detected:', cityName);
 
-        // Try to get proper address from reverse geocoding
-        fetch('/api/location/reverse-geocode?lat=' + lat + '&lng=' + lng)
+        // Try to get proper address from reverse geocoding using axios
+        axios.get('/api/location/reverse-geocode', {
+          params: {
+            lat: lat,
+            lng: lng
+          },
+          timeout: 10000
+        })
           .then(function (response) {
-            if (!response.ok) {
-              throw new Error('HTTP error! status: ' + response.status);
-            }
-            return response.json();
-          })
-          .then(function (data) {
-            console.log('Reverse geocoding response:', data);
+            console.log('Reverse geocoding response:', response.data);
 
-            if (data.success && data.address) {
-              currentLocation.city = data.address;
-              currentLocation.fullAddress = data.fullAddress || data.address;
-              updateLocationDisplay(data.address, 'success');
+            if (response.data.success && response.data.address) {
+              currentLocation.city = response.data.address;
+              currentLocation.fullAddress = response.data.fullAddress || response.data.address;
+              updateLocationDisplay(response.data.address, 'success');
               storeLocationInStorage(currentLocation);
-            } else if (data.data && data.data.results && data.data.results[0]) {
-              const address = data.data.results[0];
+              updateServerLocation(currentLocation);
+            } else if (response.data.data && response.data.data.results && response.data.data.results[0]) {
+              const address = response.data.data.results[0];
               const city = extractCityFromAddress(address);
 
               currentLocation.city = city;
               currentLocation.fullAddress = address.formatted_address;
               updateLocationDisplay(city, 'success');
               storeLocationInStorage(currentLocation);
+              updateServerLocation(currentLocation);
             }
 
             // Update providers if on services page
@@ -954,6 +968,30 @@
           .catch(function (error) {
             console.error('Reverse geocoding failed:', error);
             // Keep the coordinates-based location
+          });
+      }
+
+      // Update server location using axios
+      function updateServerLocation(location) {
+        if (!location || !location.coordinates) {
+          console.warn('Cannot update server location - invalid location data');
+          return;
+        }
+
+        axios.post('/services/update-location', {
+          latitude: location.coordinates.lat,
+          longitude: location.coordinates.lng
+        }, {
+          timeout: 5000,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(function (response) {
+            console.log('Server location updated successfully:', response.data);
+          })
+          .catch(function (error) {
+            console.warn('Failed to update server location:', error.message);
           });
       }
 
@@ -985,7 +1023,7 @@
         localStorage.setItem('hasSeenLocationToast', 'true');
       }
 
-      // Search for locations
+      // Search for locations using axios
       function searchLocations() {
         const query = locationSearch ? locationSearch.value.trim() : '';
 
@@ -996,17 +1034,19 @@
 
         console.log('Searching for locations:', query);
 
-        fetch('/api/location/suggestions?query=' + encodeURIComponent(query))
+        axios.get('/api/location/suggestions', {
+          params: {
+            query: query
+          },
+          timeout: 8000
+        })
           .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            console.log('Location search response:', data);
+            console.log('Location search response:', response.data);
 
-            if (data.status === 'success' && data.data.predictions) {
-              displayLocationSuggestions(data.data.predictions);
-            } else if (data.predictions) {
-              displayLocationSuggestions(data.predictions);
+            if (response.data.status === 'success' && response.data.data.predictions) {
+              displayLocationSuggestions(response.data.data.predictions);
+            } else if (response.data.predictions) {
+              displayLocationSuggestions(response.data.predictions);
             } else {
               // Fallback suggestion
               displayLocationSuggestions([{
@@ -1079,7 +1119,7 @@
         console.log('Selected location:', selectedLocation);
       }
 
-      // Save selected location
+      // Save selected location using axios
       function saveSelectedLocation() {
         if (!selectedLocation) {
           alert('Please select a location first');
@@ -1092,29 +1132,32 @@
           currentLocation = {
             city: selectedLocation.city,
             fullAddress: selectedLocation.description,
-            coordinates: { lat: 28.6139, lng: 77.2090 },
+            coordinates: { lat: 28.6139, lng: 77.2090 }, // Default to Delhi
             manuallySet: true,
             setAt: new Date().toISOString()
           };
 
           updateLocationDisplay(currentLocation.city, 'success');
           storeLocationInStorage(currentLocation);
+          updateServerLocation(currentLocation);
           if (locationModal) locationModal.hide();
 
           console.log('Manual location saved:', currentLocation);
           updateProvidersForLocation(currentLocation);
           showLocationSuccessToast(currentLocation.city);
         } else {
-          // Try to get details for the place
-          fetch('/api/location/place-details?placeId=' + selectedLocation.placeId)
+          // Try to get details for the place using axios
+          axios.get('/api/location/place-details', {
+            params: {
+              placeId: selectedLocation.placeId
+            },
+            timeout: 8000
+          })
             .then(function (response) {
-              return response.json();
-            })
-            .then(function (data) {
-              console.log('Place details response:', data);
+              console.log('Place details response:', response.data);
 
-              if (data.status === 'success' && data.data.result && data.data.result.geometry) {
-                const location = data.data.result;
+              if (response.data.status === 'success' && response.data.data.result && response.data.data.result.geometry) {
+                const location = response.data.data.result;
                 currentLocation = {
                   city: selectedLocation.city,
                   fullAddress: location.formatted_address,
@@ -1138,6 +1181,7 @@
 
               updateLocationDisplay(currentLocation.city, 'success');
               storeLocationInStorage(currentLocation);
+              updateServerLocation(currentLocation);
               if (locationModal) locationModal.hide();
 
               console.log('Location saved:', currentLocation);
@@ -1158,6 +1202,7 @@
 
               updateLocationDisplay(currentLocation.city, 'success');
               storeLocationInStorage(currentLocation);
+              updateServerLocation(currentLocation);
               if (locationModal) locationModal.hide();
 
               updateProvidersForLocation(currentLocation);
